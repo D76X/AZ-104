@@ -13,40 +13,89 @@
 
 ### [Folge 5 - PowerShell - Benutzer und Gruppen](https://www.youtube.com/watch?v=mAGH6NjCbdQ)   
 
-[10_UserOperations_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/10_UserOperations_tw.ps1)  
 
 
-#### PowerShell: mit PowerShell Moduln arbeiten
+---
 
-```
-Get-Help Get-InstalledModule
-Get-InstalledModule 
-Get-InstalledModule -Name 'Az'
-Install-Module -Name AzureAD -AllowClobber -Force -Verbose
-# Update-Module -Name SpeculationControl -RequiredVersion 1.0.14
-```
+#### PowerShell: Gruppe erstellen
 
-#### PowerShell: auf Azure AD authentifizieren
+[11_GroupOperations_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/11_GroupOperations_tw.ps1)  
 
 ```
-# username and password to login to AzureAD
-# https://stackoverflow.com/questions/58552071/connect-to-azure-ad-from-powershell-without-prompt
-# getting into Azure AD or Azure using password based credentials may no lonher work
-# since MFA has been set as a default nad may result in ADXXX errors
-$Credential = Get-Credential #
-Connect-AzureAD $Credential
+Get-AzureADGroup -SearchString "Administrator"   
+Get-AzureADGroup -Filter "DisplayName eq 'Administrator'"
+````
 
-# just use this and log in to Azure AD from the prompt with a user that has the
-# roles that you need to perform the operations of interest.
-Connect-AzureAD 
+```
+Clear-Host
+Set-Location c:\
 
-# VERIFY
-Get-AzureADUser
+#Log into Azure
+Connect-AzureAD
+
+#Get all the groups in Azure AD Tenant
+Get-AzureADGroup
+
+#Create a new group
+$group = @{
+    DisplayName = "Fred Group"
+    MailEnabled = $false
+    MailNickName = "FredGroup"
+    SecurityEnabled = $true
+}
+
+$newGroup = New-AzureADGroup @group
+Get-AzureADGroup -Filter "DisplayName eq 'Fred Group'" 
+
+#Update the group description
+Set-AzureADGroup -ObjectId $newGroup.ObjectId -Description "Group for Fred to use."
+
+#Set Fred as the owner
+$fred = Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'"
+
+Add-AzureADGroupOwner -ObjectId $newGroup.ObjectId -RefObjectId $fred.ObjectId
+Get-AzureADGroupOwner -ObjectId $newGroup.ObjectId
+# Fred is Owner but not a member!
+Get-AzureADUserMembership -ObjectId $fred.ObjectId 
+
+
+
+# test the membership of a user on a group
+Get-AzureADUserMembership -ObjectId -RefObjectId $fred.ObjectId
+
+
+#Add users to the group
+$users = Get-AzureADUser -Filter "State eq 'SO'"
+
+foreach($user in $users){
+    Add-AzureADGroupMember -ObjectId $newGroup.ObjectId -RefObjectId $user.ObjectId
+}
+
+$group = Get-AzureADGroup -SearchString "Fred Group"
+
+#Get all members and the owner
+Get-AzureADGroupMember -ObjectId $group.ObjectId
+
+#AzureADPreview Only
+$dynamicGroup = @{
+    DisplayName = "Marketing Group"
+    MailEnabled = $false
+    MailNickName = "MarketingGroup"
+    SecurityEnabled = $true
+    Description = "Dynamic group for Marketing"
+    GroupTypes = "DynamicMembership"
+    MembershipRule = "(user.department -contains ""Marketing"")"
+    MembershipRuleProcessingState = "On"
+}
+
+New-AzureADMSGroup @dynamicGroup
 ```
 
 ---
 
 #### PowerShell: einen Benutzer erstellen
+
+[10_UserOperations_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/10_UserOperations_tw.ps1)  
 
 ```
 Clear-Host
@@ -88,6 +137,38 @@ $newUser = New-AzureADUser @user
 $newUser | Format-List
 Get-AzureADUser -SearchString "Fred Prefect"
 Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'"
+```
+
+---
+
+[10_UserOperations_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/10_UserOperations_tw.ps1)  
+
+#### PowerShell: mit PowerShell Moduln arbeiten
+
+```
+Get-Help Get-InstalledModule
+Get-InstalledModule 
+Get-InstalledModule -Name 'Az'
+Install-Module -Name AzureAD -AllowClobber -Force -Verbose
+# Update-Module -Name SpeculationControl -RequiredVersion 1.0.14
+```
+
+#### PowerShell: auf Azure AD authentifizieren
+
+```
+# username and password to login to AzureAD
+# https://stackoverflow.com/questions/58552071/connect-to-azure-ad-from-powershell-without-prompt
+# getting into Azure AD or Azure using password based credentials may no lonher work
+# since MFA has been set as a default nad may result in ADXXX errors
+$Credential = Get-Credential #
+Connect-AzureAD $Credential
+
+# just use this and log in to Azure AD from the prompt with a user that has the
+# roles that you need to perform the operations of interest.
+Connect-AzureAD 
+
+# VERIFY
+Get-AzureADUser
 ```
 
 ---
