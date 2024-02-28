@@ -61,7 +61,6 @@ $PasswordProfile.Password = "agxsFX72xwsSAi"
 
 #Find an existing user
 Get-AzureADUser -SearchString "FR"
-
 Get-AzureADUser -Filter "State eq 'SO'"
 
 #Creating a new user
@@ -87,6 +86,8 @@ $user = @{
 $newUser = New-AzureADUser @user
 
 $newUser | Format-List
+Get-AzureADUser -SearchString "Fred Prefect"
+Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'"
 ```
 
 ---
