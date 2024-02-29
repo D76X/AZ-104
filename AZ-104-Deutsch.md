@@ -24,7 +24,9 @@
 ```
 Get-AzureADGroup -SearchString "Administrator"   
 Get-AzureADGroup -Filter "DisplayName eq 'Administrator'"
-````
+```
+
+> einen Benutzer als Besitzer einer Gruppe hinzufügen
 
 ```
 Clear-Host
@@ -44,25 +46,40 @@ $group = @{
     SecurityEnabled = $true
 }
 
-$newGroup = New-AzureADGroup @group
+$fredGroup = New-AzureADGroup @group
 Get-AzureADGroup -Filter "DisplayName eq 'Fred Group'" 
 
 #Update the group description
-Set-AzureADGroup -ObjectId $newGroup.ObjectId -Description "Group for Fred to use."
+Set-AzureADGroup -ObjectId $fredGroup.ObjectId -Description "Group for Fred to use."
 
 #Set Fred as the owner
 $fred = Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'"
 
-Add-AzureADGroupOwner -ObjectId $newGroup.ObjectId -RefObjectId $fred.ObjectId
-Get-AzureADGroupOwner -ObjectId $newGroup.ObjectId
-# Fred is Owner but not a member!
+Add-AzureADGroupOwner -ObjectId $fredGroup.ObjectId -RefObjectId $fred.ObjectId
+Get-AzureADGroupOwner -ObjectId $fredGroup.ObjectId
+
+#Fred is Owner but not a member!
+# Der Benutzer Fred ist der Besitzer der Gruppe aber er ist keines Mitglied
 Get-AzureADUserMembership -ObjectId $fred.ObjectId 
 
+```
 
+> einen Benutzer als Mitglied zu einer Gruppe hinzufügen
 
-# test the membership of a user on a group
-Get-AzureADUserMembership -ObjectId -RefObjectId $fred.ObjectId
+```
+$tim = Get-AzureADUser -Filter "DisplayName eq 'Tim Jones'"
+$tim
+$tim | Format-List
 
+Get-AzureADGroupMember -ObjectId $fredGroup.ObjectId
+Add-AzureADGroupMember -ObjectId $fredGroup.ObjectId -RefObjectId $tim.ObjectId
+Get-AzureADGroupMember -ObjectId $fredGroup.ObjectId
+
+```
+
+> vielen Benutzer gleichzeitich als Mitglieder zu einer Gruppe hinzufügen
+
+```
 
 #Add users to the group
 $users = Get-AzureADUser -Filter "State eq 'SO'"
@@ -75,6 +92,11 @@ $group = Get-AzureADGroup -SearchString "Fred Group"
 
 #Get all members and the owner
 Get-AzureADGroupMember -ObjectId $group.ObjectId
+```
+
+> dynamic grouppe
+
+```
 
 #AzureADPreview Only
 $dynamicGroup = @{
@@ -89,6 +111,8 @@ $dynamicGroup = @{
 }
 
 New-AzureADMSGroup @dynamicGroup
+
+
 ```
 
 ---
@@ -96,6 +120,9 @@ New-AzureADMSGroup @dynamicGroup
 #### PowerShell: einen Benutzer erstellen
 
 [10_UserOperations_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/10_UserOperations_tw.ps1)  
+
+
+> ein Benutzer hinzufügen
 
 ```
 Clear-Host
@@ -137,6 +164,37 @@ $newUser = New-AzureADUser @user
 $newUser | Format-List
 Get-AzureADUser -SearchString "Fred Prefect"
 Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'"
+
+```
+
+> einen zweite Benutzer hinzufügen
+
+```
+$user = @{
+    City = "Bolzano"
+    Country = "Italy"
+    Department = "Information Technology"
+    DisplayName = "Tim Jones"
+    GivenName = "Time"
+    JobTitle = "User"
+    UserPrincipalName = "timJones@$domain"
+    PasswordProfile = $PasswordProfile
+    PostalCode = "39040"
+    State = "BZ"
+    StreetAddress = "Kappelleweg"
+    Surname = "Jones"
+    TelephoneNumber = "455-233-23"
+    MailNickname = "timJones"
+    AccountEnabled = $true
+    UsageLocation = "IT"
+}
+
+$newUser = New-AzureADUser @user
+$newUser | Format-List
+Get-AzureADUser
+Get-AzureADUser -SearchString "Tim Jones"
+Get-AzureADUser -Filter "DisplayName eq 'Tim Jones'"
+
 ```
 
 ---
