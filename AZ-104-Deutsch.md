@@ -11,9 +11,41 @@
 
 ---
 
+### [Folge 8 - Benutzerdefinierte RBAC](https://www.youtube.com/watch?v=1EAUzEQqpfc)
+
+[4_Create_Custom_Role_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/14_Create_Custom_Role_tw.ps1)  
+
+```
+﻿Clear-Host
+Set-Location c:\
+
+Connect-AzAccount
+
+Get-AzSubscription
+
+Get-AzRoleDefinition | ft
+ 
+$customrole = Get-AzRoleDefinition "Virtual Machine Contributor"
+$customrole.Id = $null
+$customrole.Name = "Virtual Machine Starter"
+$customrole.Description = "Provides the ability to start a virtual machine."
+$customrole.Actions.Clear()
+$customrole.Actions.Add("Microsoft.Storage/*/read")
+$customrole.Actions.Add("Microsoft.Network/*/read")
+$customrole.Actions.Add("Microsoft.Compute/*/read")
+$customrole.Actions.Add("Microsoft.Compute/virtualMachines/start/action")
+$customrole.Actions.Add("Microsoft.Authorization/*/read")
+$customrole.Actions.Add("Microsoft.Resources/subscriptions/resourceGroups/read")
+$customrole.Actions.Add("Microsoft.Insights/alertRules/*")
+$customrole.AssignableScopes.Clear()
+$customrole.AssignableScopes.Add("/subscriptions/<ihre Subscription ID>")
+ 
+New-AzRoleDefinition -Role $customrole 
+```
+
+---
+
 ### [Folge 5 - PowerShell - Benutzer und Gruppen](https://www.youtube.com/watch?v=mAGH6NjCbdQ)   
-
-
 
 ---
 
@@ -194,6 +226,7 @@ $newUser | Format-List
 Get-AzureADUser
 Get-AzureADUser -SearchString "Tim Jones"
 Get-AzureADUser -Filter "DisplayName eq 'Tim Jones'"
+Get-AzureADUser -Filter "DisplayName eq 'Fred Prefect'" | Select-Object DisplayName, State, Department
 
 ```
 
