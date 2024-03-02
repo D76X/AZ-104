@@ -38,6 +38,8 @@ Get-AzContext
 # fähig sein etwas auf Azure zu machen. Es gibt, beispielweise Provider um virtuelle Maschinen
 # oder auch Netzwerke usw. zu erstellen.
 # In dem folgendedn Beispiel wir lenken die Ausgabe des Befehls in eine formattierte Tabelle
+# 'Microsoft.Support/*' meint alle Befehlen die im Zussamenhang mit ITSM Systeme und 
+# Benutzerunterstützung stehen.
 
 Get-AzProviderOperation 'Microsoft.Support/*' | FT Operation, Description -AutoSize
 
