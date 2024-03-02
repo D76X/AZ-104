@@ -55,6 +55,17 @@ Get-AzRoleDefinition -Name "Reader" | ConvertTo-Json | Out-File "C:\Temp\AZ-104\
 
 New-AzRoleDefinition -InputFile "C:\Temp\AZ-104\Reader-Custom.json"
 
+# alle von die Custom-Rollen bekommen
+Get-AzRoleDefinition | ? {$_.IsCustom -eq $true} | FT Name, IsCustom
+
+# eine Rolle beim Name bekommen un die Asgabe des Befehls auf dem
+# Bildschirm lenken
+Get-AzRoleDefinition "Reader supprt Tickets"
+
+# eine Rolle beim Id erlöchem
+Remove-AzRoleDefinition -Id "a1...89t"
+
+
 ```
 
 ```
