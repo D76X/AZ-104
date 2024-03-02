@@ -16,12 +16,36 @@
 [4_Create_Custom_Role_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/14_Create_Custom_Role_tw.ps1)  
 
 ```
+# räume Sie das Bildschirm auf
 ﻿Clear-Host
+# setze Sie den Fokus auf dem Laufwerk c:\
 Set-Location c:\
 
-Connect-AzAccount
+# How to prevent error "WARNING: Unable to acquire token for tenant 'tenantid'" when running Powershell scripts in Azure
+# https://stackoverflow.com/questions/58762844/how-to-prevent-error-warning-unable-to-acquire-token-for-tenant-tenantid-wh
+# When i am trying to connect to my azure portal through powershell iam getting the error: WARNING: Unable to acquire token for tenant
+# https://learn.microsoft.com/en-us/answers/questions/162802/when-i-am-trying-to-connect-to-my-azure-portal-thr
+# Connect-AzAccount
+# Get-AzSubscription
 
-Get-AzSubscription
+# der folgende Befehl funktioniert:
+Connect-AzAccount -Subscription d..5b -TenantId 9..bc
+
+# das Context läßt sich ganz einfach überprüfen
+Get-AzContext
+
+# Wir brauchen Informationen zu Providers, die die Objekte sind, dass 
+# fähig sein etwas auf Azure zu machen. Es gibt, beispielweise Provider um virtuelle Maschinen
+# oder auch Netzwerke usw. zu erstellen.
+# In dem folgendedn Beispiel wir lenken die Ausgabe des Befehls in eine formattierte Tabelle
+
+Get-AzProviderOperation 'Microsoft.Support/*' | FT Operation, Description -AutoSize
+
+# wir könnte die Definition eine neue Rolle auf eine bestehende Rolle basieren,
+# deshalb möchten wir zuerst die entsprechende Json-Datei herunterladen und auf 
+# einem lokalen Verzeichnis abspeichern.
+# Wir erreichen diesen Ziel durch den folgende Befehl:
+Get-AzRoleDefinition -Name "Reader" | ConvertTo-Json | Out-File "C:\Temp\AZ-104\Reader"
 
 Get-AzRoleDefinition | ft
  
