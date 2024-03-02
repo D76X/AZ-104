@@ -38,8 +38,8 @@ Get-AzContext
 # fähig sein etwas auf Azure zu machen. Es gibt, beispielweise Provider um virtuelle Maschinen
 # oder auch Netzwerke usw. zu erstellen.
 # In dem folgendedn Beispiel wir lenken die Ausgabe des Befehls in eine formattierte Tabelle
-# 'Microsoft.Support/*' meint alle Befehlen die im Zussamenhang mit ITSM Systeme und 
-# Benutzerunterstützung stehen.
+# 'Microsoft.Support/*' meint alle Befehlen und Funktionen die im Zusammenhang mit ITSM 
+# Systeme und Benutzerunterstützung stehen.
 
 Get-AzProviderOperation 'Microsoft.Support/*' | FT Operation, Description -AutoSize
 
@@ -47,7 +47,17 @@ Get-AzProviderOperation 'Microsoft.Support/*' | FT Operation, Description -AutoS
 # deshalb möchten wir zuerst die entsprechende Json-Datei herunterladen und auf 
 # einem lokalen Verzeichnis abspeichern.
 # Wir erreichen diesen Ziel durch den folgende Befehl:
-Get-AzRoleDefinition -Name "Reader" | ConvertTo-Json | Out-File "C:\Temp\AZ-104\Reader"
+Get-AzRoleDefinition -Name "Reader" | ConvertTo-Json | Out-File "C:\Temp\AZ-104\Reader.json"
+
+# Sie können diese Datei bearbeiten um alle nötigen Informationen zu hinzufügen, 
+# außerdem sollen Sie die id erlöschen und IsCustom auf "true" setzen, 
+# dann Sie können die anderen Werten hinzufügen, die die neue Rolle bestimmen. 
+
+New-AzRoleDefinition -InputFile "C:\Temp\AZ-104\Reader-Custom.json"
+
+```
+
+```
 
 Get-AzRoleDefinition | ft
  
