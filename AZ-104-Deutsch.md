@@ -11,6 +11,105 @@
 
 ---
 
+
+[06_Create Azure_VNet.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/06_Create%20Azure_VNet.ps1)  
+
+```
+Set-Location c:\
+Clear-Host
+
+Install-Module -Name Az -Force -AllowClobber -Verbose
+
+Connect-AzAccount
+Get-AzContext
+Get-AzSubscription
+Set-AzContext -Subscription 83bedf1c-859c-471d-831a-fae20a378f44
+#Create a resource group
+New-AzResourceGroup -Name myResourceGroup -Location WestEurope
+
+#Create the virtual network
+$virtualNetwork = New-AzVirtualNetwork `
+  -ResourceGroupName myResourceGroup `
+  -Location WestEurope `
+  -Name myVirtualNetwork `
+  -AddressPrefix 192.168.0.0/16
+
+#Add a subnet
+$subnetConfig = Add-AzVirtualNetworkSubnetConfig `
+  -Name default `
+  -AddressPrefix 192.168.0.0/24 `
+  -VirtualNetwork $virtualNetwork
+
+#Associate the subnet to the virtual network
+$virtualNetwork | Set-AzVirtualNetwork
+
+#Create virtual machines
+New-AzVm `
+    -ResourceGroupName "myResourceGroup" `
+    -Location "WestEurope" `
+    -VirtualNetworkName "myVirtualNetwork" `
+    -SubnetName "default" `
+    -Name "myVm1" `
+    -AsJob
+
+Get-Job
+
+New-AzVm `
+    -ResourceGroupName "myResourceGroup" `
+    -Location "WestEurope" `
+    -VirtualNetworkName "myVirtualNetwork" `
+    -SubnetName "default" `
+    -Name "myVm2"
+
+#Connect to a VM from the internet
+Get-AzPublicIpAddress `
+  -Name myVm1 `
+  -ResourceGroupName myResourceGroup `
+  | Select IpAddress
+
+Get-AzPublicIpAddress `
+  -Name myVm2 `
+  -ResourceGroupName myResourceGroup `
+  | Select IpAddress
+```
+
+
+---
+
+[Add_Tags_RG.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/Add_Tags_RG.ps1)  
+
+```
+Set-Location C:\
+Clear-Host
+Install-Module -Name Az -Force -AllowClobber -Verbose
+
+#Log into Azure
+Connect-AzAccount
+
+#Select the correct subscription
+Get-AzSubscription -SubscriptionName "MSDN Platforms" | Select-AzSubscription
+
+#Tags
+(Get-AzResourceGroup -Name tw-rg01).Tags
+
+(Get-AzResource -ResourceName tw-winsrv -ResourceGroupName tw-rg01).Tags
+
+Set-AzResourceGroup -Name tw-rg01 -Tag @{ costcenter="1987"; ManagedBy="Bob" }
+
+$tags = (Get-AzResourceGroup -Name tw-rg01).Tags
+$tags.Add("Status", "Approved")
+Set-AzResourceGroup -Tag $tags -Name tw-rg01
+
+$r = Get-AzResource -ResourceName tw-winsrv -ResourceGroupName tw-rg01
+Set-AzResource -Tag @{ Dept="IT"; Environment="Test" } -ResourceId $r.ResourceId -Force
+
+$r = Get-AzResource -ResourceName tw-winsrv -ResourceGroupName tw-rg01
+$r.Tags.Add("Status", "Approved")
+Set-AzResource -Tag $r.Tags -ResourceId $r.ResourceId -Force
+```
+
+---
+
 ### [Folge 8 - Benutzerdefinierte RBAC](https://www.youtube.com/watch?v=1EAUzEQqpfc)
 
 [4_Create_Custom_Role_tw.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/14_Create_Custom_Role_tw.ps1)  
