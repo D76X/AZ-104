@@ -61,12 +61,51 @@ $virtualNetwork = New-AzVirtualNetwork `
   -AddressPrefix 192.168.1.0/24 `
   -VirtualNetwork $virtualNetwork
 
+# Associate the subnet to the virtual network
+# den Subnetz wird mit ihrem Netzwerk assoziiert
+# wir müssen hier sämtliche Informationen über das Netzwerk übegeben
+$virtualNetwork | Set-AzVirtualNetwork
+
 # ----------------------------------------------------------------------
 
+#VNet-Peering
 
 
+# ----------------------------------------------------------------------
 
+$virtualNetwork1 = Get-AzVirtualNetwork -Name $ntw1 -ResourceGroupName $rg
+$virtualNetwork2 = Get-AzVirtualNetwork -Name $ntw2 -ResourceGroupName $rg
 
+# Der Behfel ‘Add-AzVirtualNetworkPeering’ mindestens zweimal verwendet müss, 
+# die este Mal um die Verbindung von VNet1 zu VNet2 zu erzeugen, die zweite Mal 
+# um die gleiche Verbindung aber in die umgekehrte Reihenfolge zu erschaffen 
+# d.h. von VNet2 zu VNet1.
+
+# VNet1 zu VNet2
+Add-AzVirtualNetworkPeering `
+  -Name myVirtualNetwork1-myVirtualNetwork2 `
+  -VirtualNetwork $virtualNetwork1 `
+  -RemoteVirtualNetworkId $virtualNetwork2.Id
+
+# Confirm that the peering state
+# PeeringState = Initiated
+Get-AzVirtualNetworkPeering `
+  -ResourceGroupName $rg `
+  -VirtualNetworkName $virtualNetwork1.Name `
+  | Select PeeringState
+
+# VNet2 zu VNet1
+Add-AzVirtualNetworkPeering `
+  -Name myVirtualNetwork1-myVirtualNetwork2 `
+  -VirtualNetwork $virtualNetwork2 `
+  -RemoteVirtualNetworkId $virtualNetwork1.Id
+
+# Confirm that the peering state
+# PeeringState = Connected
+Get-AzVirtualNetworkPeering `
+  -ResourceGroupName $rg `
+  -VirtualNetworkName $virtualNetwork1.Name `
+  | Select PeeringState
 
 
 
