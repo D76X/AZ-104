@@ -107,5 +107,65 @@ Get-AzVirtualNetworkPeering `
   -VirtualNetworkName $virtualNetwork1.Name `
   | Select PeeringState
 
+# Confirm that the peering state
+# PeeringState = Connected
+Get-AzVirtualNetworkPeering `
+  -ResourceGroupName $rg `
+  -VirtualNetworkName $virtualNetwork2.Name `
+  | Select PeeringState
 
+
+# ----------------------------------------------------------------------
+
+# VNet-Peering mit Azure CLI
+# https://learn.microsoft.com/en-us/azure/virtual-network/quick-create-cli
+$ntw3='ntw3'
+az network vnet create --name $ntw3 `
+--resource-group $rg `
+--address-prefixes 10.0.0.0/16 `
+--subnet-name subnet1 `
+--subnet-prefixes 10.0.3.0/24
+
+
+$ntw4='ntw4'
+az network vnet create --name $ntw4 `
+--resource-group $rg `
+--address-prefixes 10.1.0.0/16 `
+--subnet-name subnet1 `
+--subnet-prefixes 10.1.5.0/24
+
+# die ID suchen von unsere Netzwerke suchen
+# man muss auf die Folgende achten: wenn das Script ist in das CloudShell ausgeführt muss \
+# man die Variablenamen nicht mit $ voranstellen
+$vNet3Id=$(az network vnet show --resource-group "$rg" --name "$ntw3" --query id --out tsv)
+$vNet4Id=$(az network vnet show --resource-group "$rg" --name "$ntw4" --query id --out tsv)
+
+‡ https://learn.microsoft.com/en-us/cli/azure/network/vnet/peering?view=azure-cli-latest
+# das Peering vnet3 zu vnet4
+az network vnet peering create --name pring-vnet3-vnet4 `
+--resource-group $rg `
+--vnet-name $ntw3 `
+--remote-vnet $vNet4Id
+
+# "Initiated"
+az network vnet peering show --name pring-vnet3-vnet4 `
+--resource-group $rg `
+--vnet-name $ntw3 `
+--query peeringState
+
+# die Gegenseite des VNet-Peerings
+az network vnet peering create --name pring-vnet4-vnet3 `
+--resource-group $rg `
+--vnet-name $ntw4 `
+--remote-vnet $vNet3Id
+
+# "Connected"
+az network vnet peering show --name pring-vnet3-vnet4 `
+--resource-group $rg `
+--vnet-name $ntw3 `
+--query peeringState
+
+# Achtung: vergessen sie nicht am Schluss das Aufräumen!
+az group delete --name $rg
+# ----------------------------------------------------------------------
 
