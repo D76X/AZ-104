@@ -11,6 +11,10 @@
 
 ---
 
+[Create_NSG_and_associate_to_existing_Subnet.ps1](https://github.com/tomwechsler/Azure_Administrator_Associate/blob/master/Create_NSG_and_associate_to_existing_Subnet.ps1)  
+
+---
+
 [Create_VNet_Peering.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/Create_VNet_Peering.ps1)  
 
 ```

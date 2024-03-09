@@ -165,6 +165,7 @@ az network vnet peering show --name pring-vnet3-vnet4 `
 --vnet-name $ntw3 `
 --query peeringState
 
+# ----------------------------------------------------------------------
 # Achtung: vergessen sie nicht am Schluss das Aufräumen!
 az group delete --name $rg
 # ----------------------------------------------------------------------
