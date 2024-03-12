@@ -15,6 +15,10 @@
 
 ---
 
+[Create_Azure_DNS_zone_record.ps1](https://github.com/tomwechsler/Azure_Administrator_Associate/blob/master/Create_Azure_DNS_zone_record.ps1)  
+
+---
+
 [Create_VNet_Peering.ps1](https://github.com/tomwechsler/Azure_PowerShell_Administration/blob/master/Create_VNet_Peering.ps1)  
 
 ```

@@ -6,10 +6,7 @@ az account show
 az account list --all --output tsv # without headers
 az account set --subcription "Visual Studio Professional with MSDN"
 
-
-Get-AzNetworkSecurityGroup 
-(Get-AzNetworkSecurityGroup).Name 
-(Get-AzNetworkSecurityGroup).ResourceGroupName
+Get-AzNetworkSecurityGroup | Select-Object -Property Name, ResourceGroupName 
 
 # einen RG erstellen
 $rg='az-104-rg'
@@ -30,8 +27,6 @@ az network vnet create --name $ntw1 `
 --address-prefixes 10.0.0.0/16 `
 --subnet-name subnet1 `
 --subnet-prefixes 10.0.3.0/24
-
-az network 
 
 # -------------------------------------------------------------
 
@@ -75,6 +70,13 @@ Set-AzVirtualNetworkSubnetConfig -Name $vNet1Subnetz1.Name `
 -VirtualNetwork $vNet1 `
 -AddressPrefix $vNet1Subnetz1.AddressPrefix `
 -NetworkSecurityGroup $nsg
+
+# das Update zu dem VNet übergeben
+$vNet1 | Set-AzVirtualNetwork
+
+# überprüfung der Zuweisung des NSG zu dem Subnetz
+(Get-AzVirtualNetwork -Name $ntw1).Subnets 
+(Get-AzVirtualNetwork -Name $ntw1).Subnets[0].NetworkSecurityGroup 
 
 # ----------------------------------------------------------------------
 # Achtung: vergessen sie nicht am Schluss das Aufräumen!
