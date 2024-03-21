@@ -80,5 +80,5 @@ $vNet1 | Set-AzVirtualNetwork
 
 # ----------------------------------------------------------------------
 # Achtung: vergessen sie nicht am Schluss das Aufräumen!
-az group delete --name $rg
+az group delete --name $rg  -Force
 # ----------------------------------------------------------------------

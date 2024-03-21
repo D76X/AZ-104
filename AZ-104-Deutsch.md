@@ -4,10 +4,14 @@
 [AZ-104 Study Guide: Azure Administrator](https://www.thomasmaurer.ch/2020/03/az-104-study-guide-azure-administrator/)  
 
 [Tom Wechlser GitHub](https://github.com/tomwechsler)  
-[Tom Wechlser GitHub - AZ-104](https://github.com/tomwechsler/Azure_Administrator_Associate)  
+[Tom Wechlser GitHub - AZ-104 - Azure Administrator Associate](https://github.com/tomwechsler/Azure_Administrator_Associate)  
 [Tom Wechlser GitHub - Azure_PowerShell_Administration](https://github.com/tomwechsler/Azure_PowerShell_Administration)  
 [Tom Wechlser GitHub - Azure_Cloud_Shell](https://github.com/tomwechsler/Azure_Cloud_Shell)
 
+
+---
+
+[Create_VM_add_existing_virtual_Network.ps1](https://github.com/tomwechsler/Azure_Administrator_Associate/blob/master/Create_VM_add_existing_virtual_Network.ps1)  
 
 ---
 

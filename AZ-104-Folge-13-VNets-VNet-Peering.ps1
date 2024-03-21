@@ -167,6 +167,6 @@ az network vnet peering show --name pring-vnet3-vnet4 `
 
 # ----------------------------------------------------------------------
 # Achtung: vergessen sie nicht am Schluss das Aufräumen!
-az group delete --name $rg
+az group delete --name $rg  -Force
 # ----------------------------------------------------------------------
 
