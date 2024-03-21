@@ -5,6 +5,69 @@
 
 ## Q14: 
 
+An international organization has an existing Micorsoft Entra Tenant that gives its 
+users access to cloud-hosted applications and synchronizes with your on-premise 
+Sctive Directory tenant.
+
+Users in the London office have **hybrid user objects** and they have been assigned 
+the **Microsoft Entra ID P1 licence**.
+
+A report from the support team shows that a large number fo tickets have been raised concerning uisers who ask for their apssowrds to be changed. The organization decides to enable **self-service password reset (SSPR)** in order to reduce the number of support tickets.
+
+You enable **SSPR** via teh Azure Portal and assign it to teh **All Users security group**. However, tickets are still being raised by users located 
+in the London office.
+
+You need to find out what causes SSPR not ot work for users located 
+in the London office.
+
+What is the correct root cause?
+
+1. The user group does not include hybrid users
+2. SSPR does not support hybrid users
+3. Password writeback is not enabled
+4. The London office users do not have the correct licence.  
+
+---
+
+### Aswer: Password writeback is not enabled
+
+The root cause of the issue is that **Password writeback is not enabled**
+to allow **hybrid users who use SSPR**.
+
+
+The identity objects of the London users are hosted on the on-premise AD
+which sync with Microsoft Entra ID. When a user of the London office
+changes their passwordit will be updated in their on-prem AD.
+**By default Microsoft Connect** syncronizes password in one direction only:
+from the on-roem AD to MEID.
+
+You must enable password writeback to allow the update of the password
+in MEID from the on-prem AD, as well.
+
+The **All Users group** contains:
+
+- cloud-only members
+- directory synchrionized members (hybrid users)
+- guest users
+
+Thsi group is automaticall created in MEID and it is ine of the 
+default groups to which users within teh tenant are added when they are created.
+
+**SSPR supports hybrid users that are synchronized from an on-prem AD**.
+You must ensure that password writeback is enabled and configured in MEID.
+
+The **Microsoft Entra ID P1 licence** or hiher is required for users to be 
+able to have SSPR.
+
+---
+
+### References
+
+[Tutorial: Enable users to unlock their account or reset passwords using Microsoft Entra self-service password reset](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr)  
+
+[Tutorial: Enable Microsoft Entra self-service password reset writeback to an on-premises environment](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr-writeback)    
+
+
 ---
 
 ## Q4: Case Study
@@ -17,6 +80,7 @@ it cannot be restarted until the following day.
 
 You need to ensure that MyApp can run eight each day during testing period.
 You want to keep the additional cost to a minimum.
+
 
 ---
 
