@@ -1,5 +1,47 @@
 # AZ-104 Practice Test 201 Questions
 
+---
+
+## Q14: 
+
+Your company has a **Microsoft Entra ID Governance** subscription.
+
+You are assigning licenses to individual users using **group-based lisencing** in MEID.
+You use **Microsoft Graph Powershell** cmdlets.
+
+Your PowerShell script fails with a **MutuallyExclusiveVilotion** error.
+
+You need to troubleshoot the issue.
+Wht is the underlying cause for this issue?
+
+1. There are not enough available licences for one of the products specified in the grouop.
+
+2. One of the products specified in the group contains a service plan that conflicts with another service plan that is already assigned to the user via a different product.
+
+3. One of the products specified in teh group is not available in all locations because of local laws and regulations.
+
+4. One of the products specified in the goup contains a service plan that must be enabled for another service plan, in another product, to function.
+
+---
+
+### Answer: 
+2. One of the products specified in the group contains a service plan that conflicts with another service plan that is already assigned to the user via a different product.
+
+> using **group-based lisencing** in MEID
+> assigning licenses to individual users using **group-based lisencing** in MEID.
+
+The underlying ccause for a **MutuallyExclusiveVilotion** error is that a product that is 
+specified in a group to be assigned to the user contains a service plan that is in conflict 
+with the sevice plan for the same product already assigned to a user via another product
+that has alredy been assigned to the user.
+
+---
+
+### References: 
+
+[Identify and resolve license assignment problems for a group in Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/identity/users/licensing-groups-resolve-problems)   
+
+[Microsoft Graph PowerShell group-based licensing examples](https://learn.microsoft.com/en-us/entra/identity/users/licensing-powershell-graph-examples)  
 
 ---
 
