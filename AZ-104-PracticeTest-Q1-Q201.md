@@ -2,7 +2,208 @@
 
 ---
 
-## Q14: 
+## Q16: 
+
+Your organization uses **Micorsoft Entra ID Governance**.
+You are the Azure Administrator in the organization.
+
+You use **Microsoft Graph Powershell** to provide and manage identity and access lifecycle
+at a scale for all users and groups within the organization.
+
+You have a group named Sales.
+You need to grant users in the sales group the adequate level of access 
+using **entitelment management**.
+
+Your organization's policy dictates the use of the **general catalog**.
+
+What should you do firts?
+
+- retrieve the catalog identifier
+- retrieve the resource roles assigned to the catalog
+- add the sales group to the catalog
+- retrieve the catalog resources 
+
+---
+
+### Answer: retrieve the catalog identifier
+
+In this scenario, you are essentially managing access to resources in your organization.
+You use MEID-EM with **Microsoft Graph Powershell v1.0**.
+**Since the users and group already exist**, you need to initiate the process by getting 
+the catalog identifier.
+
+An **Access Package** is a collection of resources that is **governed by policies**.
+**Access Packages** are defined in containered called **Catalogs**.
+
+> You will require the ID of the (General) Catalog.
+
+```
+Get-MgBetaEnitelmentManagementAccessPackageCatalog -Filter "DisplayName eq 'General'" | Format-List
+```
+
+- step1:  retrieve the catalog identifier
+
+The remaining options do not apply as these are the follwing steps in the same workflow:
+
+- step2: add the sales group to the catalog
+- step3: retrieve the catalog resources 
+- step4: retrieve the resource roles assigned to the catalog
+
+The **AP** assigns users to the roles of resources.
+When the type of the resource in the **AP** is a (security) group then the roles that 
+can be assigned are **Administrator Role** or **Member Role**. In this example the role
+to be aasigned to the users that reuest the **AP** is the **Member Role** for 
+the security group Sales. 
+
+---
+
+### References: 
+
+[Tutorial: Manage access to resources in Microsoft Entra entitlement management using Microsoft Graph PowerShell](https://learn.microsoft.com/en-us/powershell/microsoftgraph/tutorial-entitlement-management?view=graph-powershell-1.0) 
+
+---
+
+[Get-MgBetaEntitlementManagementAccessPackageCatalog](https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.beta.identity.governance/get-mgbetaentitlementmanagementaccesspackagecatalog?view=graph-powershell-beta)  
+
+Retrieve the properties and relationships of an accessPackageCatalog object.
+
+[Get-MgEntitlementManagementAccessPackageCatalog](https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.identity.governance/get-mgentitlementmanagementaccesspackagecatalog?view=graph-powershell-1.0)  
+
+Required when creating the access package. Read-only. Nullable.
+
+[Microsoft Graph PowerShell overview](https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview?view=graph-powershell-1.0)  
+
+---
+
+[What is entitlement management?](https://learn.microsoft.com/en-us/entra/id-governance/entitlement-management-overview)    
+
+Entitlement management is an **identity governance feature** that enables organizations to:
+
+- manage identity and access lifecycle at scale
+
+by **automating**:
+
+- access request workflows
+- access assignments
+- access reviews
+- access expiration.
+
+People in organizations to perform their job need access to various:
+
+- groups
+- applications
+- SharePoint Online sites 
+
+Managing this access is challenging, as requirements change.
+This scenario gets more complicated when you collaborate with outside organizations.
+You may not know who in the other organization needs access to your organization's 
+resources, and they won't know what applications, groups, or sites your organization is using.
+
+> Enterprise organizations challenges when managing workforce access to resources:
+
+- Users may not know what access they should have
+- If they do know they may have difficulty locating the right individuals to approve their access
+- Once users find and receive access to a resource, they may hold on to access longer than is required for business purposes
+
+> Addtional challenges for users who need access from another organization:
+
+- No one person may know all of the specific individuals in other organization's directories to be able to invite them
+- Even if they were able to invite these users, no one in that organization may remember to manage all of the users' access consistently
+
+
+
+---
+
+[Microsoft Entra ID Entitelment Management Playlist](https://www.youtube.com/playlist?list=PLrMImf7YaEGVPuywozMQ5MPHVWiGKEzrM)   
+
+---
+
+[What is Microsoft Entra entitlement management?](https://www.youtube.com/watch?v=_Lss6bFrnQ8)   
+
+An Entitelment is a named set of access rights to a set of resources.
+A user, **through a request / approval** process can be granted access to these resources **either**: 
+
+- implicitly
+- or explicitly
+
+[How to deploy Microsoft Entra entitlement management](https://www.youtube.com/watch?v=zaaKvaaYwI4&list=PLrMImf7YaEGVPuywozMQ5MPHVWiGKEzrM&index=2)    
+ 
+---
+
+[Create an access package in entitlement management](https://learn.microsoft.com/en-us/entra/id-governance/entitlement-management-access-package-create)  
+
+An access package enables you to do a **one-time setup of resources and policies** that 
+**automatically** administers access for the life of the access package. 
+
+> Catalogs for Access Packages:
+
+- All access packages must be in a container called a catalog
+- A catalog defines what resources you can add to your access package.
+- If you don't specify a catalog, your access package goes in the general catalog.
+- you can't move an existing access package to a different catalog.
+
+> Management of an AP:
+
+- An access package can be used to **assign access to roles of multiple resources** that are in the catalog.
+- The Admin [**Access Package Manager**] can add resources to the catalog at creation or later
+- If later users assigned to the access package will also receive the additional resources.
+
+> ACM vs Owner:
+
+- the **APM** **cannot** add resources that THEY own to a catalog.
+- the **APM** is restricted to using the resources available in the catalog
+- The **Owner** of catalog **can**  add resources to a catalog
+
+For example, you might have a catalog owner who manages all the marketing resources 
+that can be requested. In this case, you could have a marketing catalog.
+
+The APM see only catalogs that you have permission to create access packages in. 
+
+**To create an access package in an existing catalog** you must BE ANY OF:
+
+- Global Administrator 
+- Identity Governance Administrator 
+- or must be a catalog owner 
+- or access package manager in that catalog
+
+> Who can create a catalog:
+
+- Global Administrator 
+- Identity Governance Administrator 
+
+> AP Policies:
+
+- All access packages must have at least one policy for users to be assigned to them. 
+- When you create an access package, you can create an initial policy for:
+  > users in your directory
+  > users not in your directory
+  > or for administrator direct assignments only
+
+> Policies specify:
+
+- who can request the access package
+- the approval and lifecycle settings
+- how access is automatically assigned
+
+> Workflow:
+
+1. In Identity Governance, start the process to create an access package.
+2. Select the catalog where you want to put the access package and ensure that it has the necessary resources.
+3. Add resource roles from resources in the catalog to your access package.
+4. Specify an initial policy for users who can request access.
+5. Specify approval settings and lifecycle settings in that policy.
+
+> Changes to an AP:
+You can:
+
+-  change the hidden setting
+- add or remove resource roles
+- and add additional policies
+
+
+---
+
+## Q15: 
 
 Your company has a **Microsoft Entra ID Governance** subscription.
 
