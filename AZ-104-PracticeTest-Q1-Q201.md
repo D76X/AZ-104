@@ -1,5 +1,442 @@
 # AZ-104 Practice Test 201 Questions
 
+## Q2X:
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q25:
+
+You have an Azure RG named RG1.
+RG1 contains 12 VMs that run Windows Server or Linux.
+
+You need to use Azure Cloud Shell to lift any resource 
+locks that amy have been applied to the VMs.
+
+How should you colplte the command:
+
+```
+$rg = "rg1"
+OPTIONS-1 | OPTIONS-2 ResorceGroupName - eq "$rg" | OPTIONS-3 -Force
+```
+
+OPTIONS-1
+Get-AzResource
+Get-AzResourceLock
+
+OPTIONS-2
+Select-Object
+Where-Object
+
+OPTIONS-3
+Remove-AzResource
+Remove-AzResourceLock
+
+---
+
+### Answer:
+
+```
+$rg = "rg1"
+Get-AzResourceLock | Where-Object ResorceGroupName - eq "$rg" | Remove-AzResourceLock -Force
+```
+
+---
+
+### References:
+
+---
+
+---
+
+## Q24:
+
+You deploy an application in a RG named App-RG01 in your subscription.
+
+App-RG01 coontains the following components:
+
+- two App Services each with a free App Service managed SSL certificate
+- a peered VNet
+- Redic cache deployed in the VNte
+- a standard ALB
+
+You must move all the resources in App-RG01 to a new RG named App-RG02.
+For each of the following statements, select Yes or No.
+
+- you need to delete the SSL certificate for each App Service before moving it to the new RG
+- you can move the ALB only within the same subscription
+- you need to disable the peer before movinng the VNet
+- you can move the VNet within the same subscription
+
+
+---
+
+### Answer:
+
+- you need to delete the SSL certificate for each App Service before moving it to the new RG
+Yes
+
+It is not possible to move an App Service that uses a **free** SSL certificate.
+The SSL certificate must be deleted first, then the App Service can be moved to 
+the destibnbation RG and a new free certificate can be configured with the App Service.
+
+- you can move the ALB only within the same subscription
+No
+A **Satndard Load Balancer** cannot be moved einther within or outside the subscription.
+The ALB must be recreated and re-configured.
+
+- you need to disable the peer before movinng the VNet
+Yes
+The peering **must be disabled before THE vnET moving to teh destination RG**.
+Whe a VNet is moved to a new RG then all its contanied VMs and other resources
+must be moved as well.
+
+
+- you can move the VNet within the same subscription
+Yes
+You **can move a VNet within teh same subscription**.
+In this case you will also need to move the Redis cache that is a resource within the VNet.
+A **Redis cache can only be moved within the same subscription**.
+In this case the RG source and destination are in the same subscription therefore 
+it can be done.
+
+---
+
+### References:
+
+[AZ-104-Moving Resources across Resource Groups](https://www.udemy.com/course/microsoft-certified-azure-administrator/learn/lecture/19046296#overview)  
+
+[Move Azure resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-resource-group-and-subscription)    
+
+[Move App Service resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-limitations/app-service-move-limitations#move-with-free-managed-certificates)  
+
+---
+
+## Q23:
+
+Your company has an Azure Subscription with several resources.
+The subscription is managed by a Cloud Service Provider.
+
+The accounting departemnt is currently granted the billing role.
+They are able to see cost-related information.
+They need to gain better understanding of the cost structure
+so they can assign to the correct cost center.
+
+You must provide cost center information.
+Your soulution must minimize admin effort.
+
+Which two actions should you perform?
+
+- create a tag named CostCenter and assign it to each resource
+- create a tag named CostCenter and assign it to each resource group
+- instruct the accounting department to use the Cost Analysis blade in the subscription panel
+- instruct the accounting department to use Azure Accounting Center
+
+---
+
+### Answer:
+- create a tag named CostCenter and assign it to each resource
+- create a tag named CostCenter and assign it to each resource group
+ 
+By creating the tag on each resource the the billing role will be able 
+to split and collate the costs of resources by the values assigned to this tag.
+
+By creating the tag on each resource group the the billing role will be able 
+to split and collate the costs of resources by the values assigned to this tag.
+
+The **Azure Cost Management** tool can then be used with filters based on the
+values of these tags by the users to whon the billing role has been assigned.
+
+> Important:
+The tag applied to a RG **are NOT inherited down to the contained resources**.
+For this reason you must also assign the tag at the resource level and not only 
+at the RG level for a complete cost split.
+**You may use PowerShell . Azure CLI to automate this**.
+
+The following do not apply:
+
+- instruct the accounting department to use the Cost Analysis blade in the subscription panel
+In this case the subscription **is managed by a cloud service provider**
+therefor the accounting departemnt does not have access to this blade in the Portal! 
+This could have been the simplest solution but it is not applicable here.
+
+- instruct the accounting department to use Azure Accounting Center
+
+---
+
+### References:
+
+[What is Microsoft Cost Management and Billing?](https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview)   
+
+[New Microsoft Azure billing experienc](https://www.youtube.com/watch?v=XyY-RbTTGvk&list=PLLasX02E8BPBJW49E5_sHgbgvztb4oz6D)  
+
+---
+
+## Q22:
+
+You use **taxonomic tags** to logically organize resources and to make billing reporting easier.
+
+You use PowerShell to append an additional tag on a storage account named corpstorage99.
+
+```
+$r = Get-AzResource -ResourceName "corpstorage99" `
+-ResourceGroupName "prod-rg" 
+
+Set-AzResource -Tag @{Dept="IT"} -ResourceId $r.ResourceId -Force
+```
+
+The code returns unexpected results.
+
+You need to append the additional tag as quickly as possible.
+What should you do?
+
+- refactor the code by using the Azure CLI
+- assign the Enforce tag and its value by Azure Policy to the resource group
+- deploy the tag by using a ARM template
+- edit the script to call Add() method after getting the resource to append the new tag
+
+---
+
+### Answer:
+edit the script to call Add() method after getting the resource to append the new tag
+
+This is the script that works:
+
+```
+$r = Get-AzResource -ResourceName "corpstorage99" `
+-ResourceGroupName "prod-rg" 
+$r.Tags.Add("Dept"."IT")
+Set-AzResource -Tag $r.Tags -ResourceId $r.ResourceId -Force
+```
+
+> The `Set-AzResource` owirride any existing tags on the resource!
+
+The remainign options do not apply:
+
+- deploy the tag by using a ARM template: 
+obsviously not related
+
+- assign the Enforce tag and its value Azure Policy to the resource group:
+to much admin effort
+
+- refactor the code by using the Azure CLI:
+could be used but it requires more effort than the solution above
+
+---
+
+### References:
+
+[Set-AzResource](https://learn.microsoft.com/en-us/powershell/module/az.resources/set-azresource?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)   
+
+[Use tags to organize your Azure resources and management hierarchy](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources)  
+
+---
+
+## Q21:
+
+Your company requires all resources deployed in Azure to be assigned to a cost center.
+
+You use a **tag** named **CostCenter** to assign each resource to the correct cost center.
+This tag has a set of valid values assigned.
+
+Some of the resources deployed in your subscription already have a value assigned to 
+the **CostCenter** tag.
+
+You decide to **deploy a subscription policy**  
+**to verify that all resources in the subscription have a valid value assigned to the CostCenter tag**.
+
+
+For each of the following statements select Yes (True) or No (False).
+
+- The Deny effect is evaluated first
+- The Append effect modifies the value of an existing field in a resource
+- The Audit effect will create a warning event in the activity log for non-compliant resources
+- The DeplyIfNotExist effect is only evaluated if the request executed by the 
+  Resource Provider returns a success status code
+
+---
+
+### Answer:
+
+> The Deny effect is evaluated first: No
+
+The first effect of a policy to be evaluated is the **Disabled** effect.
+The **Disabled** effect allows the editor of the policy to use paramter to decide
+whether the policy should nto should not be evaluated.
+
+The order fo evaluation is:
+
+> Disable Effect > Append Effect > Deny Effect > Audit Effect
+
+[Disabled](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#disabled)
+This effect is useful for testing situations or for when the policy definition has parameterized the effect. This flexibility makes it possible to disable a single assignment instead of disabling all of that policy's assignments.
+Policy definitions that use the Disabled effect have the default compliance state Compliant after assignment.
+
+An alternative to the Disabled effect is **enforcementMode**.
+This is which is set on the policy assignment. 
+When enforcementMode is Disabled, resources are still evaluated. 
+ Logging, such as Activity logs, and the policy effect don't occur. 
+
+[Deny](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#deny)
+Deny is used to prevent a resource request that doesn't match defined standards through a policy definition and fails the request.
+In a **Resource Manager mode**, deny prevents the request before being sent to the Resource Provider
+if there is a policy match.
+**The request is returned as a 403 (Forbidden)**. 
+
+During evaluation of existing resources, resources that match a deny policy definition are marked as non-compliant.
+
+---
+
+> The Append effect modifies the value of an existing field in a resource: No
+
+[Append](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#append)  
+
+Append is used to **add** more fields to the requested resource during creation or update. 
+A common example is specifying allowed IPs for a storage resource.
+
+Append evaluates **before** the request gets processed by a Resource Provider during the
+**creation or updating** of a resource. 
+Append adds fields to the resource when the if condition of the policy rule is met.
+
+> Append denies if there is a value override:
+If the append effect would **override a value in the original request** with a different value, 
+**then it acts as a deny effect** and rejects the request.
+
+When a policy definition using the append effect is run as part of an evaluation cycle, it doesn't make changes to resources that already exist. Instead, it marks any resource that meets the if condition as non-compliant.
+
+---
+
+
+> The Audit effect will create a warning event in the activity log for non-compliant resources: Yes
+
+[Audit](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#audit)
+
+Audit is used **to create a warning event in the activity log** 
+when evaluating a non-compliant resource, but it doesn't stop the request.
+
+**Audit is the last effect checked by Azure Policy** during the creation or update of a resource.
+
+When evaluating a create or update request for a resource, Azure Policy adds a 
+`Microsoft.Authorization/policies/audit/action` operation to the activity log and marks 
+the resource as non-compliant. 
+
+---
+
+> The DeplyIfNotExist effect is only evaluated if the request executed by the Resource Provider returns a success status code: Yes
+
+[DeployIfNotExists](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#deployifnotexists)
+
+Similar to AuditIfNotExists.
+
+It executes a template deployment when the condition is met. 
+**Nested templates are supported with deployIfNotExists, but linked templates are currently not supported**.
+
+DeployIfNotExists **runs after a configurable delay** when a Resource Provider handles a 
+create or update subscription or resource request and has returned a success status code.
+
+A template deployment occurs if there are no related resources or if the resources defined 
+by ExistenceCondition don't evaluate to true. 
+The duration of the deployment depends on the complexity of resources included in the template.
+
+**During an evaluation cycle**, policy definitions with a DeployIfNotExists effect that match
+resources are marked as non-compliant, but no action is taken on that resource.
+
+---
+
+### References:
+
+[Understand Azure Policy effects](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects)  
+
+AddToNetworkGroup
+Append
+Audit
+AuditIfNotExists
+Deny
+DenyAction
+DeployIfNotExists
+Disabled
+Manual
+Modify
+Mutate
+
+[Azure Policy Samples](https://learn.microsoft.com/en-us/azure/governance/policy/samples/)
+
+---
+
+---
+
+## Q20:
+
+You have been tasked with assigning RBAC roles to users in your company.
+
+You try to interpret access assignments for UserA.
+You want to validate teh role assignments for UserA scoped to 
+the groups of which UserA is a member.
+
+Complete the Azure CLI command below:
+
+```
+az role assignment OPTIONS-1 OPTIONS-2 \
+--assignee UserA@myorg.com \
+--output json \
+--query `[].{principalName: principalName, roleDefinitionName: roleDefinitionName, scope: scope}` 
+
+```
+
+OPTIONS-1:
+- create
+- list
+- list-changelogs
+- update
+
+OPTIONS-2:
+- --all
+- --include-groups
+- --include-inherited
+- --include-classic-administrators
+
+---
+
+### Answer:
+
+OPTIONS-1:
+- list
+
+OPTIONS-2:
+- --include-groups
+
+The other options obviuosly do not apply in this case.
+
+OPTIONS-1:
+- create: to create a new role assignment for a user, group or SP
+- list-changelogs: to get the changelogs of a role assignment
+- update: to create a new role assignment for a user, group or SP
+
+
+OPTIONS-2:
+- --all: to query over the whole subscription
+- --include-inherited: include the role assignments on the parent scopes
+- --include-classic-administrators: for classic administrator & co-admin roles
+
+
+---
+
+### References:
+
+[az role assignment](https://learn.microsoft.com/en-us/cli/azure/role/assignment?view=azure-cli-latest)  
+[az role assignment list](https://learn.microsoft.com/en-us/cli/azure/role/assignment?view=azure-cli-latest#az-role-assignment-list)  
+
+[List Azure role definitions](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-definitions-list)  
+[List Azure role assignments using Azure CLI](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-list-cli)  
+
 ---
 
 ## Q19:
@@ -73,6 +510,7 @@ This role allows:
 
 ---
 
+### References:
 [Assign Azure roles using Azure PowerShell](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-powershell)    
 
 [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles)  
