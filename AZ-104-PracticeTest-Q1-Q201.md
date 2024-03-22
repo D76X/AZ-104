@@ -2,6 +2,193 @@
 
 ---
 
+## Q19:
+
+Your company uses RBAC to restrict access to system reources.
+You have been tasked with assigning RBAC roles in your company.
+
+You have executed the following PowerShell script:
+
+```
+New-AzRoleAssignment -ObjectId 1234567-345-567-... `
+-RoleDefinition "Virtual Machine Contributor" `
+-ResourceGroupNane medicine-sales
+```
+The output is below:
+
+```
+RoleAssignmentIs /subscription/0000-...../providers/Microsoft.Authorization/roleAssignments/666-...
+Scope: /subscription/0000-.../resourceGroups/medicine-sales
+DisplayName: MyTestApp
+SignInName:
+RoleDefinitionName: Virtual Machine Contributor
+RoleDefinitionId: 99...GUID...
+ObjectId: 1234567-345-567-...
+ObjectType: ServicePrincipal
+CanDelegate: False
+```
+
+You must implement the solution.
+
+For each of the following statements select Yes (True) or No (False).
+
+- The script assigns the role Virtual Machine Contributor to a user with ID: 1234567-345-567-...
+- The role is assigned at the scope RG medicine-sales
+- the roles lest you manage VMs, but not manage access to Virtual Network or the Storage Account
+  the VMs are connected to
+
+---
+
+### Answer:
+
+- The script assigns the role Virtual Machine Contributor to a user with ID: 1234567-345-567-...
+No
+
+The script assigns the role Virtual Machine Contributor to an application
+with Service Principal ID: 1234567-345-567-... as the ObjectType: ServicePrincipal
+
+- The role is assigned at the scope RG medicine-sales
+Yes
+There are 4 possible scopes for RBAC: 
+- resource
+- resource group
+- subscription
+- management group
+
+In thsis case the `-ResourceGroupNane medicine-sales` specifies the RG sope.
+
+- the roles lest you manage VMs, but not manage access to Virtual Network or the Storage Account
+  the VMs are connected to
+Yes
+
+The role **Virtual Machine Contributor** provides the permisions to **manage the VMs**
+**but not** the realted Newtwork and SA. 
+This role allows:
+- creations of VMs
+- managment of VMs
+- managment of Disks
+- to install and run Software on the VM
+- reset the pasword of the root account using Virtual Machien Extensions
+- manage local user access using VME
+
+---
+
+[Assign Azure roles using Azure PowerShell](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-powershell)    
+
+[Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles)  
+
+---
+
+## Q18:
+
+Your organization owns a subscription with three resource groups: RG1, RG2, RG3.
+
+Your on-prem Active Directory has a security group named SalesDepartment that 
+contains user accounts for all sales employees.
+
+You use **Microsoft Entra (ID) Connect**  to synchronize 
+your on-prem Active Directory with MEID.
+
+You must implement a solution that follows the **least privilege principle** 
+and meet the following requirements:
+
+> The Sales team should:
+- be able to read resources in RG1 & RG2 **only**
+- be able to create resources **only** in RG1
+- not be allowed to assign permissions to any resources in the subscription
+- not be allowed to create additional resource groups
+
+Which two actions should you perform?
+
+> assign to the SalesDepartment group the built-in role:
+
+- Reader on RG2
+- Contributor on RG1
+- Owner on RG1
+- Reader on the subscription
+- Contributor on the subscription
+
+---
+
+### Answer:
+1. Reader on RG2
+2. Contributor on RG1
+
+(1) & (2) grant read permisson to RG1 & RG2 only.
+(2) add the permission to create resources in RG1.
+
+The remaining options do not apply as these violates at least one requirement each:
+
+- Owner on RG1:
+violates the POLP as the **Contributor** role suffices.
+The **Owner role on RG1** would also give the SalesDepartment group the permission
+to manage access of other users to reosurces in RG1 which is not required.
+
+- Reader on the subscription:
+the SalesDepartment group must be reader of only RG1 & RG2
+
+- Contributor on the subscription
+obviosly too wide!
+
+---
+
+### References:
+
+[What is Azure role-based access control (Azure RBAC)?](https://learn.microsoft.com/en-us/azure/role-based-access-control/overview)  
+---
+
+## Q17:
+
+You are the administrator for your Azure subscription.
+Your company hires a new cloud engineer.
+The cloud engineer needs to manage other engineers' access to Azure resources.
+You must follow th eprinciple of least privilege.
+
+Which role should you assign to the new engineer?
+
+- Owner
+- Contributor
+- User Administrator
+- Co-Administrator
+- User Access Administrator
+
+---
+
+### Answer: User Access Administrator
+
+Users with User Access Administrator role can:
+
+- manage users and groups
+- manage support tickets
+- monitor service health
+
+The other options do not apply in this case
+
+> Owner:
+- access to resources
+- it is equal to: User Access Administrator + Contributor 
+
+> Contributor:
+- can create a manage reosurces on its scope (in this case the subscription)
+- **cannot** manage user's access to resources 
+
+> Co-Administrator:
+This is one of the **old (classic) roles** and it is equivalent to: Owner of RBAC.
+
+> User Administrator [Microsoft Entra ID Role]:
+This is a **Microsoft Entra ID Administrator Role** and **does not** control access to 
+any resource on a scope (subscription). This roles grants permissions to manage users
+on the MEID tenant that is associated to the subscription.
+
+
+---
+
+### Reeferences:
+
+[Azure roles, Microsoft Entra roles, and classic subscription administrator roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/rbac-and-directory-admin-roles)   
+
+---
+
 ## Q16: 
 
 Your organization uses **Micorsoft Entra ID Governance**.
