@@ -1,6 +1,6 @@
 # AZ-104 Practice Test 201 Questions
 
-## Q2X:
+## Q3X:
 
 
 ---
@@ -10,6 +10,178 @@
 ---
 
 ### References:
+
+---
+
+## Q30:
+
+You have a storage accounts in your Azure subscription for different purposes.
+The SAs have blob containers and file shares.
+
+Some users access these SAs by using the **Microsoft Storage Explorer Desktop App**.
+They report that they get the error message in the exhibit whn they try to browse
+the contents of the SA.
+
+You must resolve teh issue.
+Which are two possible reasons for this error?
+
+- there is a CanNotDelete lock 
+- there is a ReadOnly lock 
+- users have the Storage Blob Data Contributor role assigned in the SAs
+- users have the Read role assigned in the SAs
+- users have the Storage Blob Data Read role assigned in the SAs
+
+<img src="./Q30-exhibit.png">
+
+---
+
+### Answer:
+
+- there is a ReadOnly lock 
+- users have the Read role assigned in the SAs
+
+[Considerations before applying your locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json#considerations-before-applying-your-locks)  
+
+This reference explains that:
+
+The **Storage Account API** exposes **data plane** and **control plane** operations. 
+
+> If a request uses data plane operations:
+the lock on the storage account doesn't protect blob, queue, table, or file data within that storage account. 
+
+> If the request uses control plane operations: the lock protects those resources.
+
+The user oprocess for the the **Microsoft Storage Explorer Desktop App** needs to read 
+the access keys of the SA before listing the contents of the containers in it. 
+The access keys of the SA provide write access to all data in the SA and there is no 
+read only access key in the SA and in order to perform teh listing of the contents of
+the SA the user needs **read-write** permission.
+
+A ReadOnly lock as well as only the Read role assigned to users in the SAs would prevent
+the enforcement of teh required **read-write** permission.
+
+The rmaing optins do not apply:
+
+- there is a CanNotDelete lock:
+this lock type does not prevent read-write operations on the resource
+
+- users have the Storage Blob Data Contributor role assigned in the SAs:
+this would provide read-write permissions to the resource SA
+
+- users have the **Storage Blob Data Read role** assigned in the SAs
+this role allows users to **read and list** the SA containers and blobs!
+
+
+---
+
+### References:
+
+[Azure built-in rolesStorage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader)  
+
+Read and list Azure Storage containers and blobs. 
+
+---
+
+
+## Q29:
+
+Your subscription has: 
+
+- a RGs for production env
+- a RGs for testing env TST0X-rg
+
+A user member of the RegularUsers group accidentally deletes TST01-rg & TST03-rg.
+
+TST01-rg had a **Storage Account** named STA01.
+TST02-rg had a **App Service** named APP01.
+
+**You recover the affected resource from backups**.
+
+You then decide to implement resource lock to prevent this from happening again.
+Your manager would like teh following points implemented in order to prevent this
+type of incident in the future.
+
+- no resources can be deleted by accident
+- all resource types should work correctly after implementing the resource lock
+- any new resource that is added to teh subscription should be protected against deletion
+- the solution should require the least admin affort
+
+What should you do?
+
+- consfigure a read-only lock on TST01-rg and TST02-rg
+- consfigure a delete lock on TST01-rg and TST02-rg
+- consfigure a read-only lock on the subscription
+- consfigure a delete lock on the subscription
+
+---
+
+### Answer:
+- consfigure a delete lock on the subscription
+
+A delete lock can be used at the follwing levels:
+- resource
+- RG
+- subscription
+
+Locks are hinerited down this chain of containers.
+The **delete (CanNotDelete)** lock prevents deletion of resources but does not hinder 
+operations to be performed on them.
+
+The remainign options do not apply:
+
+The **read-only** would not be suitable in this case i.e. the RGs could not be modified
+and also any resource in them.
+Depending on teh resource **read-only** locks **may lead to uunpredictable outcomes**.
+This is explained in details in one of the answer to a a previopus question and in the 
+following reference:
+
+[Considerations before applying your locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json#considerations-before-applying-your-locks)  
+
+In a nutshell, the **read-only** lock **prevents POST** post operations on the 
+**control level** of any resource. If the operation uses this to be perform the 
+lock will prevent the operation.
+
+---
+
+### References:
+
+---
+
+## Q28:
+
+You create a Windows Server VM in an Azure RG named `iaas-rg`.
+You plan to **generalize the OS and caputure an image** for future deployments.
+
+You must ensure that other administrators make no changes to teh VM
+configuration until you complete the image capture process.
+You need to enact the solution as quickly as possible.
+
+What should you do?
+
+- set a delete lock on the VM
+- set a read-only lock on the VM
+- edit RBAC permissions at the RG level
+- edit RBAC permissions at the VM level
+
+---
+
+### Answer:
+- set a read-only lock on the VM
+
+This is obviously the quickiest way to prevent mods to the VM while
+its image is captured. 
+The **delete** lock would only protect from deletion of the VM and not 
+modificatuions to its configuration while the **read-only** lock prevents
+these.
+
+The soltions based on RBAC require more admin effort before and after teh capture
+process.
+
+
+---
+
+### References:
+
 ---
 
 ## Q27:
