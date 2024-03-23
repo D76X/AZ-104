@@ -13,6 +13,132 @@
 
 ---
 
+## Q31:
+
+You develop a policy that will deny teh creation of any resource that 
+does not have an environment tag with a value of either dev, qa, prod.
+
+You must ensure that only resources that support tagging are subject 
+to thsi policy.
+
+Complete teh JSON policy template.
+
+```
+{
+  "properties": {
+    "displayName": "Tag und zugehöriger Wert für Ressourcen erforderlich",
+    "policyType": "BuiltIn",
+    "mode": "OPTIONS-1 : All | Indexed | Supported",
+    "parameters": {
+      "tagName": {
+        "type": "String",        
+      },
+      "tagValue": {
+        "type": "String",        
+      }
+    },
+    "policyRule": {
+      "if": {
+        "not": {
+          "field": "OPTIONS-2",
+          "OPTIONS-3": "{dev. qa, prod}"
+          
+          //"field": "[concat('tags[', parameters('tagName'), ']')]",
+          //"equals": "[parameters('tagValue')]"
+        }
+      },
+      "then": {
+        "effect": "OPTIONS-3: append | audit | deny"
+        //"effect": "deny"
+      }
+    }
+  },  
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "policyDefinition01"
+}
+```
+
+OPTIONS-2:
+
+Environment
+tag:Enviroment
+[tag[Enviroment]]
+
+OPTIONS-3:
+
+equals
+notContains
+notIn
+---
+
+### Answer:
+
+
+```
+{
+  "properties": {
+    "displayName": "Tag und zugehöriger Wert für Ressourcen erforderlich",
+    "policyType": "BuiltIn",
+    "mode": "Indexed",
+    "parameters": {
+      "tagName": {
+        "type": "String",        
+      },
+      "tagValue": {
+        "type": "String",        
+      }
+    },
+    "policyRule": {
+      "if": {
+        "not": {
+          "field": "[tag[Enviroment]]",
+          "notIn": "{dev. qa, prod}"         
+          
+        }
+      },
+      "then": {
+        "effect": "deny"        
+      }
+    }
+  },  
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "policyDefinition01"
+}
+```
+
+`"mode": "Indexed",`:
+OPTIONS-1 : All | Indexed | Supported
+
+The **Indexed** options for the **mode** property of the policy def is correct.
+Indexed policies check whether a reosurce supports a feature before checking the 
+resource for compliance with the policy.
+
+**Supported** is a fake value that is not availbale for the **mode** property of 
+the policy def is correct.
+
+`"field": "[tag[Enviroment]]",`
+OPTIONS-2:
+Environment
+tag:Enviroment
+[tag[Enviroment]]
+
+Tags on a resource are an array ov objects with each having a name and a value.
+
+`"effect": "deny"`
+OPTIONS-3: equals | notContains | notIn
+This is obvious, you want the policy to deny the deplyment operation if any the 
+agreed tags are not present or their values in not any of the "{dev. qa, prod}"
+
+---
+
+### References:
+
+[Assign policy definitions for tag compliance](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-policies)  
+
+[Azure Policy definition structure](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure)  
+
+---
+
 ## Q30:
 
 You have a storage accounts in your Azure subscription for different purposes.
