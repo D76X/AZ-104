@@ -53,6 +53,192 @@ Get-AzResourceLock | Where-Object ResorceGroupName - eq "$rg" | Remove-AzResourc
 
 ### References:
 
+[Get-AzResourceLock](https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azresourcelock?view=azps-11.4.0)   
+
+> Example 1: Get a lock
+```
+Get-AzResourceLock -LockName "ContosoSiteLock" -ResourceName "ContosoSite" -ResourceType "microsoft.web/sites" -ResourceGroupName "ResourceGroup11"
+```
+This command gets the resource lock named ContosoSiteLock.
+
+> Example 2: Get locks at resource group level or higher
+`Get-AzResourceLock -ResourceGroupName "ResourceGroup11" -AtScope`
+This command gets the resource locks on the resource group or the subscription.
+
+
+[Lock your resources to protect your infrastructure](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json)   
+
+---
+
+[Get-AzResource](https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azresource?view=azps-11.4.0&viewFallbackFrom=azps-5.8.0)  
+`Get-AzResource | Format-Table`
+`Get-AzResource -ResourceGroupName testRG | Format-Table`
+`Get-AzResource -ResourceGroupName other* | Format-Table`
+`Get-AzResource -Name testVM | Format-List`
+`Get-AzResource -Name test* | Format-Table`  
+
+> by resource type:
+`Get-AzResource -ResourceType Microsoft.Compute/virtualMachines | Format-Table`
+
+> by resource ID
+`Get-AzResource -ResourceId /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/testRG/providers/Microsoft.Compute/virtualMachines/testVM`
+
+---
+
+[Where-Object](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/where-object?view=powershell-7.4)  
+Selects objects from a collection based on their property values.
+
+```
+# These commands are equivalent and you can use them interchangeably.
+Get-Process | Where-Object -Property PriorityClass -EQ -Value "Normal"
+Get-Process | Where-Object PriorityClass -EQ "Normal"
+
+# Only the syntax is different.
+Get-Service | Where-Object { $_.Status -eq "Stopped" }
+Get-Service | Where-Object Status -EQ "Stopped"
+
+Get-Process | Where-Object { $_.WorkingSet -GT 250MB }
+Get-Process | Where-Object WorkingSet -GT 250MB
+
+# rocessName property value that begins with the letter p.
+Get-Process | Where-Object { $_.ProcessName -Match "^p.*" }
+Get-Process | Where-Object ProcessName -Match "^p.*"
+```
+
+> Example 4: Use the comparison statement format
+```
+Get-Process | Where-Object -Property Handles -GE -Value 1000
+Get-Process | where Handles -GE 1000
+```
+
+> Example 5: Get commands based on properties
+
+This example shows how to write commands that return items that are 
+true or false or have any value for a specified property. 
+
+```
+# Use Where-Object to get commands that have any value for the OutputType
+# property of the command. This omits commands that do not have an OutputType
+# property and those that have an OutputType property, but no property value.
+
+Get-Command | Where-Object OutputType
+Get-Command | Where-Object { $_.OutputType }
+
+# Use Where-Object to get objects that are containers. This gets objects that
+# have the **PSIsContainer** property with a value of $True and excludes all
+# others.
+Get-ChildItem | Where-Object PSIsContainer
+Get-ChildItem | Where-Object { $_.PSIsContainer }
+
+# use the -not operator (!) to get objects that are not containers.
+Get-ChildItem | Where-Object -Not PSIsContainer
+Get-ChildItem | Where-Object { !$_.PSIsContainer }
+```
+
+> Example 6: Use multiple conditions:
+`-and,-or, -not` are valid only in script blocks!
+You can't use them in the comparison statement format of a Where-Object command.
+
+```
+Get-Module -ListAvailable | Where-Object {
+    ($_.Name -notlike "Microsoft*" -and $_.Name -notlike "PS*") -and $_.HelpInfoUri
+}
+
+```
+
+---
+
+[Select-Object](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-object?view=powershell-7.4)  
+Selects objects or object properties.
+
+```
+Get-Process | Select-Object -Property ProcessName, Id, WS
+
+# ExpandProperty : : Show the intricacies of the -ExpandProperty parameter
+Get-Process Explorer |
+    Select-Object -Property ProcessName -ExpandProperty Modules |
+    Format-List
+
+ProcessName       : explorer
+ModuleName        : explorer.exe
+FileName          : C:\WINDOWS\explorer.exe
+BaseAddress       : 140697278152704
+ModuleMemorySize  : 3919872
+EntryPointAddress : 140697278841168
+FileVersionInfo   : File:             C:\WINDOWS\explorer.exe
+                    InternalName:     explorer
+                    OriginalFilename: EXPLORER.EXE.MUI
+                    FileVersion:      10.0.17134.1 (WinBuild.160101.0800)
+                    FileDescription:  Windows Explorer
+                    Product:          Microsoft Windows Operating System
+                    ProductVersion:   10.0.17134.1
+```
+
+```
+# Create a custom object to use for the Select-Object example.
+$object = [pscustomobject]@{Name="CustomObject";Expand=@(1,2,3,4,5)}
+
+# Use the ExpandProperty parameter to Expand the property.
+$object | Select-Object -ExpandProperty Expand -Property Name
+
+1
+2
+3
+4
+5
+```
+
+> Example 3: Select processes using the most memory (Object & Last)
+`Get-Process | Sort-Object -Property WS | Select-Object -Last 5`  
+
+> Example 4: Select unique characters from an array
+```
+"a","b","c","a","A","a" | Select-Object -Unique
+
+a
+b
+c
+A
+
+"a","a","b","c" | Select-Object -First 2 -Unique
+
+a
+
+"aa", "Aa", "Bb", "bb" | Select-Object -Unique -CaseInsensitive
+
+aa
+Bb
+```
+
+> Example 7: Select newest and oldest events in the event log
+
+```
+$a = Get-WinEvent -LogName "Windows PowerShell"
+$a | Select-Object -Index 0, ($a.count - 1)
+
+> Example 8: Select all but the first object
+`New-PSSession -ComputerName (Get-Content Servers.txt | Select-Object -Skip 1)`
+```
+
+> Example 11: Create custom properties on objects
+demonstrates using Select-Object to add a custom property to any object. 
+
+```
+c$customObject = 1 | Select-Object -Property MyCustomProperty
+$customObject.MyCustomProperty = "New Custom Property"
+$customObject
+
+MyCustomProperty
+----------------
+New Custom Property
+```
+
+> [Example 12: Create calculated properties for each InputObject](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-object?view=powershell-7.4#example-12-create-calculated-properties-for-each-inputobject)  
+
+
+```
+```
+
 ---
 
 ---
@@ -113,6 +299,8 @@ it can be done.
 ### References:
 
 [AZ-104-Moving Resources across Resource Groups](https://www.udemy.com/course/microsoft-certified-azure-administrator/learn/lecture/19046296#overview)  
+
+[AZ-104-Moving Resources across Subscriptions](https://www.udemy.com/course/microsoft-certified-azure-administrator/learn/lecture/23598488#overview)  
 
 [Move Azure resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-resource-group-and-subscription)    
 
