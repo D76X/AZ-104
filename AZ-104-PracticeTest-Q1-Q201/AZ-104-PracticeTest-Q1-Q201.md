@@ -13,6 +13,197 @@
 
 ---
 
+## Q34:
+
+A company has a Microsoft Entra Tenant.
+A recent governance audit for the ME-Tenant has found that all users currently 
+have the ability to create management groups within the tenant.
+Tou need to enable **hierarchy protection** so that only admins can create 
+managemnent groups.
+
+You need to create a JSON script to set the relevant permission levels
+to ensure that standard users are no longer allowed to create MGs.
+
+Which ooperation do you need to set in your JSON file to meet the goal?
+
+- Microsoft.Management/managementGroups/delete
+- Microsoft.Management/managementGroups/subscriptios/write
+- Microsoft.Management/managementGroups/read
+- Microsoft.Management/managementGroups/write
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+[How to protect your resource hierarchy](https://learn.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy)   
+
+Settings at the root management group, such as Azure custom roles or Azure Policy policy assignments, can impact every resource in your resource hierarchy. 
+
+It's important to protect the resource hierarchy from changes that could negatively impact all resources.
+
+**Management groups now have hierarchy settings that enable the tenant administrator to control these behaviors.** 
+
+> Azure RBAC permissions for hierarchy settings
+
+Configuring any of the hierarchy settings requires the following two resource provider operations on the root management group:
+
+```
+Microsoft.Management/managementgroups/settings/write
+Microsoft.Management/managementgroups/settings/read
+```
+
+These operations only allow a user to read and update 
+the hierarchy settings. 
+Both of these operations are available in the Azure 
+**built-in role Hierarchy Settings Administrator**.
+The operations don't provide any other access to the management group hierarchy or resources in the hierarchy. 
+
+> Setting - Default management group
+
+By allowing the default management group for new subscriptions to be defined, organization-wide governance constructs can be applied at the root management group, and a **separate management group** with **policy assignments or Azure role assignments** more suited to a new subscription can be defined.
+
+[Setting - Require authorization](https://learn.microsoft.com/en-us/azure/governance/management-groups/how-to/protect-resource-hierarchy#setting---require-authorization)   
+
+Any user, by default, can create new management groups within a tenant. Admins of a tenant may wish to only provide these permissions to specific users to maintain consistency and conformity in the management group hierarchy. 
+
+If enabled, a user requires the:
+
+`Microsoft.Management/managementGroups/write` 
+
+operation on the root management group to create new child management groups.
+
+---
+
+[Quickstart: Create a management group](https://learn.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal)  
+
+---
+
+## Q33:
+
+Your company is gradually moving its on-prem computing infrastructure to Azure.
+Four on-prem 8-core VMs that run Windows Server 2016 DataCenter are hosted
+on a computer that is being retired.
+The VMs are licensed under two 16-core licences.
+The servers do not get continual use but need to be available on a as-needed basis.
+Windows Server 2016 DataCenter has active Software Assurance.
+
+You plan to move three VMs to Azure VMs and the fourth to a VM on a different on-prem host.
+
+You need to minimize costs related to teh three Azure VMs.
+
+What should you do?
+
+- deploy the VMs as part of a VM scale set
+- use the Azure Hybrid Benefit on the VMs
+- create a budget in Azure Portal
+- configure Reserved Instances for th VMs
+
+---
+
+### Answer:
+- use the Azure Hybrid Benefit on the VMs
+The VMs are licensed under two 16-core licences.
+This lets you run two 8-core VMs on each license either in Azure or on-prem, that is 
+you can split the license into two 8-core VMs the way you prefer it.
+In contrast, the **Windows Styandard License** allow to run a VM each either on-prem or Azure. (?)
+
+The remanining options do not apply:
+
+- configure Reserved Instances for th VMs
+This is a **one-year or three-year agreemnet** and is best suited to VMs that are run continuosly.
+In this case the usage is intermittent on a as-needed basis therefore a pay-as-you-go model
+is preferable as it may save costs.
+
+- deploy the VMs as part of a VM scale set
+This is clearly not the use-case for VMSS.
+
+- create a budget in Azure Portal
+this has to do with cost management in the Azure Portakl and not with this specific case.
+
+
+---
+
+### References:
+
+[Azure Hybrid Benefit Frequently Asked Questions](https://azure.microsoft.com/en-us/pricing/hybrid-benefit/#faq)  
+
+[Azure Hybrid Benefit for Windows Server](https://learn.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit?tabs=azure)  
+
+Azure Hybrid Benefit enables commercial customers to use their qualifying on-premises licenses to get Windows virtual machines (VMs) on Azure at a reduced cost. 
+
+- Windows Server VMs in Azure
+Windows Server VMs on Azure: The license for Windows Server is covered by Azure Hybrid Benefit, so you only need to pay for the base compute rate of the VM. The base compute rate is equal to the Linux rate for VMs.
+
+> Number of licenses:
+You need a minimum of 8 core licenses (Datacenter or Standard edition) per VM. For example, 8 core licenses are still required if you run a 4-core instance. You may also run instances larger than 8 cores by allocating licenses equal to the core size of the instance. For example, 12 core licenses are required for a 12-core instance. For customers with processor licenses, each 2-core processor license is equivalent to 16 core licenses.
+
+- Azure Stack HCI
+- Azure Kubernetes Service (AKS) 
+
+hybrid deployments.
+
+To qualify for Azure Hybrid Benefit for Windows Server, you need on-premises core licenses for Windows Server from an applicable program with active Software Assurance or qualifying subscription licenses. 
+
+Workloads using Azure Hybrid Benefit can run only during the Software Assurance or subscription license term. When the Software Assurance or subscription license term approaches expiration, you must either renew your agreement with either Software Assurance or a subscription license, disable the hybrid benefit functionality, or deprovision those workloads that are using Azure Hybrid Benefit.
+
+---
+
+## Q32:
+
+Your Azure subscription has multiple RGs that host project-level resources.
+All team members that usethe subscription have contributor access 
+at the subscription level and are allowed to manage resources for all projects.
+
+The `company1-network-rg` contains all the newtowr resources such as
+VNets, NSGs, DNS Zones, Route Tables.
+
+As the need arises, network admins add new DNS entries and routes 
+and create additional subnets and NSGs.
+
+You must ensure that no security member, including network admins can
+delete any resources hosted in `company1-network-rg`.
+The solution must provide minimal onging admin effort.
+
+What shouuld you do?
+
+- apply ReadOnly lock to `company1-network-rg`
+- apply CanNotDelete lock to `company1-network-rg`
+
+- create a custom role that denies delete for `company1-network-rg` and
+  apply this new role to a security group and add all users to this SG.
+
+- create a custom role that denies delete for Vnet, NSG, DNS Zones, Route Tables 
+  resource types.
+  apply this new role to a security group and add all users to this SG. 
+
+---
+
+### Answer:
+- apply CanNotDelete lock to `company1-network-rg`
+This is the obvious answer, any other applicable options imply much higher admin effort.
+
+The following do not apply:
+
+- create a custom role that denies delete for `company1-network-rg` and
+  apply this new role to a security group and add all users to this SG.
+This would prevent the delition of the RG but not the deletion of the resources in it!
+
+- create a custom role that denies delete for Vnet, NSG, DNS Zones, Route Tables 
+  resource types.
+  apply this new role to a security group and add all users to this SG. 
+Obvuously, this is not maintanable!
+
+---
+
+### References:
+
+
+---
+
 ## Q31:
 
 You develop a policy that will deny teh creation of any resource that 
