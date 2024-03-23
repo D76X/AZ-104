@@ -170,13 +170,48 @@ This could have been the simplest solution but it is not applicable here.
 
 - instruct the accounting department to use Azure Accounting Center
 
+[How Cost Management and Billing relate](https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview#how-cost-management-and-billing-relate)  
+
+> **Cost Management**: 
+is a set of FinOps tools that enable you to analyze, manage, and optimize your costs. Cost Management is available from within the Billing experience.
+
+> **Billing**: 
+provides all the tools you need to manage your billing account 
+and pay invoices.
+
+> [Cost Analysis - Quickstart: Start using Cost analysis](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis)  
+
+is a **tool for ad-hoc cost exploration**. 
+Get quick answers with lightweight insights and analytics. Power BI is an advanced solution to build more extensive dashboards and complex reports or combine costs with other data. Power BI is available for billing accounts and billing profiles.
+
 ---
 
 ### References:
 
 [What is Microsoft Cost Management and Billing?](https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview)   
 
+[Azure Cost Management Playlist](https://www.youtube.com/playlist?list=PLLasX02E8BPBJW49E5_sHgbgvztb4oz6D)    
+
 [New Microsoft Azure billing experienc](https://www.youtube.com/watch?v=XyY-RbTTGvk&list=PLLasX02E8BPBJW49E5_sHgbgvztb4oz6D)  
+
+
+[Microsoft Cost Management and Billing -Optimize costs](https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview#optimize-costs)
+
+- use free services where possible
+- use the Azure Pricing Calculator
+- use the Azure Advisor cost recommendations 
+
+- use the Azure savings plans 
+save you money when you have consistent usage of Azure compute resources. A savings plan can significantly reduce your resource costs by up to 65% from pay-as-you-go prices.
+
+- use Azure reservations 
+help you save up to 72% compared to pay-as-you-go rates by pre-committing to specific usage amounts for a set time duration.
+
+- use Azure Hybrid Benefit 
+helps you significantly reduce costs by using on-premises Windows Server and SQL Server licenses or RedHat and SUSE Linux subscriptions on Azure.
+
+
+[Cost Management Best Practices: How to optimize your cloud investment with Cost Management](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices)  
 
 ---
 
