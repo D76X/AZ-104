@@ -1,6 +1,6 @@
 # AZ-104 Practice Test 201 Questions
 
-## Q3X:
+## Q4X:
 
 
 ---
@@ -10,6 +10,118 @@
 ---
 
 ### References:
+
+---
+
+## Q40:
+
+The core application development team in your company needs R/W access to an Azure based storage account as a repository for a new company-wide application.
+
+You need to create a geo-redundant SA within an Azure RG and provide the access control keys to the app dev team.
+
+How should you complete the PowerShell script?
+
+```
+OPTIONS-1
+
+Set-AzContext -subscription "SubscriptionName"
+
+OPTIONS-2 -Name "RGName" -Location "East US 2"
+
+New-AzStorageAccount -Name "SAName" -ResourceGroupName "RGName"
+
+OPTIONS-3 OPTIONS-4 -Location "East US 2"
+
+OPTION-4 -ResourceGroupName "RGName" -Name "SAName"
+
+```
+
+OPTIONS-1: Login-AzAccount | Add-AzureAccount
+
+OPTIONS-2: 
+New-AzResourceGroup
+New-AzResourceGroupDeployment
+
+OPTIONS-3:
+-Kind
+-SkuName
+
+OPTIONS-4:
+Standard_RAGRS
+Standard_GRS
+Standard_LRS
+
+OPTIONS-5:
+Get-AzKeyVault
+Get-AzStorage
+Get-AzStorageAccountKey
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q39:
+
+Your company creates multiple management groups under the root MG.
+
+You are reorganizing the MGs and want to move all resources for Sales and Marketing
+MGs under the Marketing MG.
+
+Once finished, you plan to delete the Sales MG.
+
+You need to move the subscription named SalesSub to the Marketing MG.
+
+Which two PowerShell cmdlets should you use?
+
+- Remove-AzManagementGroup
+- Update-AzManagementGroup
+- Remove-AzManagementGroupSubscription
+- New-AzManagementGroupSubscription
+
+---
+
+### Answer:
+
+Moving a subscription to another MG implicitly means that the subscription
+already has a MG. 
+
+- Remove-AzManagementGroupSubscription
+- New-AzManagementGroupSubscription
+
+- Remove-AzManagementGroup:
+ this simply deletes a MG
+
+- Update-AzManagementGroup
+this is used to update supported params for teh MG.
+
+---
+
+### References:
+
+[Manage your Azure subscriptions at scale with management groups](https://learn.microsoft.com/en-us/azure/governance/management-groups/manage)  
+
+[Moving management groups and subscriptions](https://learn.microsoft.com/en-us/azure/governance/management-groups/manage#moving-management-groups-and-subscriptions)  
+
+[New-AzManagementGroupSubscription](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-azmanagementgroupsubscription?view=azps-11.4.0&viewFallbackFrom=azps-10.1.0)
+Adds a Subscription to a Management Group.
+
+[Remove-AzManagementGroupSubscription](https://learn.microsoft.com/en-us/powershell/module/az.resources/remove-azmanagementgroupsubscription?view=azps-11.4.0&viewFallbackFrom=azps-10.2.0) 
+Removes a Subscription from a Management Group.
+
+[Move subscriptions in PowerShell](Mhttps://learn.microsoft.com/en-us/azure/governance/management-groups/manage#move-subscriptions-in-powershell)  
+
+```
+New-AzManagementGroupSubscription -GroupId 'Contoso' -SubscriptionId 'GUID-NEW-SUBSCRIPTION'
+
+# To remove the link between the subscription and the management group use
+Remove-AzManagementGroupSubscription -GroupId 'Contoso' -SubscriptionId '12345678-1234-1234-1234-123456789012'
+```
 
 ---
 
