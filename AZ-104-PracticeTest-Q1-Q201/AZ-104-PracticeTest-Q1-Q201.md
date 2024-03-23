@@ -13,6 +13,225 @@
 
 ---
 
+## Q38:
+
+You manage a number of Azure subscriptions for a global organization
+and have ownership of all these subscriptions.
+
+Yuo have been asked to use PowerShell to migrate the resorces from 
+`sub01` to `sub02`.
+
+After the migration you find that all teh Azure Role Assignments for 
+individual rosources have been orphaned on VMs but are still in place
+for RGs.
+
+You need to find out the cause of the missing role assignments to 
+ensure that this incident does niot repeat in future migrations.
+
+What is the cause of the problem?
+
+- the migration was between subscriptions
+- the azure portal was not used for the migration
+- the user account used to move the resources to `sub02` die not have the required permissions
+- there was a networ outage during the migration
+
+
+---
+
+### Answer:
+- the migration was between subscriptions
+
+In the migration of resources from one subscriptions to another
+any **roles assigned directly to the resources arne not moved**.
+All the role assignments must be recreated and the orhaned  assignments will be **automatically** removed.
+
+This does not depend on whether PowerShell or the Azure Portal 
+is used to perform teh migration.
+
+The **Owner** role on source and target subscriptions is assigned 
+to the user account and that was used to run the migration script 
+and this role provides sufficient rights.
+
+---
+
+### References:
+
+[Move Azure resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-resource-group-and-subscription)  
+
+If you move a resource that has an Azure role assigned directly to the resource (or a child resource), the role assignment isn't moved and becomes orphaned. After the move, you must re-create the role assignment. Eventually, the orphaned role assignment is automatically removed, but we recommend removing the role assignment before the move.
+
+For information about how to manage role assignments, see List Azure role assignments and Assign Azure roles.
+
+For a move across subscriptions, the resource and its dependent resources must be located in the same resource group and they must be moved together. For example, a VM with managed disks would require the VM and the managed disks to be moved together, along with other dependent resources.
+
+The account moving the resources must have at least the following permissions:
+
+`Microsoft.Resources/subscriptions/resourceGroups/moveResources/action` 
+on the source resource group.
+
+`Microsoft.Resources/subscriptions/resourceGroups/write` 
+on the destination resource group.
+
+The destination subscription must be registered for the resource provider of the resource being moved. If not, you receive an error stating that the subscription is not registered for a resource type. You might see this error when moving a resource to a new subscription, but that subscription has never been used with that resource type.
+
+...
+
+The source and destination subscriptions must exist within the same Microsoft Entra tenant. To check that both subscriptions have the same tenant ID, use Azure PowerShell or Azure CLI.
+
+[Transfer an Azure subscription to a different Microsoft Entra directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)    
+
+
+---
+
+## Q37:
+
+a company has an existing on-prem environment and a newly created 
+Azure subscription.
+
+You need to start testing cloud features and services with a view to eventually migrating the on-prem environment to the cloud.
+
+You have been given **Global Administrator** rights and
+**Resource Policy Contributior role** on the subscription.
+
+You need to test Azure Policy first.
+
+You have downloaded version 2.38 of Azuire CLI to configure new policies. 
+
+You find that the Azure Policies you create do not work with your 
+subscription.
+
+What is the cause of the problem?
+ 
+- you lack teh relevant role assignment to manage Azure Policy
+- the version of tht Azure CLI: it must be updated
+- you do niot have relevant access to the subscription
+- you have not resistered the Azure Policy Insights Resource Provider
+
+---
+
+### Answer:
+- you have not resistered the Azure Policy Insights Resource Provider
+
+`Microsoft.PolicyInsights` must be registered in your Azure subscription. To register a resource provider, you must have permission to register resource providers. 
+
+That permission is included in the: 
+- Contributor and Owner roles.
+
+However, you have been assigned the roles:
+- **Global Administrator**
+- **Resource Policy Contributior role** 
+
+on the subscription.
+
+Thereofore the `Microsoft.PolicyInsights` Provider must be registered  
+**manually** on the subscription.
+
+The roles that have ben assigned are sufficient to manage 
+all aspect of Azure Policy on the subscription.
+
+---
+
+### References:
+
+[Tutorial: Create and manage policies to enforce compliance](https://learn.microsoft.com/en-us/azure/governance/policy/tutorials/create-and-manage)   
+
+
+[Quickstart: Create a policy assignment to identify non-compliant resources using Azure CL](https://learn.microsoft.com/en-us/azure/governance/policy/assign-policy-azurecli)   
+
+
+---
+
+## Q36:
+
+Your company hosts its infrastructure as a IaaS in Azure.
+You have taken over the management of the IaaS in Azure from
+another IT technitian, who was responsible for creating and 
+managing all resources within the tenant.
+
+The owner of teh development subscription within the tenant
+wants to block anyone from deleting ther `devtest-rg` an any 
+of its resources,**without having to add any type of resource lock**
+**at subscriotion level**.
+
+You must recommend a solution to facuilitate this requirement.
+You muts minimize admin effort.
+
+What should you recommend?
+
+- add a read-only lock on the RG
+- add a delete lock on the RG
+- add a delete lock on a single resource of the RG
+- add a read-only lock on the subscription
+
+---
+
+### Answer:
+- add a delete lock on the RG
+This is obviously the right answer.
+
+Refer to previous questions and answers for teh details.
+
+---
+
+### References:
+
+---
+
+## Q35:
+
+a company hosts resources in Azure and Microsoft 365.
+A storage account was recently created for the Marketing department
+but it was not picked in the monlthly usage report.
+Further investigation shows that no resource tags were configured
+for this SA when it was created.
+
+You need to add the resource tags to the SA to fix the problem.
+Comnplete the PowerShell script accordingly.
+
+```
+$tags = @{"Dept"="Marketing","Status"="Standard"}
+$resource = OPTIONS-1 - Name marketingsa -ResourceGroup ukmkrg01
+OPTIONS-2 -ResourceId $resource.Id -Tag $tags
+```
+
+OPTIONS-1:
+Get-AzResource
+Get-AzResourceGroup
+Get-AzResourceLock
+New-AzResource
+
+OPTIONS-2:
+New-AzTag 
+Get-AzTag 
+Get-AzResource
+Get-AzResourceLock
+
+---
+
+### Answer:
+
+```
+$tags = @{"Dept"="Marketing","Status"="Standard"}
+$resource = Get-AzResource - Name marketingsa -ResourceGroup ukmkrg01
+New-AzTag -ResourceId $resource.Id -Tag $tags
+```
+
+---
+
+### References:
+
+[New-AzTag](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-aztag?view=azps-11.4.0&viewFallbackFrom=azps-8.2.0)   
+
+> Example 5: Creates or updates the entire set of tags on a subscription
+
+```
+$Tags = @{"tagKey1"="tagValue1"; "tagKey2"="tagValue2"}
+New-AzTag -ResourceId /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Tag $Tags
+
+```
+
+---
+
 ## Q34:
 
 A company has a Microsoft Entra Tenant.
