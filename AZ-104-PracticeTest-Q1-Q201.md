@@ -10,6 +10,226 @@
 ---
 
 ### References:
+---
+
+## Q27:
+
+You are lead architect for your company's Microsoft Azure Infrastructure.
+To maintain corporate compliance certifications, you must ensure that any
+VM are created only in approved regions.
+
+What should you do?
+
+- create an Azure management group
+- enforce conditional access policy in Microsoft Entra ID
+- define and deply an Azure Automation Desired State Configuration (DCS)
+- define and deploy a custom Azure Policy template
+
+
+---
+
+### Answer:
+- define and deploy a custom Azure Policy template
+
+The remaining options do not apply:
+
+- create an Azure management group
+- enforce conditional access policy in Microsoft Entra ID
+- define and deply an Azure Automation Desired State Configuration (DCS)
+
+
+---
+
+### References:
+
+[Tutorial: Create and manage policies to enforce compliance](https://learn.microsoft.com/en-us/azure/governance/policy/tutorials/create-and-manage)  
+
+[What are Azure management groups?](https://learn.microsoft.com/en-us/azure/governance/management-groups/overview)  
+
+If your **organization has many Azure subscriptions**, you may need a way to efficiently manage:
+
+- access, policies
+- compliance 
+
+for those subscriptions.
+Management groups **provide a governance scope above subscriptions**. 
+You organize subscriptions into management groups; 
+the governance conditions you apply cascade by inheritance to all associated subscriptions.
+
+---
+
+[Azure Automation State Configuration overview](https://learn.microsoft.com/en-us/azure/automation/automation-dsc-overview)  
+
+[Understanding Azure Machine Configuration](https://learn.microsoft.com/en-us/azure/governance/machine-configuration/overview)  
+
+[Tutorial: Create a custom policy definition](https://learn.microsoft.com/en-us/azure/governance/policy/tutorials/create-custom-policy-definition)  
+
+Rules often enforce:
+- Security practices use SSL, etc.
+- Cost management i.e. use tags
+- Organization-specific rules (like naming or locations)
+
+[What is Conditional Access?](https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview)   
+
+Conditional Access policies are enforced after first-factor authentication is completed.
+isn't intended to be an organization's first line of defense for scenarios like denial-of-service (DoS) attacks
+
+- Empower users to be productive wherever and whenever
+- Protect the organization's assets
+
+Conditional Access policies at their simplest are if-then statements.
+if a user wants to access a resource, then they must complete an action.
+
+> Scenarios for most organizations:
+
+Requiring multifactor authentication for users with administrative roles
+Requiring multifactor authentication for Azure management tasks
+Blocking sign-ins for users attempting to use legacy authentication protocols
+Requiring trusted locations for security information registration
+Blocking or granting access from specific locations
+Blocking risky sign-in behaviors
+Requiring organization-managed devices for specific applications
+
+>For example: 
+If a user wants to access an application or service like Microsoft 365, 
+then they must perform multifactor authentication to gain access.
+
+> Signal > Decision > Enforment (Decision)
+> Common signals:
+- User or group membership
+- IP Location information
+- Device
+- Applications that the user tries to access
+- Real-time calculated risk detection
+
+> Sources of signals:
+- Microsoft Entra ID
+- Microsoft Defender for Identity
+- Microsoft Defender 
+- Microsoft Endpoint Manager
+
+> Decisions:
+- Block access
+Most restrictive decision
+
+- Grant access
+Less restrictive decision, can require one or more of the following options:
+Require multifactor authentication
+Require authentication strength
+Require device to be marked as compliant
+Require Microsoft Entra hybrid joined device
+Require approved client app
+Require app protection policy
+Require password change
+Require terms of use
+Commonly applie
+
+---
+
+## Q26
+
+You build a new Marketing solution in an Azure RG called RG1.
+RG1 has an existing tag with the name Department and its value is Marketing.
+
+You plan to use **SAzure Cloud Shell** to add another tag to RG1
+with the name Status and the value Approved.
+
+You must ensure that RG1's existing tag is preserved.
+
+Complete the PowerShell command.
+
+```
+$tags = (Get-AzResourceGroup -Name RG1).Tags
+OPTIONS-1 {"Status","Approved"}
+OPTIONS-2 -Tag $tags - Name OPTIONS-3
+```
+```
+OPTIONS-1
+$tags.Add
+$tags |Add
+
+OPTIONS-2
+Neew-AzTag
+Set-AzResourceGroup
+
+OPTIONS-3
+RG1
+$tags
+```
+
+---
+
+### Answer:
+
+```
+$tags = (Get-AzResourceGroup -Name RG1).Tags
+$tags.Add {"Status","Approved"}
+Set-AzResourceGroup -Tag $tags - Name RG1 
+```
+
+---
+
+### References:
+
+
+> In one of the questions below there is a similare scenario:
+```
+$r = Get-AzResource -ResourceName "corpstorage99" 
+-ResourceGroupName "prod-rg" 
+$r.Tags.Add("Dept"."IT")
+Set-AzResource -Tag $r.Tags -ResourceId $r.ResourceId -Force
+```
+
+[Set-AzResourceGroup](https://learn.microsoft.com/en-us/powershell/module/az.resources/set-azresourcegroup?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)     
+
+[New-AzTag](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-aztag?view=azps-11.4.0&viewFallbackFrom=azps-3.6.1)  
+
+CreatePredefinedTagSet: The New-AzTag cmdlet creates a predefined Azure tag with an optional predefined value. 
+You can also use it to add additional values to existing predefined tags.
+
+> Example 1: Create a predefined tag with no value
+```
+New-AzTag -Name "FY2015"
+
+Name   ValuesTable Count Values 
+----   ----------- ----- ------
+FY2015             0     {}
+```
+
+> Example 2: Create a predefined tag with a value
+
+```
+New-AzTag -Name "Department" -Value "Finance"
+
+Name:   Department
+Count:  0
+Values:
+
+Name        Count
+        =========   =====
+        Finance     0
+```
+
+> Example 3: Add a value to a predefined tag
+
+```
+New-AzTag -Name "Department" -Value "Finance"
+New-AzTag -Name "Department" -Value "IT"
+Name:   Department
+Count:  0
+Values: 
+        Name        Count
+        =========   =====
+        Finance     0
+        IT          0
+```
+
+> Example 4: Use a predefined tag
+```
+New-AzTag -Name "CostCenter" -Value "0001"
+Get-AzResourceGroup -Tag @{Name="CostCenter"}
+Set-AzResourceGroup -Name "EngineerBlog" -Tag @{Name="CostCenter";Value="0002"}
+```
 
 ---
 
@@ -65,8 +285,132 @@ This command gets the resource lock named ContosoSiteLock.
 `Get-AzResourceLock -ResourceGroupName "ResourceGroup11" -AtScope`
 This command gets the resource locks on the resource group or the subscription.
 
+[Remove-AzResourceLock](https://learn.microsoft.com/en-us/powershell/module/az.resources/remove-azresourcelock?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)   
+
+```
+Remove-AzResourceLock -LockName "ContosoSiteLock" -ResourceName "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/Default-Storage-SouthCentralUS/providers/Microsoft.ClassicStorage/storageAccounts/mystorageaccount/providers/Microsoft.Authorization/locks/test"
+```
+
+[Remove-AzResource](https://learn.microsoft.com/en-us/powershell/module/az.resources/remove-azresource?view=azps-11.4.0&viewFallbackFrom=azps-5.8.0)  
+
+---
+
+[AZ-104 Lab - Locking Resources](https://www.udemy.com/course/microsoft-certified-azure-administrator/learn/lecture/13165368#overview)  
+
+[AZ-104 Locks and moving resources](https://www.udemy.com/course/microsoft-certified-azure-administrator/learn/lecture/30375242#overview)  
+
+---
+
+[Lock your resources to protect your infrastructure](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json#considerations-before-applying-your-locks)  
+
+Locks only apply to **control plane Azure operations** 
+and not to **data plane operations**.
+
+Azure **control plane** operations go to: `https://management.azure.com`
+
+Azure **data plane** operations go to your service instance, such as:
+`https://myaccount.blob.core.windows.net/`
+
+The distinction means locks protect a resource from changes, but 
+they don't restrict how a resource performs its functions. 
+
+> For example: 
+
+ A **ReadOnly lock** on an **SQL Database logical server**, protects it from deletions or modifications. It allows you to create, update, or delete data in the server database. 
+ Data plane operations allow data transactions.
+
+[Considerations before applying your locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json#considerations-before-applying-your-locks)  
+
+Applying locks can lead to unexpected results. 
+**Locks prevent the POST method from sending data to the Azure Resource Manager (ARM) API**.
+
+> Some common examples of blocked operations are:
+
+Remember:
+
+Locks on resources prevent: **control plane operation**.
+Locks on resources DO NOT prevent: **data plane operation**.
+
+**We recommend that you use a control plane operation**.
+
+- read-only lock on a storage account:
+prevents users from listing the account keys. 
+
+A POST request handles the Azure Storage List Keys operation to protect access to the account keys. The account keys provide complete access to data in the storage account. When a read-only lock is configured for a storage account, users who don't have the account keys need to use Microsoft Entra credentials to access blob or queue data. 
+
+A read-only lock also prevents the assignment of Azure RBAC roles that are scoped to 
+the storage account or to a data container (blob container or queue).
+
+- A read-only lock on a storage account prevents the creation of a blob container.
+
+- A read-only lock or cannot-delete lock on a storage account
+doesn't prevent its data from deletion or modification. 
+It also doesn't protect the data in a blob, queue, table, or file.
+
+> Explanation:
+The Storage Account API exposes data plane and control plane operations. 
+If a request uses data plane operations, the lock on the storage account 
+doesn't protect blob, queue, table, or file data within that storage account. 
+If the request uses control plane operations, however, the lock protects those resources.
+
+- Example on File Share:
+
+For example, if a request uses **File Shares - Delete**, which is a control plane operation, 
+the deletion fails. 
+If the request uses **Delete Share**, which is a data plane operation, the deletion succeeds. 
+**We recommend that you use a control plane operation**.
+
+- Resource Groups:
+A **read-only lock on a resource group** that contains an App Service plan prevents 
+you from scaling up or out of the plan. In this case the scale operation is a 
+**control plane operation** and the lock prevents it even on RG underlying resources!
+
+A **read-only lock on a resource group** that contains a virtual machine prevents 
+all users from starting or restarting a virtual machine. These operations require 
+a POST method request that us a **control plane operation**.
+
+A **read-only lock on a resource group** prevents you from moving existing resources 
+in or out of the resource group.
+
+A **read-only lock on a resource group** that contains an automation account prevents 
+all runbooks from starting. These operations require a POST method request.
+
+A **cannot-delete lock on a resource or resource** group prevents the deletion of 
+Azure RBAC assignments.
+
+> Warning!
+A **cannot-delete lock on a resource group** prevents Azure Resource Manager from 
+automatically deleting deployments in the history. 
+> If you reach 800 deployments in the history, your deployments fail.
+
+
+
+
+
+---
 
 [Lock your resources to protect your infrastructure](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json)   
+
+You can set locks that **prevent either deletions or modifications**. 
+In the portal, these locks are called **Delete** and **Read-only**. 
+In the command line, these locks are called **CanNotDelete** and **ReadOnly**.
+
+> CanNotDelete 
+means authorized users can read and modify a resource, but they can't delete it.
+
+> ReadOnly 
+means authorized users can read a resource, but they can't delete or update it. 
+Applying this lock is similar to restricting all authorized users to the permissions
+that the Reader role provides.
+
+**Unlike RBAC**, you use management **locks to apply a restriction across all users and roles**. 
+
+> Lock inheritance:
+When you apply a lock at a parent scope, all resources within that scope inherit the same lock. 
+Even resources you add later inherit the same parent lock. 
+The most restrictive lock in the inheritance takes precedence.
+
+> Understand scope of locks
 
 ---
 
