@@ -14,6 +14,60 @@
 
 ---
 
+## Q43:
+
+You create a BLOB (Binary Large Object) storage acount `reportstorage99`
+that contains achival reports from past corporate board meetings.
+
+
+A board member requests access to a specific report.
+This member does not have a Microsoft Entra user account.
+Moreover, they have access only to a web browser on his Google Chromebook device.
+
+You need to provide the boiard member with a **least-privilege access** to the 
+requested report while maintaining security compliance and minimizing admin effort.
+
+What should you do?
+
+- Copy the report to Azure Files Service share and provide the board member with a Powershell connection script
+- Generate a SAS token for the report and share the URL eith the board member
+- Create the MEID-Account for the board member and grant him RABC access to the SA
+- Deply a P2S (point-to-site) VPN connection on the Chromebook and grant the member the RABAC access to the report
+
+---
+
+### Answer:
+- Generate a SAS token for the report and share the URL eith the board member
+This is the obvious answer.
+In particular SAS is the ONLy way that a SA allows access to a INDIVIDUAL resource,
+RBAC cannot be used to cover this scenario!
+In addition the RBAC solutions present  much hiher admin effort.
+
+The P2S (point-to-site) VPN connection on the Chromebook would not be possible as 
+**P2S is supported only on Windows!** --> THIS MIGHT NO LONGER BE THE CASE!
+
+---
+
+### References:
+
+[Grant limited access to Azure Storage resources using shared access signatures (SAS)](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)  
+
+[About Point-to-Site VPN](https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about)  
+
+A Point-to-Site (P2S) VPN gateway connection lets you create a secure connection to your virtual network from an individual client computer. A P2S connection is established by starting it from the client computer. This solution **is useful for telecommuters who want to connect to Azure VNets from a remote location**, 
+such as from home or a conference. 
+
+**P2S VPN is also a useful solution to use instead of S2S VPN when you have only a few clients** 
+that need to connect to a VNet. This article applies to the Resource Manager deployment model.
+
+> What protocol does P2S use?
+
+- OpenVPN Protocol
+- Secure Socket Tunneling Protocol (SSTP)
+- IKEv2 VPN
+
+---
+
 ## Q42:
 
 Your company develops a .NET app that stores part of the information
