@@ -28,11 +28,10 @@ Set-AzContext -subscription "SubscriptionName"
 
 OPTIONS-2 -Name "RGName" -Location "East US 2"
 
-New-AzStorageAccount -Name "SAName" -ResourceGroupName "RGName"
-
+New-AzStorageAccount -Name "SAName" -ResourceGroupName "RGName" `
 OPTIONS-3 OPTIONS-4 -Location "East US 2"
 
-OPTION-4 -ResourceGroupName "RGName" -Name "SAName"
+OPTIONS-5 -ResourceGroupNane "RGName" -Name "SAName"
 
 ```
 
@@ -60,11 +59,60 @@ Get-AzStorageAccountKey
 
 ### Answer:
 
+```
+Login-AzAccount
+Set-AzContext -subscription "SubscriptionName"
+New-AzResourceGroup -Name "RGName" -Location "East US 2"
+New-AzStorageAccount -Name "SAName" -ResourceGroupName "RGName" `
+-SkuName Standard_GRS -Location "East US 2"
+Get-AzStorageAccountKey -ResourceGroupNane "RGName" -Name "SAName"
+```
+
+
 ---
 
 ### References:
 
----
+[New-AzStorageAccount](https://learn.microsoft.com/en-us/powershell/module/az.storage/new-azstorageaccount?view=azps-11.4.0)   
+
+[Get-AzStorageAccountKey](https://learn.microsoft.com/en-us/powershell/module/az.storage/get-azstorageaccountkey?view=azps-11.4.0)  
+
+```
+Get-AzStorageAccountKey -ResourceGroupName "RG01" -Name "mystorageaccount"
+
+# Example 2: Get a specific access key for a Storage account
+(Get-AzStorageAccountKey -ResourceGroupName "RG01" -Name "mystorageaccount")| Where-Object {$_.KeyName -eq "key1"}
+
+# include the Kerberos keys (if active directory enabled)
+Get-AzStorageAccountKey -ResourceGroupName "RG01" -Name "mystorageaccount" -ListKerbKey
+```
+
+[New-AzResourceGroupDeployment](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroupdeployment?view=azps-11.4.0)  
+Adds an Azure deployment to a resource group.
+A resource group deployment uses a template to add resources to a resource group and publishes them so that they are available in Azure.
+To add resources to a resource group without using a template, use the `New-AzResource` cmdlet. 
+To add a resource group deployment, specify:
+- the name of an existing resource group 
+- and a resource group template (JSON file)
+
+> Example 1: Use a custom template and parameter file to create a deployment
+```
+New-AzResourceGroupDeployment -ResourceGroupName "ContosoEngineering" -TemplateFile "D:\Azure\Templates\EngineeringSite.json" -TemplateParameterFile "D:\Azure\Templates\EngSiteParms.json" -Tag @{"key1"="value1"; "key2"="value2";}
+```
+
+> Example 2: Use a custom template object and parameter file to create a deployment
+```
+$TemplateFileText = [System.IO.File]::ReadAllText("D:\Azure\Templates\EngineeringSite.json")
+$TemplateObject = ConvertFrom-Json $TemplateFileText -AsHashtable
+New-AzResourceGroupDeployment -ResourceGroupName "ContosoEngineering" -TemplateObject $TemplateObject -TemplateParameterFile "D:\Azure\Templates\EngSiteParams.json"
+```
+
+> Example 4: Deploy a template stored in a non public storage account using a uri and SAS token
+```
+New-AzResourceGroupDeployment -ResourceGroupName "RGName" -TemplateUri "https://example.com/example.json" -QueryString "foo"
+```
+
+-
 
 ## Q39:
 
