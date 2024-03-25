@@ -1,5 +1,6 @@
 # AZ-104 Practice Test 201 Questions
 
+---
 ## Q4X:
 
 
@@ -12,6 +13,234 @@
 ### References:
 
 ---
+
+---
+## Q41:
+
+Your Azure Subscription has the following resources:
+
+- three App Services
+- one backup vault
+- one Azure Event Hub (AEH)
+- a VNet named VNET01
+- a VPN Gateway
+
+You deploy a new SA namend storage1 in a RG named RG01.
+
+You need to ensure that the App Services, the Backup Vault and the AEH can access the new SA. 
+Access should be enabled from within Azure only and not over the public internet.
+
+You decide to use PowerShell to set up the new SA.
+How should you complete the command string?
+
+```
+Get-AzVirtualNetwork -ResourceGroupName "RG01" -Name "VNET01" `
+| Set-AzVirtualNetworkSubnetConfig -Name "VSUBNET01" -AddressPrefix "10.0.0.0/24" -ServiceEndpoint "OPTIONS-1"  ` 
+| Set-AzVirtualNetwork 
+
+$subnet = Get-AzVirtualNetwork -ResourceGroupName "RG01" -Name "VNET01" `
+| Get-AzVirtualNetworkSubnetConfig -Name "VSUBNET01"
+
+OPTIONS-2 -ResourceGroupName "RG01" -Name "storage01" -VirtualNetworkResourceId $subnet.Id
+
+OPTIONS-3 -ResourceGroupName "RG01" -Name "storage01" -Bypass OPTIONS-4
+```
+
+OPTIONS-1
+&
+OPTIONS-4:
+AzureServices
+Logging 
+Metrics
+Microsoft.Storage
+None
+
+OPTIONS-2 
+& 
+OPTIONS-3:
+Add-AzStorageAccountNetworkRule
+Remove-AzStorageAccountNetworkRuleSet
+Update-AzStorageAccountNetworkRuleSet
+Set-AzStorageAccount
+
+---
+
+### Answer:
+
+```
+Get-AzVirtualNetwork -ResourceGroupName "RG01" -Name "VNET01" `
+| Set-AzVirtualNetworkSubnetConfig -Name "VSUBNET01" -AddressPrefix "10.0.0.0/24" -ServiceEndpoint "Microsoft.Storage"  ` 
+| Set-AzVirtualNetwork 
+
+$subnet = Get-AzVirtualNetwork -ResourceGroupName "RG01" -Name "VNET01" `
+| Get-AzVirtualNetworkSubnetConfig -Name "VSUBNET01"
+
+Add-AzStorageAccountNetworkRule -ResourceGroupName "RG01" -Name "storage01" -VirtualNetworkResourceId $subnet.Id
+
+Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "RG01" -Name "storage01" -Bypass AzureServices
+```
+
+The line: 
+`Set-AzVirtualNetworkSubnetConfig -Name "VSUBNET01" -AddressPrefix "10.0.0.0/24" -ServiceEndpoint "Microsoft.Storage"`
+
+allows connections to VNET01 **from** (any) the SA.
+`Set-AzVirtualNetworkSubnetConfig` changes only the memory representation of of the VNet.
+The followinng command: `Set-AzVirtualNetwork` persists these changes ot the VNet.
+
+`Add-AzStorageAccountNetworkRule` adds a **firewall exception** to the SA's NetworkRule property.
+`Update-AzStorageAccountNetworkRuleSet` updates the NetworkRule property of a Storage account with `-Bypass AzureServices`
+
+---
+
+### References:
+
+[Add-AzStorageAccountNetworkRule](https://learn.microsoft.com/en-us/powershell/module/az.storage/add-azstorageaccountnetworkrule?view=azps-11.4.0)   
+
+Add IpRules or VirtualNetworkRules to the NetworkRule property of a Storage account
+
+> Examples:
+```
+# Example 1: Add several IpRules with IPAddressOrRange
+# This command add several IpRules with IPAddressOrRange.
+Add-AzStorageAccountNetworkRule -ResourceGroupName "myResourceGroup" -Name "mystorageaccount" -IPAddressOrRange "10.0.0.0/7","28.2.0.0/16"
+
+# Example 2: Add a VirtualNetworkRule with VirtualNetworkResourceID
+# This command add a VirtualNetworkRule with VirtualNetworkResourceID.
+$subnet = Get-AzVirtualNetwork -ResourceGroupName "myResourceGroup" -Name "myvirtualnetwork" | Get-AzVirtualNetworkSubnetConfig
+Add-AzStorageAccountNetworkRule -ResourceGroupName "myResourceGroup" -Name "mystorageaccount" -VirtualNetworkResourceId $subnet[0].Id
+
+# Example 3: Add VirtualNetworkRules with VirtualNetworkRule Objects from another account
+$networkrule = Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myResourceGroup" -Name "mystorageaccount1"
+Add-AzStorageAccountNetworkRule -ResourceGroupName "myResourceGroup" -Name "mystorageaccount2" -VirtualNetworkRule $networkrule.VirtualNetworkRules
+
+# Example 6: Add all resource access rules of one storage account to another storage account
+(Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myResourceGroup" -Name "mystorageaccount1").ResourceAccessRules | Add-AzStorageAccountNetworkRule -ResourceGroupName "myResourceGroup" -Name "mystorageaccount2"
+```
+
+[Update-AzStorageAccountNetworkRuleSet](https://learn.microsoft.com/en-us/powershell/module/az.storage/update-azstorageaccountnetworkruleset?view=azps-11.4.0)  
+Updates the NetworkRule property of a Storage account
+
+> Example 2: Update Bypass property of NetworkRule:
+This command clean up rules of NetworkRule of a Storage account (other properties not change)!
+```
+Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myResourceGroup" -Name "mystorageaccount" -Bypass AzureServices,Metrics
+```
+
+`-Bypass None`: is used to remove access to the SA from any Azure Service.
+`-Bypass  Logging,Metrics`: is used to allow logging and metrice of the SA to be collected in Azure.
+
+---
+
+[Configure Azure Storage firewalls and virtual networks](https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal)  
+
+When you configure network rules, only applications that request data over the specified set of networks or
+through the specified set of Azure resources can access a storage account.
+You can limit access to your storage account to requests that come from:
+- specified IP addresses
+- IP ranges
+- subnets in an Azure virtual network
+- or resource instances of some Azure service
+
+Storage accounts have a public endpoint that's accessible through the internet.
+**You can also create private endpoints for your storage account**. 
+Creating private endpoints assigns a private IP address from your virtual network to the storage account.
+ It helps secure traffic between your virtual network and the storage account over a private link.
+
+**The Azure Storage firewall** provides **access control for the public endpoint** of your storage account. 
+**You can also use the firewall to block all access through the public endpoint when you're using private endpoints**.
+**Your firewall configuration also enables trusted Azure platform services to access the storage account**.
+
+> Authorization 
+An application that accesses a storage account when network rules are in effect still requires proper 
+authorization for the request. 
+**Authorization is supported with Microsoft Entra credentials** for:
+- blobs
+- tables
+- file shares 
+- queues
+
+with a valid account access key, or with a shared access signature (SAS) token. 
+
+> Blob container for anonymous access:
+When you configure a **blob container for anonymous access**, requests to read data in that container
+don't need to be authorized.
+**The firewall rules remain in effect and will block anonymous traffic**.
+
+> Block Access by default with SA firewall rules:
+Turning on firewall rules for your storage account blocks incoming requests for data by default, 
+unless the requests originate from:
+- a service that operates within an Azure virtual network 
+- or from allowed public IP addresses. 
+
+Requests that are blocked include:
+- those from other Azure services
+- from the Azure portal
+- and from logging and metrics services
+
+> Exceptions mechanism for the SA Firewall:
+You can grant access to Azure services that operate from within a virtual network by allowing traffic 
+from the subnet that hosts the service instance. 
+You can also enable a limited number of scenarios through the **exceptions mechanism** that this article
+describes. 
+
+> Important:
+**Storage firewall rules apply to the public endpoint of a storage account.**
+**You don't need any firewall access rules to allow traffic for private endpoints of a storage account.**
+
+> Scenarios:
+
+
+To secure your storage account, you should first configure a rule to deny access to traffic from all
+networks (including internet traffic) on the public endpoint, by default. 
+Then, you should configure rules that grant access to traffic from specific virtual networks. 
+You can also configure rules to grant access to traffic from selected public internet IP address ranges, 
+enabling connections from specific internet or on-premises clients. This configuration helps you build 
+a secure network boundary for your applications.
+
+> Configure network access to Azure Storage:
+
+- Allow access from selected virtual network subnets using private endpoints.
+- Allow access from selected virtual network subnets using service endpoints.
+- Allow access from specific public IP addresses or ranges.
+- Allow access from selected Azure resource instances.
+- Allow access from trusted Azure services (using Manage exceptions).
+- Configure exceptions for logging and metrics services.
+
+> Exceptions:
+
+[Configure network access to Azure Storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#manage-exceptions)  
+
+In some cases, like storage analytics, access to read resource logs and metrics is 
+required from outside the network boundary. When you configure trusted services to
+access the storage account, you can allow read access for the log files, metrics tables,
+or both by creating a network rule exception.
+
+> Virtual network endpoints:
+
+[About virtual network endpoints](https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal#about-virtual-network-endpoints)
+
+- Virtual Network service endpoints
+- Private endpoints
+
+> Virtual Network service endpoints:
+Virtual network service endpoints are public and accessible via the internet. 
+he Azure Storage firewall provides the ability to control access to your storage account over such public endpoints.
+
+> Private endpoints:
+A private endpoint uses a private IP address from your virtual network to access a storage account over the Microsoft backbone network. 
+With a private endpoint, traffic between your virtual network and the storage account are secured over a private link.
+**Storage firewall rules only apply to the public endpoints of a storage account, not private endpoints**!
+
+The process of approving the creation of a private endpoint grants implicit access to traffic from the subnet that hosts the private endpoint.
+You can use **Network Policies** to control traffic over private endpoints if you want to refine access rules. 
+**If you want to use private endpoints exclusively, you can use the firewall to block all access through the public endpoint**.
+
+---
+
+[Use private endpoints for Azure Storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-private-endpoints)  
+
+---
+
 
 ## Q40:
 
