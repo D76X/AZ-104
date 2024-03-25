@@ -14,7 +14,124 @@
 
 ---
 
+## Q42:
+
+Your company develops a .NET app that stores part of the information
+in an Azure Storage Account.
+This app will be installed on end users' computers.
+
+You need to ensure that he information stored in the SA is accessed in a secure way.
+You ask the developers to use SAS when accessing info on te SA.
+Yo must make the required configurations on the SA to follow security best 
+practices and enable access to teh SA with immediate effect.
+
+Select Yes / No.
+
+- You need to configure a store access policy
+- you should set the SAS start time to now
+- you should validate data that has been writteng using SAS
+- one option for revoking a SAS is by deleting a storage access policy
+
+>  call the Set ACL (Access Control List) operation for the resource:
+
+- Set Container ACL
+- Set Queue ACL
+- Set Table ACL
+- Set Share ACL
+
+with a request body that specifies the terms of the access policy. 
+
+```
+<?xml version="1.0" encoding="utf-8"?>  
+<SignedIdentifiers>  
+  <SignedIdentifier>
+    <Id>unique-64-char-value</Id>  
+    <AccessPolicy>  
+      <Start>start-time</Start>  
+      <Expiry>expiry-time</Expiry>  
+      <Permission>abbreviated-permission-list</Permission>  
+    </AccessPolicy>  
+  </SignedIdentifier>  
+</SignedIdentifiers>
+```
+
+> Modify or revoke a stored access policy:
+
+To modify the parameters of a stored access policy, you can call the access control list (ACL) operation for the resource type to replace the existing policy. In that operation, specify a new start time, expiry time, or set of permissions.
+
+**To revoke a stored access policy** you can:
+
+- delete it
+- rename it by changing the signed identifier
+- or change the expiry time to a value in the past.
+
+
+
 ---
+
+### Answer:
+
+- You need to configure a store access policy
+Yes
+
+- you should set the SAS start time to now
+No
+There might be differences between the host time and the client time.
+It is recommended to set the start time to **15 minutes prior to the server time**
+OR **you may also NOT set the start time at all** to make sure that clients are 
+not denied assess.
+
+- you should validate data that has been written using SAS
+Yes
+The data that is written to the SA by clients access via SAS should be validated
+to prevent data corruption and communication issues. The data should be validated
+aftern being written to the SA by another app and thne being marked as OK or corrupted.
+
+- one option for revoking a SAS is by deleting a storage access policy
+Yes
+
+---
+
+### References:
+
+[Define a stored access policy](https://learn.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy)  
+
+A stored access policy provides an additional level of control over service-level shared access signatures (SASs) on the server side. Establishing a stored access policy serves to group shared access signatures and to provide additional restrictions for signatures that are bound by the policy.
+
+You can use a stored access policy to change the start time, expiry time, or permissions for a signature.
+You can also use a stored access policy to revoke a signature after it has been issued.
+
+The following storage resources support stored access policies:
+
+- Blob containers
+- File shares
+- Queues
+- Tables
+
+A stored access policy on a container can be associated with a shared access signature that grants permissions to the container itself or to the blobs that it contains. Similarly, a stored access policy on a file share can be associated with a shared access signature that grants permissions to the share itself or to the files that it contains.
+
+Stored access policies are not supported for the user delegation SAS or the account SAS.
+
+> Create or modify a stored access policy:
+
+a shared access signature consists of the:
+- start time
+- expiry time
+- permissions for the signature. 
+
+You can specify either of the following options or combine them:
+
+- All of these parameters on the signature URI and none on the stored access policy
+- All of these parameters on the stored access policy and none on the URI
+
+However, you can't specify a parameter on both the SAS token and the stored access policy.
+
+---
+
+[Grant limited access to Azure Storage resources using shared access signatures (SAS)](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)  
+
+---
+
 ## Q41:
 
 Your Azure Subscription has the following resources:
@@ -128,6 +245,15 @@ Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myResourceGroup" -Name
 
 `-Bypass None`: is used to remove access to the SA from any Azure Service.
 `-Bypass  Logging,Metrics`: is used to allow logging and metrice of the SA to be collected in Azure.
+
+---
+
+[Set-AzStorageAccount](https://learn.microsoft.com/en-us/powershell/module/az.storage/set-azstorageaccount?view=azps-11.4.0)  
+modifies an Azure Storage account. 
+You can use this cmdlet to modify the account type, update a customer domain, or set tags on a Storage account.
+
+[Set-AzVirtualNetworkSubnetConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/set-azvirtualnetworksubnetconfig?view=azps-11.4.0)    
+Updates a subnet configuration for a virtual network.
 
 ---
 
