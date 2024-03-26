@@ -15,6 +15,51 @@
 ---
 
 ---
+
+## Q45:
+
+You have two SA keys: 
+- key1
+- key2
+
+Your apps and services use key1.
+You maintain key2 as a backup key.
+
+You are concerned that both keys may have been compromised.
+You want to regenerate the keys without interrupting access to the SA.
+
+Which 5 actions should you perfrom in a sequence?
+
+- update the connection string in all relevant apps and services to use key2
+- verify that all apps and services are running correctly using the new key
+- update the connection string in all relevant apps and services to use key1
+- create a new key3 using the Azure Portal 
+- regenerate key2 using the Azure Portal 
+- regenerate key1 using the Azure Portal 
+
+
+---
+
+### Answer:
+
+- regenerate key2 using the Azure Portal 
+- update the connection string in all relevant apps and services to use key2
+- regenerate key1 using the Azure Portal 
+- update the connection string in all relevant apps and services to use key1
+- verify that all apps and services are running correctly using the new key
+
+
+---
+
+### References:
+
+[Manage storage account access keys](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal&source=docs)  
+
+
+[Security recommendations for Blob storage](https://learn.microsoft.com/en-us/azure/storage/blobs/security-recommendations)  
+
+---
+
 ## Q44:
 
 You have a SA named salesstorage in a subscription named SalesSubscription.
