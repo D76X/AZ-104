@@ -14,6 +14,71 @@
 
 ---
 
+---
+## Q44:
+
+You have a SA named salesstorage in a subscription named SalesSubscription.
+You create a container in a blob storage named salescontainer.
+
+You create a the SAS shown in the exhibit.
+
+<img src="./Q44-exhibit.png">
+
+
+You try to carry out actions from several computers at different times using 
+the SAS key1 configurations shown in the exhibit.
+
+What level of access would be available in each scenario?
+
+OPTIONS:
+Connection failure with read access
+Connection failure with read, write and list access
+Connection success with read, write and list access
+
+
+| CONFIGURATION | Value            | Action           | Action Result  | 
+| -------------------------------- | ---------------- | -------------- |
+| 151.112.10.6  | 04032020 11 AM   | Connect to SA    | ?              |
+| 151.112.11.6  | 04032020 12 AM   | Connect to SA    | ?              |
+| 151.112.10.6  | 10032020 10 AM   | Create container | ?              |
+| 151.112.10.6  | 10032020 12 AM   | Read File Share  | ?              |
+
+
+---
+
+### Answer:
+
+
+| CONFIGURATION | Value            | Action           | Action Result  | 
+| -------------------------------- | ---------------- | -------------- |
+| 151.112.10.6  | 04032020 11 AM   | Connect to SA    | Connection success with read, write and list access  |
+| 151.112.11.6  | 04032020 12 AM   | Connect to SA    | Connection failure with read, write and list access  |
+| 151.112.10.6  | 10032020 10 AM   | Create container | Connection failure with read, write and list access  |
+| 151.112.10.6  | 10032020 12 AM   | Read File Share  | Connection failure with read, write and list access  |
+
+The allowed IP address range is: 151.112.10.1 -  151.112.10.255
+
+Therefore any operation from 151.112.11.6 is not granted by the SAS generated according
+to the exhibit.
+
+`| 151.112.10.6  | 10032020 10 AM   | Create container | Connection failure with read, write and list access  |`
+
+This happens because the SAS is configured to prowide R/W/List permissions on Blob.
+This set of permisisons DOES NOT INCLUDE the CREATE CONTAINER operation on the SA!
+
+`| 151.112.10.6  | 10032020 12 AM   | Read File Share  | Connection failure with read, write and list access  |`
+
+This happens because the SAS is configured to grant R/W/List on blobs and NOT File(s) in a File Share.
+
+---
+
+### References:
+
+[Grant limited access to Azure Storage resources using shared access signatures (SAS)](https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview)  
+
+
+---
+
 ## Q43:
 
 You create a BLOB (Binary Large Object) storage acount `reportstorage99`
