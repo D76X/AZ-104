@@ -14,6 +14,43 @@
 
 ---
 
+
+---
+## Q46:
+
+You need to give a user temporary R/W permissions to a new blob by using a SAS
+without using the Azure Portal.
+
+You have a Storage Account in place.
+
+Which six actions should you perform in sequence?
+
+- connect to your SA
+- create a blob container
+- create a RG
+- create a storage access policy for the container
+- get a SAS for the blob and specify start/expiry & permissions
+- open Azure Storage Explorer
+- upload the blob to the container
+- use HTTPS to provide access to the blob
+
+---
+
+### Answer:
+
+- open Azure Storage Explorer
+- connect to your SA
+- create a blob container
+- upload the blob to the container
+- get a SAS for the blob and specify start/expiry & permissions
+- use HTTPS to provide access to the blob
+
+---
+
+### References:
+
+---
+
 ---
 
 ## Q45:
