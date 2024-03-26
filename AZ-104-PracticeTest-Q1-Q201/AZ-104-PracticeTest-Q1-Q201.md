@@ -16,6 +16,76 @@
 
 
 ---
+
+## Q47:
+
+You manage an ASP.Net Core App named app1 that runs in Azure App Service.
+
+The app connects to a SA named sotrage1 that uses an access key stored in an app settings.
+Both app1 and storage1 are provisioned in a RG1.
+
+For security reasons, you need to regenerate the storage1 access keys
+without interrupting the connection with app1.
+
+How should you complete the command?
+
+```
+key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 OPTIONS-1)
+az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
+
+az storage account keys renew --resource-group rg1 - --account-name storage1 OPTIONS-2
+
+key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 OPTIONS-3)
+az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
+
+az storage account keys renew --resource-group rg1 - --account-name storage1 OPTIONS-4
+
+```
+
+OPTIONS-1,..,4:
+--key primary
+--key secondary
+--query[0].value
+--query[1].value
+
+---
+
+### Answer:
+
+```
+# take key2 first
+key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 query[1].value)
+
+# swap the key1 with key2 in the app 
+az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
+
+# regenerate key1
+az storage account keys renew --resource-group rg1 - --account-name storage1 --key primary
+
+# take the new key1 that you have jusr regenerated
+key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 query[0].value)
+
+# swap the key2 with the new key1 in the app 
+az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
+
+# regenerate key2
+az storage account keys renew --resource-group rg1 - --account-name storage1 --key secondary
+
+```
+
+---
+
+### References:
+
+`az storage account keys list`
+`az webapp config appsettings set`
+`az storage account keys renew`
+
+[Manage storage account access keys](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-cli)  
+
+
+---
+
 ## Q46:
 
 You need to give a user temporary R/W permissions to a new blob by using a SAS
