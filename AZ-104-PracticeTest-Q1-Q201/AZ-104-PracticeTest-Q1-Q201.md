@@ -2,7 +2,7 @@
 
 ---
 
-## Q5X:
+## Q6X:
 
 
 ---
@@ -14,6 +14,269 @@
 ### References:
 
 ---
+
+## Q60:
+
+You have joined  a phamaceutical organization as an Azure admin.
+the organization has a large number of SAs.
+
+You muste perform teh following tasks:
+
+1. an audit of the existing SAa
+2. disable the cration of new SA that allows cross-tenant object replication
+3. disable the cross-tenant object replication on all existing SAs
+4. validate the implementation as per the org's corporate standards and SLA
+
+The Policy Definition:
+
+```
+```
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q59:
+
+You rae a cloud engineer in a global company with offices around the world.
+The organization uses Azure to hist its infrastructure including file shares.
+It use Premium-ZRS accounts as well as Azure Files workloads.
+
+The company is planning to open new offices in the Azure Europe UK South Region.
+
+You need to decide which option fro Azure Storage should be used based on
+Micorsoft recommendantion.
+
+- LRS with 3 replications
+- LRS with 2 replications
+- ZRS with 2 replications
+- ZRS with 3 replications
+
+---
+
+### Answer:
+- ZRS with 3 replications
+This is the most robust option.
+
+The LRS is not suitable and it is not recommended as it cannot match the
+durability of ZRS in case of a world wide scenario like this one.
+
+---
+
+### References:
+
+---
+
+## Q58:
+
+You work for a company that has a Azure sbscription and 
+a separate SA for each department.
+
+A member of the Marketing team has downloaded Azure Storage Explorer
+as they want to upload some old files into Azure Blob Storage.
+When they attempt to log in to Storage Explorer they get the 
+following error:
+
+`Read: List/Get Storage Account(s) permission issue`
+
+The user has Contributor Access to the SA.
+You must provide them the necessary access to the subscription in order 
+to resove this error and apply the principle of least privilege.
+
+What role should you assign to teh user at the subscription level?
+
+- Owner
+- Reader
+- Contributor
+- Storage Blob Data Reader
+
+
+---
+
+### Answer:
+- Reader
+
+**The user has Contributor Access to the SA**.
+This arror is caused because this user lack sufficient permissions at the
+subscription level.
+The need to be able to **list all the storage accounts in teh subscription**.
+
+---
+
+### References:
+
+[Azure Storage Explorer troubleshooting guide](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-storage/storage-explorer-troubleshooting?tabs=Windows)   
+
+---
+
+## Q57:
+
+A company is in teh process of migrating its resources from on-prem to Azure.
+
+The Marketing team needs to migrate 15 GB of data 
+from a file server to premium file storage.
+
+They need to use a tool with a friendly GUI.
+
+You must deploy a tool that support both: 
+- the types of migration
+- the requirements from teh Marketing team
+
+Which tool do you choose?
+
+- AzCopy
+- Azure Storage Explorer
+- PowerShell
+- Azure Data Box
+
+---
+
+### Answer:
+- Azure Storage Explorer
+
+The following cannot be used:
+- Azure Data Box
+
+This is not a software tool, istead ot is a **physical device**
+that is sent by Microsoft to your on-premise snd then set up in order to
+import large amount of data into Azure.
+**Micorsoft recommends using Data Box for cases over 40 TB of data**.
+
+The following are obviouslu unsuitable:
+- AzCopy
+- Azure Storage Explorer
+- PowerShell
+
+---
+
+### References:
+
+[What is Azure Data Box?](https://learn.microsoft.com/en-us/azure/databox/data-box-overview)  
+
+Here are the various scenarios where Data Box can be used to export data from Azure.
+
+- Disaster recovery 
+when a copy of the data from Azure is restored to an on-premises network. In a typical disaster recovery scenario, a large amount of Azure data is exported to a Data Box. Microsoft then ships this Data Box, and the data is restored on your premises in a short time.
+
+- Security requirements
+when you need to be able to export data out of Azure due to government or security requirements. For example, Azure Storage is available in US Secret and Top Secret clouds, and you can use Data Box to export data out of Azure.
+
+- Migrate back to on-premises or to another cloud service provider
+when you want to move all the data back to on-premises, or to another cloud service provider, export data via Data Box to migrate the workloads.
+
+> Scebarios:
+
+- Onetime migration - when a large amount of on-premises data is moved to Azure.
+Moving a media library from offline tapes into Azure to create an online media library.
+Migrating your VM farm, SQL server, and applications to Azure.
+Moving historical data to Azure for in-depth analysis and reporting using HDInsight.
+
+- Initial bulk transfer
+when an initial bulk transfer is done using Data Box (seed) followed by incremental transfers over the network.
+
+For example, backup solutions partners such as Commvault and Data Box are used to move initial large historical backup to Azure. Once complete, the incremental data is transferred via network to Microsoft Azure Storage.
+
+- Periodic uploads
+when large amount of data is generated periodically and needs to be moved to Azure. For example in energy exploration, where video content is generated on oil rigs and windmill farms.
+
+---
+
+## Q56:
+
+Your aorganization hosts resources as IaaS Azure and on-premise.
+You have an existig **Azure File Network File System v4.1 (NFSv4.1)** share.
+This uses LRS.
+
+The company wants to inprove redundancy of teh file share and has asked
+you to migrate the existing files from LRS to ZRS.
+
+What should you do?
+
+- perform manual migration
+- migration via Azure Portal
+- request live migration
+- use PowerShell
+
+---
+
+### Answer:
+- perform manual migration
+
+use either of the two supported migration options from LRS to a ZRS storage:
+- manual migration 
+- request live migration
+
+However, `live migration` is not supported for **(NFSv4.1)**. 
+
+---
+
+### References:
+
+[Change the redundancy configuration for a storage account](https://learn.microsoft.com/en-us/azure/storage/common/redundancy-migration?tabs=portal)  
+
+> Options for changing the replication type:
+
+> Manual migration:
+You must perform a manual migration if:
+
+You want to migrate your storage account to a different region.
+Your storage account is a block blob account.
+Your storage account includes data in the archive tier and rehydrating the data isn't desired.
+
+With a manual migration, you copy the data from your existing storage account to a new storage account. To perform a manual migration, you can use one of the following options:
+
+- AzCopy:
+Copy data by using an existing tool such as AzCopy, one of the Azure Storage client libraries, or a reliable non-Microsoft tool.
+
+- Hadoop or HDInsight:
+If you're familiar with Hadoop or HDInsight, you can attach both the source storage account and destination storage account to your cluster. Then, parallelize the data copy process with a tool like DistCp.
+
+---
+
+
+## Q55:
+
+An organization is in the process of migrating its reources iniot Azure
+from on-premise.
+You plan to use AzCopy to migrate Blob Storage blobs.
+Company policy forbids using SAS tokens.
+
+You must use another authorization option that is suported by AzCopy 
+to accomplish the migration of blobs to Blob Storage.
+
+- Microsoft Entra Domain Services
+- Microsoft Entra ID
+- AD Domain Services
+- anonymous public read
+
+
+---
+
+### Answer:
+- Microsoft Entra ID
+
+In one of teh previous questions it iis discussed that the following
+are the authorization method that are supported with AzCopy to copy
+blobs to a Blob Storage:
+- Microsoft Entra ID
+- SAS
+
+All the remining options for authorization are not supported with AzCopy:
+- Microsoft Entra Domain Services
+- AD Domain Services
+- anonymous public read
+
+---
+
+### References:
+
+
 
 ---
 
