@@ -1,7 +1,7 @@
 # AZ-104 Practice Test 201 Questions
 
 ---
-## Q4X:
+## Q5X:
 
 
 ---
@@ -14,7 +14,436 @@
 
 ---
 
+## Q52:
 
+Your company is migrating data stored on-premise file servers to Azure File Shares.
+You create a File Storage account.
+Due to company policy they can only use UK South region.
+
+You must configure SA replication to optimise availability.
+
+Which redundancy option should you configure?
+
+- LRS : Locally Redundant Storage
+- GZRS: Geo-zone Redundant Storage
+- ZRS : Zone Redundant Storage
+- GRS : Geo Redundant Storage
+
+
+
+
+---
+
+### Answer:
+- ZRS : Zone Redundant Storage
+Any Azure Region such as UK South can have 2 or more Availability Zones 
+which can be used for redundancy of some services such as SA.
+The ZRS options for SA makes three copies accross the available Zones
+for teh region.
+
+The remaining options:
+
+- LRS : Locally Redundant Storage
+The LRS options for SA makes three copies accross the same Data Center
+and it is therefore NOT na high-availability option.
+
+The G(Z)RS option provide availability also in case of regional outage.
+- GRS : Geo Redundant Storage
+copies your data synchronously three times 
+**within a single physical location in the primary region**. 
+It then copies your data asynchronously to a single physical location in the secondary region. Within the secondary region, your data is copied synchronously three times.
+
+- GZRS: Geo-zone Redundant Storage
+The GZRS adds on top of GRS **data durability**.
+**copies your data synchronously across three Azure availability zones in the primary region**. 
+It then copies your data asynchronously to a single physical location in the secondary region. Within the secondary region, your data is copied synchronously three times.
+
+---
+
+### References:
+
+[Azure Storage redundancy](https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy)  
+
+[Azure Files geo-redundancy for large file shares](https://learn.microsoft.com/en-us/azure/storage/files/geo-redundant-storage-for-large-file-shares?tabs=portal)   
+
+Azure Files geo-redundancy for large file shares significantly improves capacity 
+and performance for standard SMB file shares when using geo-redundant storage (GRS) 
+and geo-zone redundant storage (GZRS) options.
+
+Azure Files has offered 100 TiB standard SMB shares for years with locally redundant storage (LRS) and zone-redundant storage (ZRS). 
+
+However, geo-redundant file shares had a 5 TiB capacity limit and were sometimes throttled 
+due to IO operations per second (IOPS) and throughput limits. Now, geo-redundant standard 
+SMB file shares support up to 100 TiB capacity with significantly improved IOPS and throughput limits.
+
+---
+
+## Q51:
+
+You create a new storage account named DevStore for 
+- Azure Blob Storage
+- and Azure File Storage
+
+You plan to use **AzCopy** to copy data from Blob Storage (BS)
+and File Storage (FS) in other storage accounts to the SA DevStore.
+
+You have access to the SA access keys for DevStore.
+You also have a valid Microsoft Entra user account and SAS with access 
+to the source data.
+
+You need to identify the authorization methods you can use to copy 
+the data to DevStore.
+
+Blob Storage: OPTIONS
+File Storage: OPTIONS
+
+OPTIONS:
+Microsoft Entra ID only
+Access Keys only
+SAS only
+Microsoft Entra ID and SAS only
+Access Keys only and SAS only
+Microsoft Entra ID , Access Keys and SAS 
+
+
+---
+
+### Answer:
+
+Blob Storage: Microsoft Entra ID and SAS only
+File Storage: SAS only
+
+---
+
+### References:
+
+[Get started with AzCopy](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)  
+
+[Transfer data with AzCopy and file storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-files)  
+
+For commands that target files and directories, you can now provide authorization credentials by using Microsoft Entra ID and omit the SAS token from those commands. 
+
+
+---
+
+[Authorize AzCopy](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10#authorize-azcopy)  
+
+You can provide authorization credentials by using:
+
+- Microsoft Entra ID
+- or by using a Shared Access Signature (SAS) token.
+
+> Option 1: Use Microsoft Entra ID
+
+By using Microsoft Entra ID, you can provide credentials once 
+instead of having to append a SAS token to each command.
+
+> Option 2: Use a SAS token
+You can append a SAS token to each source or destination URL 
+that use in your AzCopy commands.
+
+This example command recursively copies data from a local directory to a blob container. 
+A fictitious SAS token is appended to the end of the container URL.
+
+```
+azcopy copy "C:\local\path" "https://account.blob.core.windows.net/mycontainer1/?sv=2018-03-28&ss=bjqt&srt=sco&sp=rwddgcup&se=2019-05-01T05:01:17Z&st=2019-04-30T21:01:17Z&spr=https&sig=MGCXiyEzbtttkr3ewJIh2AR8KrghSy1DGM9ovN734bQF4%3D" --recursive=true
+```
+
+---
+
+## Q50:
+
+You have two subscriptions named subA and subB.
+subA has a SA with a file share named share1.
+subB has a SA with a file share named share2.
+Both file shares were created to serve different regions with the primary source of records being share1.
+
+Over a period time, employees create a number of temporary files and provide updates to the original files from share1 in share2.
+Some new files have been added to share2 also.
+
+You must ensure that share1 and share2 have the most up-to-date information
+and that temporary files are cleaned up.
+Minimize the admin effort. 
+
+- delete share2 filesaud use ZzCopy to copy files from share1 into share2
+
+- use AzCopy with the sync option to sync files from share1 to share2, specifying share1 as the source and the setting `--delete-destination` flag set to true
+
+- create a new container named share3 and copy files from share1 to share3. Replace files from share2 in share3 using Storage Explorer and delete share2
+
+- use Micorsoft Storage Explorer to compare, copy and delete files is share1 and share2
+
+---
+
+### Answer:
+
+- use AzCopy with the sync option to sync files from share1 to share2, specifying share1 as the source and the setting `--delete-destination` flag set to true
+
+The `--delete-destination` flag set to true causes the temporary files that 
+have been created in share2 and that are not present in share1 to be deleted
+when the sync from share1 to share2 is performed.
+
+The sync options ensure that only the most recent version that is the latest
+update of any file shared between share1 and share2 is retained in both shares.
+
+Any other otions do not apply.
+
+
+---
+
+### References:
+
+[Get started with AzCopy](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)  
+
+[Transfer data with AzCopy and file storage](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-files)  
+
+[azcopy copy](https://learn.microsoft.com/en-us/azure/storage/common/storage-ref-azcopy-copy?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json)  
+
+[azcopy sync](https://learn.microsoft.com/en-us/azure/storage/common/storage-ref-azcopy-sync?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json)
+
+[Synchronize files](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-files#synchronize-files)   
+
+You can synchronize the contents of:
+
+- a local file system with a file share 
+- or the contents of a file share with another file share.
+- the contents of a directory in a file share with the contents of a directory that is located in another file share.
+
+**Synchronization is one way**: you choose which of these two endpoints is the source and which one is the destination. 
+**AzCopy sync is supported but not fully recommended for Azure Files**,
+doesn't support differential copies at scale, and some file fidelity might be lost. 
+
+By default, the sync command compares file names and last modified timestamps. 
+You can override that behavior to use **MD5 hashes** instead of last modified timestamps by using the `--compare-hash` flag. 
+
+Set the `--delete-destination` optional flag to a value of `true` or `prompt` to delete files in the destination directory if those files no longer exist in the source directory.
+
+> When to use the AzCopy copy instead of sync command:
+If you plan to set the `--delete-destination` flag to `prompt` or `false`, **consider using the copy command instead of the sync command** and set the `--overwrite` parameter to `ifSourceNewer`. 
+
+> Use --compare-hash if possible:
+If you don't plan to use the --compare-hash flag, then the machine on which you run the sync command should have an accurate system clock because the last modified times are critical in determining whether a file should be transferred. 
+If your system has significant clock skew, avoid modifying files at the destination too close to the time that you plan to run a sync command.
+
+> AzCopy Server to Server API AND LOAD CONCERNS:
+
+AzCopy uses server-to-server APIs to synchronize data between storage accounts. 
+That means that data is copied directly between storage servers.
+However, AzCopy does set up and monitor each transfer, and for larger storage accounts (For example, accounts that contain millions of blobs), AzCopy might require a substantial amount of compute resources to accomplish these tasks. 
+**Therefore, if you are running AzCopy from Virtual Machine (VM)**
+**make sure that the VM has enough cores/memory to handle the load**.
+
+
+
+---
+
+## Q49:
+
+Your company uses Micorsoft Entra ID and Azure File Shares.
+You use the standard file shares (GPv2) with Geo-Zone Redundant Storage (GZRS).
+
+You need to configure identity-based authentication for Server Message Block (SMB) access.
+
+The following are requirements:
+
+R1. You should be able to use MEID for authentication of hybrid users
+R2. Your users should be able to access Azure File Shares over the internet
+R3. Your users do not require a line-of-sight to domain controllers
+
+What should you do?
+
+- use Active Directory (AD) Kerberos authentication for Linux clients using on-prem AD DS or Micorsoft Entra DS
+- use Kerberos authentication for hybrid identities
+- use Microsoft Entra Domain Service authentication
+- use on-prem Active Domain Services (AD DS) authentication
+
+---
+
+### Answer:
+- use Kerberos authentication for hybrid identities
+
+Azure File Share can use domain services **either on-premise or in Azure** 
+to support identity-based access to Azure file shares over SMB (Server Message Block).
+
+In this scenario, **Hybrid Users / Identities** in AD-DS  **that are synched to MEID** using the
+lightweight agent **ME-Connect sync** or **ME-Connect Cloud sync** sync.
+
+The **ME-Connect Cloud** is provided as an agent that can be istalled from the **Micorsoft Entra Admin Cebter**.
+
+This set-up allows users from the on-prem environemnts who do not have line-of-sight to domain
+controllers from **Microsoft hybrid joined** and **Micorsoft Entra-joined** VMs to access
+Azure File Shares over the internet.
+
+The remaining options do not apply:
+
+- use on-prem Active Domain Services (AD DS) authentication
+
+This option DOES NOT ALLOW:
+- authentication for hybrid identities
+- users to access Azure File Share over the internet who do not have line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs)
+
+- use Microsoft Entra Domain Service authentication:
+This is not a viable option because it requires line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
+
+- use Active Directory (AD) Kerberos authentication for Linux clients using on-prem AD DS or Micorsoft Entra DS
+Linux client can use Kerberos based auth but require line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
+
+---
+
+### References:
+
+[Overview of Azure Files identity-based authentication options for SMB access](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-active-directory-overview)   
+
+Azure file shares can use domain services, either on-premises or in Azure, to support 
+identity-based access to Azure file shares over SMB.
+
+Enabling identity-based access for your Azure file shares allows you:
+- to replace existing file servers with Azure file shares without replacing your existing directory service
+- maintaining seamless user access to shares.
+
+> Microsoft Entra Domain Services
+
+Microsoft Entra Domain Services provides managed domain services such as domain join, group policies, LDAP, and Kerberos/NTLM authentication. These services are fully compatible with Active Directory Domain Services. 
+
+> On-premises Active Directory Domain Services (AD DS)
+
+On-premises Active Directory Domain Services (AD DS) **integration with Azure Files** provides the methods for storing directory data while making it available to network users and administrators. 
+**Security is integrated with AD DS through logon authentication and access control to objects in the directory**. 
+With a single network logon, administrators can manage directory data and organization throughout their network, 
+and authorized network users can access resources anywhere on the network. 
+AD DS is commonly adopted by enterprises in on-premises environments or on cloud-hosted VMs, and AD DS credentials
+ are used for access control. 
+
+> Supported authentication scenarios:
+
+Azure Files supports identity-based authentication over SMB through the following methods.
+You can only use one method per storage account.
+
+- On-premises AD DS authentication: 
+**On-premises AD DS-joined or Microsoft Entra Domain Services-joined Windows machines** 
+can access Azure file shares with on-premises Active Directory credentials that are synched to Microsoft Entra ID over SMB. 
+**Your client must have unimpeded network connectivity to your AD DS**. 
+If you already have AD DS set up on-premises or on a VM in Azure where your devices are domain-joined to your AD, 
+you should use AD DS for Azure file shares authentication.
+
+- Microsoft Entra Domain Services authentication: 
+**Cloud-based, Microsoft Entra Domain Services-joined Windows VMs** 
+can access Azure file shares with Microsoft Entra credentials. 
+In this solution, Microsoft Entra ID runs a traditional Windows Server AD domain on behalf of the customer, 
+which is a child of the customer’s Microsoft Entra tenant.
+
+- Microsoft Entra Kerberos for hybrid identities: 
+Using Microsoft Entra ID for authenticating hybrid user identities allows Microsoft Entra users 
+to access Azure file shares using Kerberos authentication. 
+This means your end users:
+**can access Azure file shares over the internet without requiring network connectivity to domain controllers**
+**from Microsoft Entra hybrid joined and Microsoft Entra joined VMs**. 
+Cloud-only identities aren't currently supported.
+
+- AD Kerberos authentication for Linux clients: 
+Linux clients can use Kerberos authentication over SMB for Azure Files using on-premises AD DS 
+or Microsoft Entra Domain Services.
+
+---
+
+[What is Microsoft Entra Domain Services?](https://learn.microsoft.com/en-us/entra/identity/domain-services/overview)   
+
+[Kerberos Authentication Overview](https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview)   
+
+
+[Microsoft SMB Protocol and CIFS Protocol Overview](https://learn.microsoft.com/en-us/windows/win32/fileio/microsoft-smb-protocol-and-cifs-protocol-overview)    
+
+
+---
+
+[What is Microsoft Entra Cloud Sync?](https://learn.microsoft.com/en-us/entra/identity/hybrid/cloud-sync/what-is-cloud-sync)    
+
+Microsoft Entra Cloud Sync is a new offering from Microsoft designed to meet and accomplish your hybrid 
+identity goals for synchronization of users, groups, and contacts to Microsoft Entra ID.
+**It accomplishes this by using the Microsoft Entra cloud provisioning agent instead of the**
+**Microsoft Entra Connect application**.
+
+**it can be used alongside Microsoft Entra Connect Sync** and it provides the following benefits:
+
+- Simplified installation with light-weight provisioning agents: 
+The agents act as a bridge from AD to Microsoft Entra ID, with all the sync configuration managed in the cloud.
+
+- Multiple provisioning agents can be used to simplify high availability deployments: 
+particularly critical for organizations relying upon password hash synchronization from AD to Microsoft Entra ID.
+
+- Support for large groups with up to 50,000 members. 
+It's recommended to use only the OU scoping filter when synchronizing large groups.
+
+
+- Support for synchronizing to a Microsoft Entra tenant from a multi-forest disconnected Active Directory forest environment:
+The common scenarios include merger & acquisition (where the acquired company's AD forests are isolated from the parent company's AD forests), and companies that have historically had multiple AD forests.
+
+> How is Microsoft Entra Cloud Sync different from Microsoft Entra Connect Sync?
+
+With Microsoft Entra Cloud Sync, provisioning from AD to Microsoft Entra ID is orchestrated in Microsoft Online Services.
+An organization only needs to deploy, in their on-premises or IaaS-hosted environment, a **light-weight agent** that acts as a bridge between Microsoft Entra ID and AD. 
+**The provisioning configuration is stored in Microsoft Entra ID** and managed as part of the service.
+
+---
+
+[What is Microsoft Entra Connect?](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/whatis-azure-ad-connect)    
+Microsoft Entra Connect is an on-premises Microsoft application.
+
+---
+
+## Q48:
+
+You are an Azure admin for a manufacturing organization.
+You are suing SAS to configure control over the SA.
+
+You create a SAP (Storage Access Policy) as an additional level of control over SAS
+on the server side for File Shares.
+
+You need to modify a SAP.
+
+What should you do?
+
+- execute a Set Share ACL operation with the SMB protocol
+- execute a Set Share ACL operation 
+- execute a Set Container ACL operation with public access for blobs only
+
+---
+
+### Answer:
+- execute a Set Share ACL operation with the SMB protocol
+
+---
+
+### References:
+
+[Define a stored access policy](https://learn.microsoft.com/en-us/rest/api/storageservices/define-stored-access-policy)  
+
+[Set Share ACL](https://learn.microsoft.com/en-us/rest/api/storageservices/set-share-acl)    
+The Set Share ACL operation sets a stored access policy for use with shared access signatures.
+
+```
+Request Syntax:  
+PUT https://myaccount.file.core.windows.net/myshare?restype=share&comp=acl HTTP/1.1  
+  
+Request Headers:  
+x-ms-version: 2015-02-21  
+x-ms-date: <date>  
+Authorization: SharedKey myaccount:V47F2tYLS29MmHPhiR8FyiCny9zO5De3kVSF0RYQHmo=  
+```
+
+```
+<?xml version="1.0" encoding="utf-8"?>  
+<SignedIdentifiers>  
+  <SignedIdentifier>   
+    <Id>unique-64-character-value</Id>  
+    <AccessPolicy>  
+      <Start>start-time</Start>  
+      <Expiry>expiry-time</Expiry>  
+      <Permission>abbreviated-permission-list</Permission>  
+    </AccessPolicy>  
+  </SignedIdentifier>  
+</SignedIdentifiers>
+```
 ---
 
 ## Q47:
