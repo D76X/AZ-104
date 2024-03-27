@@ -1,6 +1,7 @@
 # AZ-104 Practice Test 201 Questions
 
 ---
+
 ## Q5X:
 
 
@@ -11,6 +12,429 @@
 ---
 
 ### References:
+
+---
+
+---
+
+## Q54:
+
+You create a new SA named `mysa` in RG1.
+
+Requirements:
+- support hot, cool and archive tiers
+- support automatic blob lifecycle
+- provide fault tollerance against Azure-wide failure
+- minimize costs
+
+Complete the command:
+
+```
+az storageaccount create - n mysa -g RG1 \
+--kind OPTIONS-1 --sku OPTIONS-2
+```
+
+OPTIONS-1:
+Storage
+StorageV2
+BlockBlobStorage
+
+OPTIONS-2:
+Premium_LRS
+Premium_ZRS
+Standard_LRS
+Standard_ZRS
+Standard_GRS
+
+---
+
+### Answer:
+
+```
+az storageaccount create - n mysa -g RG1 \
+--kind StorageV2 --sku Standard_GRS
+```
+
+`--kind StorageV2`:
+StorageV2 is the best option in this case to create a GPv2 SA.
+The GPv2 supports hot, cood and archive tiers 
+AND
+automatic lifecycle management setup.
+
+**GPv1** would not be suitable here as it does not suppoert storage tiers.
+
+`-sku Standard_GRS`:
+copies your data synchronously three times 
+**within a single physical location in the primary region**. 
+It then copies your data asynchronously to a single physical location in the secondary region. Within the secondary region, your data is copied synchronously three times.
+
+The `Premium_ZRS` would also work but it is more expensive than `Standard_GRS`
+therefore it does not minimize costs.
+
+---
+
+### References:
+
+[Optimize costs by automatically managing the data lifecycle](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview?tabs=azure-portal)  
+
+> Lifecycle management policy definition
+A lifecycle management policy is a collection of rules in a JSON document. 
+
+```
+{
+  "rules": [
+    {
+      "name": "rule1",
+      "enabled": true,
+      "type": "Lifecycle",
+      "definition": {...}
+    },
+    {
+      "name": "rule2",
+      "type": "Lifecycle",
+      "definition": {...}
+    }
+  ]
+}
+```
+
+> Example:
+
+Tier blob to cool tier 30 days after last modification
+Tier blob to archive tier 90 days after last modification
+Delete blob 2,555 days (seven years) after last modification
+Delete previous versions 90 days after creation
+
+```
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "sample-rule",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "version": {
+            "delete": {
+              "daysAfterCreationGreaterThan": 90
+            }
+          },
+          "baseBlob": {
+            "tierToCool": {
+              "daysAfterModificationGreaterThan": 30
+            },
+            "tierToArchive": {
+              "daysAfterModificationGreaterThan": 90,
+              "daysAfterLastTierChangeGreaterThan": 7
+            },
+            "delete": {
+              "daysAfterModificationGreaterThan": 2555
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": [
+            "blockBlob"
+          ],
+          "prefixMatch": [
+            "sample-container/blob1"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+> Rule filters:
+Filters limit rule actions to a subset of blobs within the storage account.
+If more than one filter is defined, a logical AND runs on all filters.
+
+> Rule actions:
+Actions are applied to the filtered blobs when the run condition is met.
+
+> Lifecycle policy runs:
+The platform runs the lifecycle policy once a day. 
+it can take up to 24 hours for changes to go into effect and for the first execution to start.
+The time taken for policy actions to complete depends on the number of blobs evaluated and operated on.
+
+---
+
+## Q53:
+
+You plan to configure object replication between SAs in two different regions.
+You must enusre that Azure SA features are configured to support object replication.
+Minimize admin effort.
+
+Change Feed: OPTIONS
+Blob vesrioning: OPTIONS
+
+OPTIONS:
+Destination account only
+source account only
+source & destination account 
+
+---
+
+### Answer:
+
+Change Feed: source account only
+Blob vesrioning: source & destination account
+
+> Change Feed: source account only
+The **change feed provides transaction log support** for changes made 
+**in the source account** to:
+- blobs 
+- blobs metadata
+
+This change log feed is:
+- ordered
+- durable
+- immutable
+- read-only
+
+it enables **robust block blob replication** from source to destination SA.
+
+> Blob vesrioning: source & destination account
+
+This is necessary to automatically maintain previous versions of blob objects.
+It provides a path to restore previous versions of a blob.
+
+---
+
+### References:
+
+[Object replication for block blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview)  
+
+Object replication asynchronously copies block blobs between a source storage account and a destination account. 
+Object replication asynchronously copies block blobs in a container according to rules that you configure. 
+
+- contents of the blob
+- any versions associated with the blob
+- and the blob's metadata and properties 
+
+are all copied from the source container to the destination container
+
+**There's currently no SLA on how long it takes to replicate data**
+to the destination account. 
+
+
+> Scenarios:
+
+- Minimizing latency. 
+Object replication can reduce latency for read requests by enabling clients to consume data from a region that is in closer physical proximity.
+
+- Increase efficiency 
+for compute workloads. With object replication, compute workloads can process the same sets of block blobs in different regions.
+
+- Optimizing data distribution. 
+You can process or analyze data in a single location and then replicate just the results to additional regions.
+
+- Optimizing costs. 
+After your data has been replicated, you can reduce costs by moving it to the archive tier using life cycle management policies.
+
+> Prerequisites:
+Object replication requires that the following Azure Storage features are also enabled:
+
+1. Change feed: 
+Must be enabled on the source account. 
+
+2. Blob versioning: 
+Must be enabled on both the source and destination accounts. 
+
+> Costs:
+Enabling change feed and blob versioning may incur additional costs.
+There is no cost to configure object replication. 
+This includes the task of enabling change feed, enabling versioning, as well as adding replication policies. 
+However, object replication incurs costs on read and write transactions against the source and destination accounts, as well as egress charges for the replication of data from the source account to the destination account and read charges to process change feed.
+
+> Encryption:
+Object replication is supported for accounts that are encrypted with either: 
+- microsoft-managed keys 
+- or customer-managed keys. 
+
+Object replication isn't supported for blobs in the source account that are encrypted with a customer-provided key.
+Customer-managed failover isn't supported for either the source or the destination account in an object replication policy.
+
+> Blob versioning is required on both sides:
+Object replication requires that blob versioning is enabled on both the source and destination accounts. 
+
+> If your storage account has object replication policies in effect:
+you cannot disable blob versioning for that account. 
+You must delete any object replication policies on the account before disabling blob versioning.
+
+> Deleting a blob in the source account:
+When a blob in the source account is deleted, the current version of the blob becomes a previous version, and there's no longer a current version. 
+
+> Blob tiering and replication:
+Object replication is supported when the source and destination accounts are in the hot or cool tier. 
+
+> Immutable blobs:
+Immutability policies for Azure Blob Storage include:
+- time-based retention policies 
+- and legal holds
+
+When an immutability policy is in effect on the destination account, object replication may be affected!
+
+> Failure 1
+> If a container-level immutability policy is in effect for a container in the destination account: 
+and an object in the source container is updated or deleted, then the operation on the source container may succeed, but replication of that operation to the destination container will fail. 
+
+> Failure 2
+> If a version-level immutability policy is in effect for a blob version in the destination account:
+and a delete or update operation is performed on the blob version in the source container, then the operation on the source object may succeed, but replication of that operation to the destination object will fail. 
+
+> Object replication policies and rules
+When you configure object replication, you create a replication policy that specifies the source storage account and the destination account. 
+
+A replication policy includes one or more rules that specify a source container and a destination container and indicate which block blobs in the source container will be replicated.
+
+> Policy requirements:
+
+**You must then associate that replication policy with the source account by using the policy ID**
+
+**The policy ID on the source and destination accounts must be the same in order for replication to take place.**
+
+**A source account can replicate to no more than two destination accounts, with one policy for each destination account.**
+
+**an account may serve as the destination account for no more than two replication policies.**
+
+> Regions, Subscriptions, Tenants:
+
+The source and destination accounts may be in the same region or in different regions.
+They may also reside in the same subscription or in different subscriptions.
+source and destination accounts may reside in different Microsoft Entra tenants.
+
+> Replication rules for a replication policy:
+
+You can specify up to 1000 replication rules for each replication policy. 
+You can specify up to 1000 replication rules for each replication policy. Each replication rule defines a single source and destination container, and each source and destination container can be used in only one rule, meaning that a maximum of 1000 source containers and 1000 destination containers may participate in a single replication policy.
+
+When you create a replication rule, by default only new block blobs that are subsequently added to the source container are copied. You can specify that both new and existing block blobs are copied, or you can define a custom copy scope that copies block blobs created from a specified time onward.
+
+**The source and destination containers must both exist before you can specify them in a rule.**
+**After you create the replication policy, write operations to the destination container aren't permitted. they will fail eith (409)**
+
+> An object replication policy is defined by JSON file
+
+```
+{
+  "properties": {
+    "policyId": "default",
+    "sourceAccount": "/subscriptions/<subscriptionId>/resourceGroups/<resource-group>/providers/Microsoft.Storage/storageAccounts/<storage-account>",
+    "destinationAccount": "/subscriptions/<subscriptionId>/resourceGroups/<resource-group>/providers/Microsoft.Storage/storageAccounts/<storage-account>",
+    "rules": [
+      {
+        "ruleId": "",
+        "sourceContainer": "<source-container>",
+        "destinationContainer": "<destination-container>",
+        "filters": {
+          "prefixMatch": [
+            "b"
+          ],
+          "minCreationTime": "2021-08-028T00:00:00Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+---
+
+[Configure object replication for block blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-configure?tabs=portal)  
+
+> Configure object replication with access to both storage accounts
+
+`Set-AzStorageObjectReplicationPolicy`:
+
+```
+...
+...
+
+# Create the same policy on the source account.
+Set-AzStorageObjectReplicationPolicy -ResourceGroupName $rgName `
+    -StorageAccountName $src
+    AccountName `
+    -InputObject $destPolicy
+```
+> Configure object replication using a JSON file
+If you don't have permissions to the source storage account or if you want to use more than 10 container pairs, then you can configure object replication on the destination account and provide a JSON file that contains the policy definition to another user to create the same policy on the source account.
+For example, if the source account is in a different Microsoft Entra tenant from the destination account, then you can use this approach to configure object replication.
+
+```
+$object = Get-Content -Path C:\temp\json.txt | ConvertFrom-Json
+Set-AzStorageObjectReplicationPolicy -ResourceGroupName $rgName `
+    -StorageAccountName $srcAccountName `
+    -PolicyId $object.PolicyId `
+    -SourceAccount $object.SourceAccount `
+    -DestinationAccount $object.DestinationAccount `
+    -Rule $object.Rules
+```
+
+---
+
+[Change feed support in Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-change-feed?tabs=azure-portal)    
+
+The purpose of the change feed is to provide transaction logs of all the changes that occur to the blobs and the blob metadata in your storage account. 
+Client applications can read these logs at any time, either in streaming or in batch mode.
+Each change generates exactly one transaction log entry, so you won't have to manage multiple log entries for the same change. 
+The change feed enables you to build efficient and scalable solutions that process change events that occur in your Blob Storage account at a low cost.
+
+Change feed records are stored as blobs in a special container in your storage account.
+Change events are appended to the change feed as records in the Apache Avro format specification.
+You can process these logs asynchronously, incrementally or in-full. 
+Any number of client applications can independently read the change feed, in parallel, and at their own pace.
+
+Analytics applications such as Apache Drill or Apache Spark can consume logs directly as Avro files **without having to write a custom application**.
+
+> Scenarios:
+> Change feed support is well-suited for scenarios that process data based on objects that have changed. 
+
+- Update a secondary index:
+synchronize with a cache, search-engine, or any other content-management scenarios.
+
+- Extract business analytics insights and metrics:
+based on changes that occur to your objects, either in a streaming manner or batched mode.
+
+- Store, audit, and analyze changes to your objects, over any period of time:
+for security, compliance or intelligence for enterprise data management.
+
+- Build solutions to backup, mirror, or replicate object state in your account for disaster management or compliance.
+
+- Build connected application pipelines that react to change events or schedule executions based on created or changed object.
+
+> [Reacting to Blob storage event](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-event-overview)   
+Changes are written and made available in your change feed log 
+**within an order of a few minutes of the change**. 
+If your application has to react to events much quicker than this, 
+consider using **Blob Storage events** instead. 
+
+Consume the change feed
+The change feed produces several metadata and log files. These files are located in the $blobchangefeed container of the storage account. The $blobchangefeed container can be viewed either via the Azure portal or via Azure Storage Explorer.
+
+Your client applications can consume the change feed by using the blob change feed processor library that is provided with the change feed processor SDK. To learn how to process records in the change feed, see Process change feed logs in Azure Blob Storage.
+
+> Consume the change feed
+The change feed produces several metadata and log files. These files are located in the `$blobchangefeed` container of the storage account. 
+The `$blobchangefeed` container can be viewed either via the Azure portal or via Azure Storage Explorer.
+
+**Your client applications can consume the change feed** by using 
+**the blob change feed processor library** that is provided with the 
+**change feed processor SDK**. 
+
+To learn how to process records in the change feed, see:
+[Process change feed logs in Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-change-feed-how-to)  
+
+---
+
+[Blob versioning](https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview)    
+
+[Store business-critical blob data with immutable storage](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview)  
+
+[Reacting to Blob storage event](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-event-overview)    
+
+[Process change feed logs in Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-change-feed-how-to)  
 
 ---
 
