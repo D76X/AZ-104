@@ -2,12 +2,49 @@
 
 ---
 
-## Q6X:
+## Q7X:
 
 
 ---
 
 ### Answer:
+
+---
+
+### References:
+
+---
+
+## Q70:
+
+You work for an organization that uses **Azure Virtual Desktop (AVD)**  to facilitate remote working.
+
+Your users have only local profiles, but you need to implement `FSLogix` to allow them to
+have netwoek profiles.
+
+You create an Azure File Share that stores user profiles and you configure the relevant
+file path onto each Windows 10 session host in teh AVD pool.
+
+During testing of this solution you find that users log in via `FSLogix` temporary 
+profile instead of a network profile. However, admins can successfully mount the file
+share on the same session host.
+
+What is the source of this problem?
+
+- Azure File Share netwrork settings are too restrictive
+- users do not have teh permission to access the Azure File Share
+- teh session host firewall blocks the user profiles from loading
+- local profiles already exist for teh users
+
+---
+
+### Answer:
+- users do not have teh permission to access the Azure File Share
+
+[Troubleshooting issues with old, temporary, or local profiles](https://learn.microsoft.com/en-us/fslogix/troubleshooting-old-temp-local-profiles)  
+
+[Troubleshooting FSLogix Temporary Profile Creation](https://www.parallels.com/blogs/ras/fslogix-temporary-profile/)   
+
 
 ---
 
