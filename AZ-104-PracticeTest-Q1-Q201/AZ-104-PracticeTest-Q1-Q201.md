@@ -15,30 +15,508 @@
 
 ---
 
-## Q60:
+## Q64:
 
-You have joined  a phamaceutical organization as an Azure admin.
-the organization has a large number of SAs.
-
-You muste perform teh following tasks:
-
-1. an audit of the existing SAa
-2. disable the cration of new SA that allows cross-tenant object replication
-3. disable the cross-tenant object replication on all existing SAs
-4. validate the implementation as per the org's corporate standards and SLA
-
-The Policy Definition:
+Your company implements block blod storage in a GPv2 SA.
+It also emply the follwoing **rule** to optimize costs.
 
 ```
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "sample-rule",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "version": {
+            "delete": {
+              "daysAfterCreationGreaterThan": 90
+            }
+          },
+          "baseBlob": {
+            "tierToCool": {
+              "daysAfterModificationGreaterThan": 30
+            },
+            "tierToArchive": {
+              "daysAfterModificationGreaterThan": 90,
+              //"daysAfterLastTierChangeGreaterThan": 7
+            },
+            "delete": {
+              "daysAfterModificationGreaterThan": 356
+              //"daysAfterModificationGreaterThan": 2555
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": [
+            "blockBlob"
+          ],
+          "prefixMatch": [
+            "sample-container2/myblob"
+            //"sample-container/blob1"
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
+
+For each statement choose Yes/No.
+
+- previous blob version are deleted after 90 days afer creation
+
+- rehydrating a blob from archive with Copy Blob operation resets that day after modification counter to zero
+
+- you should transition blobs from cool to hot tier to optimize performance
+
 
 ---
 
 ### Answer:
 
+
+- previous blob version are deleted after 90 days afer creation
+Yes
+```
+"actions": {
+          "version": {
+            "delete": {
+              "daysAfterCreationGreaterThan": 90
+            }
+          },
+```
+
+- rehydrating a blob from archive with Copy Blob operation resets that day after modification counter to zero
+No: the Copy Blob operation creates a separate copy of teh blob and does not reset the 
+mofification counter on the original blob.
+
+- you should transition blobs from cool to hot tier to optimize performance
+yes: this ALSO reset the day after modification counter to zero if any changes are made to teh blob contents.
+
+
 ---
 
 ### References:
+
+[Configure a lifecycle management policy](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-policy-configure?tabs=azure-portal)  
+
+[Optimize costs by automatically managing the data lifecycle](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview)   
+
+---
+
+## Q63:
+
+You create a FileStorage Premium Account and a Premium tier Azure Fiel Share.
+You plan to mount the file share directly on-prem using `SMB 3.0` protocol.
+
+You must ensure that teh network is configured to support mounting an Azure File Share
+on-prem.
+Minimize the admin effort.
+
+What should you do?
+
+- create an Express Route circuit
+- install and configure Azure File Sync
+- configure TCP 443 as open in the on-prem firewall
+- configure TCP 445 as open in the on-prem firewall
+---
+
+### Answer:
+- configure TCP 445 as open in the on-prem firewall
+
+This was discussed in one of the precious questions.
+`SMB 3.0` protocol use TCP 445 and this port must be available therefore it must not 
+be block either from the ISP nor from the company firewall in order to be able to mount 
+a Azure File Sahre within the on-prem perimeter.
+
+The other options are not relevant.
+
+---
+
+### References:
+
+
+---
+
+## Q62:
+
+Your organization has 2 TB of data in on-premise storage that they want to move
+to a SA on Azure.
+
+You must identify the solution that best meets the following requirements:
+
+- data will need to be stored for many years
+- data will be rarely accessed
+- data should be available for immediate access when the need arises
+- minimize the cost of data storage 
+
+Which SA Access tier should you recommend?
+
+- hot
+- cool
+- archive
+---
+
+### Answer:
+- cool
+
+The **archive tier** has lower costs than the cool tier. However, with the archive tier
+it may take **up to 15 hours to make the data availabkle should the need be**.
+
+---
+
+### References:
+
+[Blob rehydration from the archive tier](https://learn.microsoft.com/en-us/azure/storage/blobs/archive-rehydrate-overview?tabs=azure-portal)  
+
+While a blob is in the archive access tier, 
+**it's considered to be offline, and can't be read or modified**. 
+In order to read or modify data in an archived blob, you must first rehydrate the blob to an online tier, either the hot or cool tier. 
+
+There are two options for rehydrating a blob that is stored in the archive tier:
+
+1. Copy an archived blob to an online tier: 
+You can rehydrate an archived blob by copying it to a new blob in the hot or cool tier with the Copy Blob operation. 
+Microsoft recommends this option for most scenarios.
+
+2. Change an archived blob's access tier to an online tier: 
+You can rehydrate an archived blob to the hot or cool tier by changing its tier using the Set Blob Tier operation.
+
+Microsoft recommends archiving larger blobs for optimal performance when rehydrating.
+Rehydrating a large number of small blobs may require extra time due to the processing overhead on each blob. 
+A maximum of 10 GiB per storage account may be rehydrated per hour with priority retrieval.
+
+---
+
+## Q61:
+
+You need to create an Azure File Share in your company Azure subscription.
+This share contains resource files that the admin of your Azure IaaS-hosted
+Microsoft Windows servers need to perform their daily activities.
+The share will be in an existing SA.
+
+You must ensure that the file share is mounted on the servers and persisted
+accross reboots.
+
+Select 6 actions in the right order.
+
+- execute CMDKEY on the Windows servers
+- execute `Set-AzStorageAccount`
+- execute `Get-AzStorageAccount`
+- execute `Get-AzStorageAccountKeys`
+- execute `New-AzStorageAccount`
+- execute `New-AzStorageContext`
+- execute `New-AzStorageShare`
+- execute `New-PSDrive` on the Windows servers
+- execute `Get-PSDrive` on the Windows servers
+
+---
+
+### Answer:
+
+- execute `New-AzStorageAccount`
+- execute `Get-AzStorageAccountKeys`
+- execute `New-AzStorageContext`
+- execute `New-AzStorageShare`
+- execute CMDKEY on the Windows servers
+- execute `New-PSDrive` on the Windows servers
+
+The first 4 commands create the File Share on the SA.
+After the FS is available on Azure any VM on Azure can access provided it holds the
+access key and its path.
+
+- execute CMDKEY on the Windows servers
+allows to permanently store the credentials and map
+
+---
+
+[New-PSDrive](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-psdrive?view=powershell-7.4)   
+Creates temporary and persistent drives that are associated with a location in an item data store.
+reates temporary and persistent drives that are mapped to or associated with a location in a data store, such as:
+
+- a network drive
+- a directory on the local computer
+- a registry key
+- persistent Windows mapped network drives that are associated with a file system location on a remote computer.
+
+```
+# Example 1: Create a temporary drive mapped to a network share
+New-PSDrive -Name "Public" -PSProvider "FileSystem" -Root "\\Server01\Public"
+
+...other examples are available ...
+
+```
+
+---
+
+### References:
+
+[Mount SMB Azure file share on Window](https://learn.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-windows)  
+
+Azure file shares can be seamlessly used in Windows and Windows Server.
+
+**In order to use an Azure file share via the public endpoint outside of the Azure region** 
+it's hosted in, such as on-premises or in a different Azure region, 
+the **OS must support SMB 3.x**. 
+
+Older versions of Windows that support only SMB 2.1 can't mount Azure file 
+shares via the public endpoint.
+
+> Prerequisites:
+**Ensure port 445 is open**: : The SMB protocol requires TCP port 445 to be open.
+check if your firewall or ISP is blocking port 445 by using the `Test-NetConnection` cmdlet.
+
+> Using an Azure file share with Windows:
+
+either: 
+- mount it which means assigning it a drive letter or mount point path
+- or access it via its UNC path.
+
+> Access:
+
+1. **use the storage account key to access the file share**
+2. [Azure File Sync](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-planning)  
+
+**Shared access signature (SAS) tokens aren't currently supported for mounting Azure file shares**.
+
+A common pattern for lifting and shifting line-of-business (LOB) applications that expect an SMB file share to Azure is to use an Azure file share as an alternative for running a dedicated Windows file server in an Azure VM. One important consideration for successfully migrating an LOB application to use an Azure file share is that many applications run under the context of a dedicated service account with limited system permissions rather than the VM's administrative account. Therefore, you must ensure that you mount/save the credentials for the Azure file share from the context of the service account rather than your administrative account.
+
+> Mount the Azure file share from the Azure Portal:
+
+The Azure portal provides a PowerShell script that you can use to mount your file share 
+directly to a host **using the storage account key**. 
+Unless you're mounting the file share using identity-based authentication, 
+we recommend using this provided script.
+
+> Mount the Azure file share with File Explorer:
+
+3. Select the drive letter and enter the UNC path to your Azure file share.
+e UNC path format is :
+`\\<storageAccountName>.file.core.windows.net\<fileShareName>`
+
+4. Authenticate:
+Select More choices > Use a different account. 
+- Under Email address use the storage account name
+- and use a storage account key as the password. 
+
+> Access an Azure file share via its UNC path:
+
+You don't need to mount the Azure file share to a drive letter to use it. 
+You can directly access your Azure file share using the UNC path by entering 
+the following into File Explorer. 
+**You'll be asked to sign in with your network credentials**.
+**Sign in with the Azure subscription under which you've created the storage account and file share.**
+
+`\\storageaccountname.file.core.windows.net\myfileshare`
+
+you can add the credentials using the following command:
+
+```
+cmdkey /add:StorageAccountName.file.core.windows.net /user:localhost\StorageAccountName /pass:StorageAccountKey
+```
+
+---
+
+[Azure File Sync](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-planning)  
+
+This is an alternative to using Azure File Shares directly by mounting them to the machine where these shares must be accessed, its main goal is centralization and caching of several Azure File Shares.
+
+In this way it may be easier to manage in that there is only a central share that work as a
+chache of several Azure File Shares and therefore its easier to maintain and manage.
+
+Azure File Sync is a service that allows you to cache several Azure file shares on an on-premises Windows Server or cloud VM.
+
+Azure File Sync enables you to centralize your organization's file shares in Azure Files, while keeping the flexibility, performance, and compatibility of an on-premises file server. Azure File Sync transforms an on-premises (or cloud) Windows Server into a quick cache of your Azure file share.
+
+---
+
+[Get-PSDrive](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-psdrive?view=powershell-7.4)  
+
+The Get-PSDrive cmdlet gets the drives in the current session. 
+You can get a particular drive or all drives in the session.
+
+This cmdlet gets the following types of drives:
+
+- Windows logical drives on the computer including drives mapped to network shares.
+
+- Drives exposed by PowerShell providers 
+(such as the Certificate:, Function:, and Alias: drives) and the HKLM: and HKCU: drives that are exposed by the Windows PowerShell Registry provider.
+
+- Session-specified temporary drives and persistent mapped network drives
+that you create by using the New-PSDrive cmdlet.
+
+
+---
+
+## Q60:
+
+You have joined  a pharmaceutical organization as an Azure admin.
+the organization has a large number of SAs.
+
+You must perform the following tasks:
+
+1. an audit of the existing SAs
+2. disable the cration of new SA that allows cross-tenant object replication
+3. disable the cross-tenant object replication on all existing SAs
+4. validate the implementation as per the org's corporate standards and SLA
+
+You review the following Policy Definition:
+
+```
+{
+  "properties": {
+    "displayName": "...",
+    "policyType": "BuiltIn",
+    "mode": "All | Indexed | Supported",
+    "parameters": {
+      "tagName": {
+        "type": "String",        
+      },
+      "tagValue": {
+        "type": "String",        
+      }
+    },
+    "policyRule": {
+      "if": {
+          "allOf": {
+            "field": "type",        
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "not": {
+            "field": "Microsoft.Storage/storageAccounts/allowCrossTenantReplication",        
+            "equals": "false"
+          },
+        }
+      },
+      "then": {
+        "effect": "deny"
+        //"effect": "append | audit | deny"
+        
+      }
+    }
+  },  
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "policyDefinition01"
+}
+```
+
+For each of the following statements select Yes/No:
+
+- the policy prevents a user from creating a SA that allows cross-tenant object replication
+
+- the policy allow a user to make any configuration changes to an existing SA that currently allows cross-tenant object replication
+
+- if the SA currently partecipates in one or more cross-tenant replication policies, you will not be able to disallow cross-tenant object replication until you delete those policies
+
+---
+
+### Answer:
+
+- the policy prevents a user from creating a SA that allows cross-tenant object replication
+Yes
+
+- the policy allow a user to make any configuration changes to an existing SA that currently allows cross-tenant object replication
+No
+
+- if the SA currently partecipates in one or more cross-tenant replication policies, you will not be able to disallow cross-tenant object replication until you delete those policies
+Yes
+
+
+---
+
+### References:
+
+[Prevent object replication across Microsoft Entra tenants](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-prevent-cross-tenant-policies?tabs=portal)  
+
+Object replication asynchronously copies block blobs from a container 
+in one storage account (source) to a container in another storage account (destination).
+When **you configure an object replication policy**, you specify the source account and 
+container and the destination account and container.
+
+After the policy is configured, Azure Storage **automatically** copies the results of:
+- create
+- update
+- delete 
+
+operations on a source object to the destination object.
+
+> cross-tenant replication:
+An authorized user can configure an object replication policy where the source account is in one Microsoft Entra tenant and the destination account is in a different tenant if cross tenant replication is allowed across Microsoft Entra tenants.
+
+> disallow cross-tenant replication:
+ If your security policies require that you restrict object replication to storage accounts that reside within the same tenant only, you can disallow the creation of policies where the source and destination accounts are in different tenants. 
+
+**By default, cross-tenant object replication is disabled** for all new storage accounts 
+created after Dec 15, 2023, unless you explicitly allow it.
+
+> Remediate cross-tenant object replication:
+
+set the `AllowCrossTenantReplication` property for the storage account to `false`.
+
+> case1: `AllowCrossTenantReplication` = `false`.
+If a storage account does not currently participate in any cross-tenant object replication policies, then setting the AllowCrossTenantReplication property to false prevents future configuration of cross-tenant object replication policies with this storage account as 
+the source or destination. 
+
+> case2: `AllowCrossTenantReplication` = `false`.
+if a storage account currently participates in one or more cross-tenant object replication policies, then setting the AllowCrossTenantReplication property to false 
+**is not permitted until you delete the existing cross-tenant policies**.
+
+**When cross-tenant object replication is disallowed** for a storage account, then any new object replication policies that you create with that account 
+**must include the full Azure Resource Manager IDs for the source and destination account**.
+**Azure Storage requires the full resource ID to verify whether the source and destination** **accounts reside within the same tenant**.
+
+> Rewuired roles to set `AllowCrossTenantReplication` = `false`
+
+- The Azure Resource Manager Owner role
+- The Azure Resource Manager Contributor role
+- The Storage Account Contributor role
+
+**These roles do not provide access to data in a storage account via Microsoft Entra ID**.
+
+However, they include the 
+`Microsoft.Storage/storageAccounts/listkeys/action`
+which grants access to the account access keys.
+
+> Use Azure Policy to audit for compliance:
+
+If you have a large number of storage accounts, you may want to perform an audit to make sure that those accounts are configured to prevent cross-tenant object replication.
+**To audit a set of storage accounts for their compliance, use Azure Policy.**
+**Create a policy with an Audit effect**.
+
+```
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Storage/storageAccounts"
+      },
+      {
+        "not": {
+          "field":"Microsoft.Storage/storageAccounts/allowCrossTenantReplication",
+          "equals": "false"
+        }
+      }
+    ]
+  },
+  "then": {
+    "effect": "audit"
+  }
+}
+```
+
+
+---
+
+The following have already been discussed in one of the precious questions:
+
+[Object replication for block blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview)  
+
+[Configure object replication for block blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-configure?tabs=portal)    
+
 
 ---
 
