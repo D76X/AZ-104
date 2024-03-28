@@ -15,6 +15,320 @@
 
 ---
 
+## Q69:
+
+Your organization wants to start using Azure Blob Storage and specifically the cool tier
+in order to migrate archived data.
+
+You need to complete a draft script:
+
+Resource Group Name : RG1
+Storage Account Name: sa1
+
+You also need to create a contaniner named `contaniner1`.
+You must complete the script and test it by uploading a file named `file1.xtx` to the cool tier.
+
+```
+$rg = "rg1"
+$san = "sa1"
+$cn = "container1"
+
+$ctx = OPTIONS -StorageAccountName $sa -UseConnectedAccount
+OPTIONS -Name $cn -Context $ctx
+OPTIONS -Container $cn `
+-File "file1.xtx" `
+-Blob "file1.xtx" `
+-Context $ctx `
+-StandardBlobTier cool
+```
+
+OPTIONS:
+Get-AzStorageAccount
+New-AzStorageContext
+New-AzStorageContainer
+Set-AzStorageBlobContent
+
+---
+
+### Answer:
+
+```
+$rg = "rg1"
+$san = "sa1"
+$cn = "container1"
+
+$ctx = New-AzStorageContext -StorageAccountName $sa -UseConnectedAccount
+New-AzStorageContainer -Name $cn -Context $ctx
+Set-AzStorageBlobContent -Container $cn `
+-File "file1.xtx" `
+-Blob "file1.xtx" `
+-Context $ctx `
+-StandardBlobTier cool
+```
+
+---
+
+### References:
+
+[New-AzStorageContext](https://learn.microsoft.com/en-us/powershell/module/az.storage/new-azstoragecontext?view=azps-11.4.0&viewFallbackFrom=azps-8.2.0)  
+
+```
+# Example 1: Create a context by specifying a storage account name and key
+New-AzStorageContext -StorageAccountName "ContosoGeneral" -StorageAccountKey "< Storage Key for ContosoGeneral ends with == >"
+
+# Example 2: Create a context by specifying a connection string
+New-AzStorageContext -ConnectionString "DefaultEndpointsProtocol=https;AccountName=ContosoGeneral;AccountKey=< Storage Key for ContosoGeneral ends with == >;"
+
+# Example 3: Create a context for an anonymous storage account
+New-AzStorageContext -StorageAccountName "ContosoGeneral" -Anonymous -Protocol "http"
+
+# Example 6: Get multiple containers# 
+$Context01 = New-AzStorageContext -Local 
+$Context02 = New-AzStorageContext -StorageAccountName "ContosoGeneral" -StorageAccountKey "< Storage Key for ContosoGeneral ends with == >"
+($Context01, $Context02) | Get-AzStorageContainer
+
+# Example 9: Create a context by using an SAS token
+$SasToken = New-AzStorageContainerSASToken -Name "ContosoMain" -Permission "rad"
+$Context = New-AzStorageContext -StorageAccountName "ContosoGeneral" -SasToken $SasToken
+$Context | Get-AzStorageBlob -Container "ContosoMain"
+
+
+# Example 10: Create a context by using the OAuth Authentication
+Connect-AzAccount
+$Context = New-AzStorageContext -StorageAccountName "myaccountname" -UseConnectedAccount
+
+...
+...
+
+```
+
+---
+
+## Q68:
+
+You work at a company that hosts resource in Azure including a File Share.
+You are aseked to create a new VNet and a Azure File Share to be connected 
+to a new Windows Server 2019 VM  that must also be provisioned by you.
+
+You successfully provisioned:
+
+- the VNet
+- the Windows Server 2019 VM
+- the File Share
+
+However, when you try to add the Azure File Share to the Windows Server you 
+get the error:
+
+`System Error 67 has occured`
+
+You need to fix this error on the Winodws Server.
+
+What should you do?
+
+- unblock TCP 445
+- check that permission is configure correctly
+- unblock port 2049
+- enable New Technology LAN Manager version 1 (NTLMv1)
+
+---
+
+### Answer:
+- unblock TCP 445
+
+The error: `System Error 67 has occured`
+is returned on Windows Server when TCP 445 is blocked.
+This prevents the Windows Server to communicate over SMB v3.0 to the Azure File Share.
+
+This was discussed wellin previous questions.
+
+The other options are not relevant in this case:
+
+`NTLMv1` should be already disabled on WS2019 if you enabled you would get the error:
+`System Error 53 has occured`
+when tryong to mount the SAzur File share.
+Azure file share only support `NTLMv2`
+
+**TCP 2049** is used on Windows Server for **Network File Share (NFS)** protocol and not SMB.
+
+---
+
+### References:
+
+[Troubleshoot Azure Files](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-storage/files/files-troubleshoot?tabs=powershell)     
+
+[Create an SMB Azure file share](https://learn.microsoft.com/en-us/azure/storage/files/storage-how-to-create-file-share?tabs=azure-portal)   
+
+---
+
+## Q67:
+
+Your company has on-prem infrastructure and plans to move to IaaS in Azure.
+You plan to migrate the erachice data to Azure Blob Storage and you have used
+Azure Storage Explorer to complete an initial bulk upload.
+
+You need to creat a lifecycle management policy using Powershell to move data
+that has not been modified for teh last 30 days to teh hot tier to the cool tier.
+
+Complete the Powershell script.
+
+```
+$rg = "RG1"
+$san = "storage1"
+
+$action = OPTIONS `
+-BaseBlobAction TierToCool -daysAfterModificationGreaterThan 30
+
+$filter = OPTIONS -PrefixMatch ef,gh -BlobType blockBlob
+
+$rule = OPTIONS -name test-rule -Action $action -Filter $filter 
+
+OPTIONS -StorageAccountName $san -Rule $rule
+```
+
+OPTIONS:
+New-AzStorageAccountManagementPolicyFilter
+New-AzStorageAccountManagementPolicyRule
+New-AzStorageAccountManagementPolicyAction
+Add-AzStorageAccountManagementPolicyAction
+New-AzStorageAccountManagementPolicy
+Set-AzStorageAccountManagementPolicy
+New-AzStorageAccountKey
+New-AzStorageBlobInventoryPolicy
+Set-AzStorageBlobContent
+
+---
+
+### Answer:
+
+```
+$rg = "RG1"
+$san = "storage1"
+
+$action = Add-AzStorageAccountManagementPolicyAction `
+-BaseBlobAction TierToCool -daysAfterModificationGreaterThan 30
+
+$filter = New-AzStorageAccountManagementPolicyFilter -PrefixMatch ef,gh -BlobType blockBlob
+
+$rule = New-AzStorageAccountManagementPolicyRule -name test-rule -Action $action -Filter $filter 
+
+Set-AzStorageAccountManagementPolicy -StorageAccountName $san -Rule $rule
+```
+
+`Add-AzStorageAccountManagementPolicyAction`
+`New-AzStorageAccountManagementPolicyFilter`
+`New-AzStorageAccountManagementPolicyRule`
+`Set-AzStorageAccountManagementPolicy`
+
+create a policy action
+create a filter for the policy action
+create a lifecycle rule for that action and with that filter
+set this policy action on the storage account
+
+---
+
+### References:
+
+
+[Configure a lifecycle management policy](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-policy-configure?tabs=azure-portal)   
+
+
+---
+
+## Q66:
+
+Your company hosts resources in Azure, including data in Azure Blob Storage.
+In the hot tier there is 20 TB of data.
+This data is rarely accessed and teh Finance Director has expressed concern about its 
+monthly cost.
+
+You must move the data that has not been modified over the previous month to the 
+archive tier.
+Minimize admin effort.
+
+What should you do?
+
+- create and schedule an automated AzCopy script
+- use Azure Data Box
+- use a lifecycle management policy 
+- manually move data once a month
+
+
+---
+
+### Answer:
+- use a lifecycle management policy 
+
+This is the obvouos answer to this question.
+
+
+---
+
+### References:
+
+[Configure a lifecycle management policy](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-policy-configure?tabs=azure-portal)   
+
+---
+
+## Q65:
+
+Your company implements block blod storage in a GPv2 SA.
+It is seldome necessary to access the data after initial input, 
+but it is occasionally required.
+Storage costs should be kept to a minimum.
+
+You propose the following rule to move the data directly to the archive immediately after 
+being written to teh storage:
+
+```
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "archive-rule",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {          
+          "baseBlob": {            
+            "tierToArchive": {
+              "daysAfterModificationGreaterThan": 0,               
+            },            
+          }
+        },
+        "filters": {
+          "blobTypes": ["blockBlob"],
+          "prefixMatch": ["archivecontainer"]
+        }
+      }
+    }
+  ]
+}
+```
+
+The IT manager wants to know how long it will take to make archive data available
+for access should the case be.
+
+- up to 24 h
+- up to 15 h
+- up to 15 days
+- immediately
+
+---
+
+### Answer:
+- up to 15 h
+
+This detail was mentioned in one of teh previous answer to a question that 
+had archiving to a SA as its theme.
+
+[Blob rehydration from the archive tier](https://learn.microsoft.com/en-us/azure/storage/blobs/archive-rehydrate-overview?tabs=azure-portal)    
+
+---
+
+### References:
+
+
+---
+
 ## Q64:
 
 Your company implements block blod storage in a GPv2 SA.
