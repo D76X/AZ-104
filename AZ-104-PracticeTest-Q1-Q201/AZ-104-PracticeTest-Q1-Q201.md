@@ -34,21 +34,34 @@ What is the source of this problem?
 - Azure File Share netwrork settings are too restrictive
 - users do not have teh permission to access the Azure File Share
 - teh session host firewall blocks the user profiles from loading
-- local profiles already exist for teh users
+- local profiles already exist for the users
 
 ---
 
 ### Answer:
 - users do not have teh permission to access the Azure File Share
 
-[Troubleshooting issues with old, temporary, or local profiles](https://learn.microsoft.com/en-us/fslogix/troubleshooting-old-temp-local-profiles)  
+Users taht log into the session host need R/W permissions to teh Azure File Share.
+This is to allow a profile to be created and updated very time they log off.
+If a user does nto have the R/W permission thne theyr are logged in with a local profile
+on the Windows 10 session host and this does not save any changes made on the session.
 
-[Troubleshooting FSLogix Temporary Profile Creation](https://www.parallels.com/blogs/ras/fslogix-temporary-profile/)   
+This is also why teh admin can instead log on the session hist via the File Share.
+It also proves that it is not teh firewall tha blocks the communication to teh Azure File Share
+and the loading of teh profiles.
 
+- local profiles already exist for the users
+this cannot be teh case as the users have logged on for the first time and therefore there
+could not be already profiles for them on the Windows host.
 
 ---
 
 ### References:
+
+[Troubleshooting issues with old, temporary, or local profiles](https://learn.microsoft.com/en-us/fslogix/troubleshooting-old-temp-local-profiles)  
+
+[Troubleshooting FSLogix Temporary Profile Creation](https://www.parallels.com/blogs/ras/fslogix-temporary-profile/)   
+
 
 ---
 
