@@ -2,7 +2,7 @@
 
 ---
 
-## Q7X:
+## Q8X:
 
 
 ---
@@ -12,6 +12,444 @@
 ---
 
 ### References:
+
+---
+
+## Q81:
+
+You want to create multiple VMs.
+You download an ARM template from the portal.
+You need to modify the parameter file shown in the exhibit.
+You must ensure it has a reference to teh password.
+The psw must be encrypted while it is stored.
+
+<img src="./Q81-exhibit.png">
+
+Complete the parameter file.
+
+```
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminLogin": {
+      "value": "exampleadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "OPTIONS-1: keyVault | storageAccount": {
+          "id": "/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.KeyVault/vaults/<vault-name>"
+        },
+        "OPTIONS-2: secretName | keyName | password ": "ExamplePassword"
+      }
+    },
+  }
+}
+```
+
+---
+
+### Answer:
+
+```
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminLogin": {
+      "value": "exampleadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.KeyVault/vaults/<vault-name>"
+        },
+        "secretName": "ExamplePassword"
+      }
+    }
+  }
+}
+```
+
+---
+
+### References:
+
+[Create Resource Manager parameter file](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/parameter-files)    
+
+[Use Azure Key Vault to pass secure parameter value during deployment](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/key-vault-parameter?tabs=azure-cli)  
+
+
+In the following parameter file, the key vault secret must already exist, 
+and you provide a static value for its resource ID.
+
+> Reference secrets with static ID:
+
+```
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminLogin": {
+      "value": "exampleadmin"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/<subscription-id>/resourceGroups/<rg-name>/providers/Microsoft.KeyVault/vaults/<vault-name>"
+        },
+        "secretName": "ExamplePassword"
+      }
+    },
+    "sqlServerName": {
+      "value": "<your-server-name>"
+    }
+  }
+}
+```
+
+---
+
+> Reference secrets with dynamic ID:
+
+In some scenarios, you need to reference a key vault secret that varies based on the current deployment. 
+Or you may want to pass parameter values to the template rather than create a reference parameter in the parameter file. 
+The solution is to dynamically generate the resource ID for a key vault secret 
+**by using a linked template**.
+
+In your parent template, you add the nested template and pass in a parameter that contains the dynamically generated resource ID. 
+
+<img src="./Q81-1.png">
+
+```
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "The location where the resources will be deployed."
+        }
+      },
+      "vaultName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the keyvault that contains the secret."
+        }
+      },
+      "secretName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the secret."
+        }
+      },
+      "vaultResourceGroupName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the resource group that contains the keyvault."
+        }
+      },
+      "vaultSubscription": {
+        "type": "string",
+        "defaultValue": "[subscription().subscriptionId]",
+        "metadata": {
+          "description": "The name of the subscription that contains the keyvault."
+        }
+      }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "dynamicSecret",
+      "properties": {
+        "mode": "Incremental",
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "adminLogin": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "securestring"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "sqlServerName": "[concat('sql-', uniqueString(resourceGroup().id, 'sql'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers",
+              "apiVersion": "2021-11-01",
+              "name": "[variables('sqlServerName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "administratorLogin": "[parameters('adminLogin')]",
+                "administratorLoginPassword": "[parameters('adminPassword')]"
+              }
+            }
+          ],
+          "outputs": {
+            "sqlFQDN": {
+              "type": "string",
+              "value": "[reference(variables('sqlServerName')).fullyQualifiedDomainName]"
+            }
+          }
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "adminLogin": {
+            "value": "ghuser"
+          },
+          "adminPassword": {
+            "reference": {
+              "keyVault": {
+                "id": "[resourceId(parameters('vaultSubscription'), parameters('vaultResourceGroupName'), 'Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+              },
+              "secretName": "[parameters('secretName')]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+
+---
+
+## Q80:
+
+You deploy several new VMs to your Azure SUB.
+All VM are in teh same RG named RG1.
+The VMs are based on a common ARM template stored in GitHub.
+
+You need to automate this operation.
+
+Which two command can you use?
+
+- az deployment group create
+- New-AzResourceGroupDeployment
+- New-AzVM
+- az vm create
+
+---
+
+### Answer:
+- az deployment group create
+- New-AzResourceGroupDeployment
+this is the obvious answer.
+
+The remaining commands deploy a single VM and would not automate the deployment through the ARM template.
+
+---
+
+### References:
+
+[How to create a Linux virtual machine with Azure Resource Manager templates](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-secured-vm-from-template)    
+
+[Quickstart: Create a Linux virtual machine with the Azure CLI on Azure](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-cli)   
+
+[Quickstart: Create a Linux virtual machine in Azure with PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-powershell)  
+
+---
+
+## Q79:
+
+You have a RG named `apr-rg` with several resources.
+
+You need to add a SA to this RG.
+You decide to use an ARM template to deploy the SA and the cmdlet `AzResourceGroupDeployment`.
+
+The ARM template does not contain any linked or nested templates.
+
+After the successful deployment, you find that all resource but teh new SA 
+have been removed from the RG.
+
+What happened?
+
+- the ARMT mode was icremental
+- the ARMT mode was complete
+- you did not use the -mode param of `AzResourceGroupDeployment`
+- you used the -mode complete param of `AzResourceGroupDeployment`
+---
+
+### Answer:
+- you used the -mode complete param of `AzResourceGroupDeployment`
+
+This is the obvious answer. 
+The modes complte vs. incremental have already been discussed in details in a 
+previous question. 
+
+The following do not apply:
+- the ARMT mode was icremental
+- the ARMT mode was complete
+
+because the ARM template does not contain any linked or nested templates and therefore the 
+mode parameter should not be present in the template.
+
+
+---
+
+### References:
+
+[Microsoft.Resources deployments](https://learn.microsoft.com/en-us/azure/templates/microsoft.resources/deployments?pivots=deployment-language-arm-template#resource-format-1)  
+
+The deployments resource type can be deployed to:
+
+Resource groups - See resource group deployment commands
+Subscriptions - See subscription deployment commands
+Management groups - See management group deployment commands
+Tenants - See tenant deployment commands
+
+```
+{
+  "type": "Microsoft.Resources/deployments",
+  "apiVersion": "2022-09-01",
+  "name": "string",
+  "location": "string",
+  "tags": {
+    "tagName1": "tagValue1",
+    "tagName2": "tagValue2"
+  },
+  "scope": "string",
+  "properties": {
+    "debugSetting": {
+      "detailLevel": "string"
+    },
+    "expressionEvaluationOptions": {
+      "scope": "string"
+    },
+    "mode": "string",
+    "onErrorDeployment": {
+      "deploymentName": "string",
+      "type": "string"
+    },
+    "parameters": {},
+    "parametersLink": {
+      "contentVersion": "string",
+      "uri": "string"
+    },
+    "template": {},
+    "templateLink": {
+      "contentVersion": "string",
+      "id": "string",
+      "queryString": "string",
+      "relativePath": "string",
+      "uri": "string"
+    }
+  },
+  "resourceGroup": "string",
+  "subscriptionId": "string"
+}
+```
+
+
+- mode : 'Complete' / 'Incremental'  (required)
+The mode that is used to deploy resources. This value can be either Incremental or Complete. In Incremental mode, resources are deployed without deleting existing resources that are not included in the template. In Complete mode, resources are deployed and existing resources in the resource group that are not included in the template are deleted. Be careful when using Complete mode as you may unintentionally delete resources.	
+
+
+---
+
+## Q78:
+
+You have a ARM template to create a Windows VM.
+The ARM template has been obtained from an existing RG with a single VM using the 
+automation script option.
+
+You want to reause this template for other deployments.
+You need all the resources in the RG to be in the same location.
+
+What should you do?
+
+- use New-AzResourceGroup with -Location to create the RG in the desirged location. Then use AzResourceGroupDeployment with the new RG.
+
+- use The Azure Portal to create the RG in the desired Location. Then use AzResourceGroupDeployment with the new RG.
+
+- edit the template file and update the location param with the value `[resourceGroup().location]`
+
+- edit the parameters file and ass a new parameter named `location` of type string with the default value `[resourceGroup().location]`
+
+---
+
+### Answer:
+
+- edit the template file and update the location param with the value `[resourceGroup().location]`
+
+The following suggested solution could also:
+- edit the parameters file and ass a new parameter named `location` of type string with the default value `[resourceGroup().location]`
+Howwever, you would also need to update the ARM template with the new `[parameters('location')]` where required.
+
+The remaining options are obviously not suitable to this case.
+
+---
+
+### References:
+
+---
+
+## Q77:
+
+Your company has a LOB app that uses several Azure resources.
+These resources are all in the same RG.
+After the first deplyment more resources for are added to the same RG via the deployments.
+
+You need to create a template to redeploy the resources required by teh LOB app.
+
+What should you do?
+
+- use Get-AzResourceGroupDeployment
+- use Get-AzResourceGroupDeploymentOperation
+- use Export-AzResourceGroup
+- use Save-Get-AzResourceGroupDeploymentTemplate
+
+
+---
+
+### Answer:
+- use Export-AzResourceGroup
+
+---
+
+### References:
+
+[Export-AzResourceGroup](https://learn.microsoft.com/en-us/powershell/module/az.resources/export-azresourcegroup?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)    
+
+Captures a resource group as a template and saves it to a file.
+This can be useful in scenarios where you have already created some resources in your resource group, and then want to leverage the benefits of using template backed deployments. 
+
+ There might be some cases where this cmdlet fails to generate some parts of the template. Warning messages will inform you of the resources that failed. 
+ The template will still be generated for the parts that were successful.
+
+---
+
+[Get-AzResourceGroupDeployment](https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroupdeployment?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)    
+gets the deployments in an Azure resource group. 
+
+
+[Get-AzResourceGroupDeploymentOperation](https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azresourcegroupdeploymentoperation?view=azps-11.4.0&viewFallbackFrom=azps-2.6.0)  
+lists all the operations that were part of a deployment to help you identify and give more information about the exact operations that failed for a particular deployment. 
+
+It can also show the response and the request content for each deployment operation. 
+This is the same information provided in the deployment details on the portal. 
+It can potentially log and expose secrets like passwords used in the resource property or listKeys operations that are then returned when you retrieve the deployment operations. 
+
+---
+
+[Manage Azure resources by using Azure PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resources-powershell)  
+
 
 ---
 
