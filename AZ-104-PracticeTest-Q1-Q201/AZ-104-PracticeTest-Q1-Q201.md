@@ -2,7 +2,7 @@
 
 ---
 
-## Q8X:
+## Q9X:
 
 
 ---
@@ -12,6 +12,399 @@
 ---
 
 ### References:
+
+---
+
+## Q90:
+
+You are an Azure admin and deploy Azure resource with Bicep.
+You want to use Lamba functions to hadle an array.
+Yiu need to convert an array to an object with a custom key function
+and optional custom value function to produce teh follwoing output.
+
+`{"MrFunny":{"name":"MrFunny","age":2},"MrNaughty":{"name":"MrNaughty","age":3},}`
+
+which L;amba function should you use?
+
+```
+var cats = [
+  {
+    name: 'MrFunny'
+    age: 2
+  }
+  {
+    name: 'MrNaughty'
+    age: 3
+  }
+]
+
+output twocats object = OPTIONS (cats, entry=>entry.name)
+```
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+## Q89:
+
+You are an Azure admin for an eCommerce organization.
+You deploy Azure resources and have created a Bicep file as shown below.
+
+```
+
+resource primaryDnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'  
+}
+
+resource otherResource 'Microsoft.Example/examples@2023-05-01' = {
+  name: 'egResorce'
+   properties: {
+    // get read-only DNS zone property
+    nameSrvers: PrimaryDnsZone.properies.nameServers
+  }  
+}
+
+resource otherZone 'Microsoft.Network/dnszones@2023-06-01' = {
+  name: 'demoZone2'
+  location: 'global'  
+  dependsOn: [PrimaryDnsZone]
+}
+
+```
+
+For each statement select Yes/No
+
+- the resource named otherResource is implicitly dependent on PrimaryDnsZome
+- the resource named otherZoe is implicitly dependent on PrimaryDnsZome
+- Azure Resource Manager deploys the PrimaryDnsZone and otherZone resources in parallel
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q88:
+
+Your organization uses Azure Advisor to optimize the Azure deployments.
+You want to set up an alert for new recommendation from teh Azure Advisor using Bicep.
+You need to define teh Azure resources in teh Bicep file named `main.bicep`
+
+Which two resources should you use?
+
+`Microsoft.Insights/activityLogAlerts`
+`Microsoft.Insights/alertrules`
+`Microsoft.Insights/actionGroups`
+`Microsoft.Insights/dataCollectionRules`
+`Microsoft.Insights/metricAlerts`
+
+
+---
+
+### Answer:
+`Microsoft.Insights/activityLogAlerts`
+`Microsoft.Insights/actionGroups`
+
+---
+
+### References:
+
+[Quickstart: Create Azure Advisor alerts on new recommendations using Bicep](https://learn.microsoft.com/en-us/azure/advisor/advisor-alerts-bicep?tabs=CLI)    
+
+[Introduction to Azure Advisor](https://learn.microsoft.com/en-us/azure/advisor/advisor-overview)  
+
+---
+
+## Q87:
+
+An RG was deplyed from an ARM template.
+Resouirces have since been added to the RG and some also modified through the Azure Portal.
+
+You need to create a new ARM template based on the curremnt state of teh RG.
+
+Which PowerShell cmflet should you use?
+
+- Export-AzResourceGroup
+- Save-AzResourceGroupDeploymentTemplate
+- New-AzResourceGroupDeployment
+- Save-AzDeploymentTemplate
+
+---
+
+### Answer:
+- Export-AzResourceGroup
+
+This cmdlet capture the deployment state of the RG as it is and produces a 
+ARM templatethat replicates the resources as they are presently ion the RG. 
+
+The remaining options do not apply:
+
+`Save-AzResourceGroupDeploymentTemplate`
+This saves the RG deployment and not teh current RG.
+
+---
+
+### References:
+
+[Export-AzResourceGroup](https://learn.microsoft.com/en-us/powershell/module/az.resources/export-azresourcegroup?view=azps-11.4.0)  
+
+captures the specified resource group as a template and saves it to a JSON file.This can be useful in scenarios where you have already created some resources in your resource group, and then want to leverage the benefits of using template backed deployments. This cmdlet gives you an easy start by generating the template for your existing resources in the resource group. There might be some cases where this cmdlet fails to generate some parts of the template. Warning messages will inform you of the resources that failed. The template will still be generated for the parts that were successful.
+
+[Save-AzResourceGroupDeploymentTemplate](https://learn.microsoft.com/en-us/powershell/module/az.resources/save-azresourcegroupdeploymenttemplate?view=azps-11.4.0)  
+aves a resource group deployment template to a JSON file.
+
+[New-AzResourceGroupDeployment](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroupdeployment?view=azps-11.4.0)  
+
+adds a deployment to an existing resource group. This includes the resources that the deployment requires. An Azure resource is a user-managed Azure entity, such as a database server, database, website, virtual machine, or Storage account.
+
+---
+
+## Q86:
+
+You are preparing a private deployment template that will be saved to an Azure SA.
+You must make sure that access to the template is protected by a SAS token.
+
+Complete the command.
+
+```
+$templateuri = OPTIONS-1 `
+-Container private `
+-Blob sas.json `
+-Permission r `
+-ExpiryTime (Get-Date).AddHours(2.0) `
+-FullUri
+
+New-AzResourceGroupDeployment -ResourceGroupName RG1 `
+OPTIONS-2 $templateuri
+
+```
+
+OPTIONS-1:
+New-AzStorageBlobSASToken
+New-AzBlobShareSASToken
+New-AzStorageContainerStoredAcessPolicy
+
+OPTIONS-2:
+-TemplateUri
+-TemplateFile
+-TemplateParameterFile
+
+
+---
+
+### Answer:
+
+```
+$templateuri = New-AzStorageBlobSASToken `
+-Container private `
+-Blob sas.json `
+-Permission r `
+-ExpiryTime (Get-Date).AddHours(2.0) `
+-FullUri
+
+New-AzResourceGroupDeployment -ResourceGroupName RG1 `
+-TemplateUri $templateuri
+
+```
+
+---
+
+### References:
+
+[New-AzStorageBlobSASToken](https://learn.microsoft.com/en-us/powershell/module/az.storage/new-azstorageblobsastoken?view=azps-11.4.0)    
+generates a Shared Access Signature (SAS) token for an Azure storage blob.
+
+
+
+[Create SAS tokens for your storage containers](https://learn.microsoft.com/en-us/azure/ai-services/translator/document-translation/how-to-guides/create-sas-tokens?tabs=Containers)   
+
+---
+
+## Q85:
+
+You plan to deploy 15 identical VMs to Azure.
+All the VMs must be based on an existing VM.
+
+Choose the best deployment strategy.
+
+- create a VM in Azure use the CLI to copy that 14 times
+- create a VM in Azure use the Powershell to copy that 14 times
+- create a ARM template and use Powershell to deploy it to Azure
+
+---
+
+### Answer:
+- create a ARM template and use Powershell to deploy it to Azure
+obvious answer.
+
+
+---
+
+### References:
+
+---
+
+## Q84:
+
+You create an ARM template based on an existing VM.
+You plan to deply 50 news based on this template.
+Each VM should be deplyed with a unique admin password.
+
+You need to modify the ARM template to reference an admin psw.
+The psw should not be stored in plain text amd access to it must be secure.
+
+What should you use to store the psw?
+
+- Azure KV and access policy
+- Recovery Services vaule and backup policy
+- Multiple ARM ciopies and embedded passwords
+- premioum files shares and access policy
+
+---
+
+### Answer:
+- Azure KV and access policy
+obvious answer.
+
+---
+
+### References:
+
+[Tutorial: Integrate Azure Key Vault in your ARM template deployment](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-tutorial-use-key-vault)   
+
+---
+
+## Q83:
+
+You download  an ARM template created from an existing VM.
+You plan to use this template to deploy 50 new VMs.
+
+You need to modify teh template to reference an admin password.
+The psw must not be stored in clear text.
+
+What should you do first?
+
+- create and store the psw in the resource template
+- create and store the psw in an Axure KV and create an access policy
+- create and store the psw in a Recovery Services vault and create a Backup Policy
+- create and store the psw in a separate template and create a link from teh source template
+
+
+---
+
+### Answer:
+- create and store the psw in an Axure KV and create an access policy
+
+This is the obvious answer all other cannot apply.
+
+
+---
+
+### References:
+
+[Recovery Services vaults overview](https://learn.microsoft.com/en-us/azure/backup/backup-azure-recovery-services-vault-overview)  
+
+A Recovery Services vault is a storage entity in Azure that houses data. 
+
+The data is typically:
+
+- copies of data
+- configuration information for virtual machines (VMs)
+- config info for workloads, servers, or workstations. 
+- to hold backup data for various Azure services such as IaaS VMs (Linux or Windows) and SQL Server in Azure VMs
+
+Recovery Services vaults support:
+
+- System Center DPM
+- Windows Server
+- Azure Backup Server
+- and more. 
+
+Recovery Services vaults make it easy to organize your backup data, while minimizing management overhead.
+
+> Key features:
+
+- Enhanced capabilities to help secure backup data: 
+With Recovery Services vaults, Azure Backup provides security capabilities to protect cloud backups. The security features ensure you can secure your backups, and safely recover data, even if production and backup servers are compromised. Learn more
+
+- Central monitoring for your hybrid IT environment: 
+ith Recovery Services vaults, you can monitor not only your Azure IaaS VMs but also your on-premises assets from a central portal. Learn more
+
+- Azure role-based access control (Azure RBAC): 
+Azure RBAC provides fine-grained access management control in Azure. Azure provides various built-in roles, and Azure Backup has three built-in roles to manage recovery points. Recovery Services vaults are compatible with Azure RBAC, which restricts backup and restore access to the defined set of user roles. Learn more
+
+- Soft Delete: 
+With soft delete, even if a malicious actor deletes a backup (or backup data is accidentally deleted), the backup data is retained for 14 additional days, allowing the recovery of that backup item with no data loss. The additional 14 days of retention for backup data in the "soft delete" state don't incur any cost to you. Additionally, Azure Backup provides Enhanced soft delete, an improvement to the soft delete feature. With enhanced soft delete, you can customize soft delete retention period and make soft delete always-on, thus protecting it from being disabled by any malicious actors. Learn more about Soft delete and Enhanced soft delete.
+
+- Cross Region Restore: 
+Cross Region Restore (CRR) allows you to restore Azure VMs in a secondary region, which is an Azure paired region. By enabling this feature at the vault level, you can restore the replicated data in the secondary region any time, when you choose. This enables you to restore the secondary region data for audit-compliance, and during outage scenarios, without waiting for Azure to declare a disaster (unlike the GRS settings of the vault). Learn more.
+
+- Data isolation: 
+With Azure Backup, the vaulted backup data is stored in Microsoft-managed Azure subscription and tenant. External users or guests have no direct access to this backup storage or its contents, which ensures the isolation of backup data from the production environment where the data source resides. This robust approach ensures that even in a compromised environment, existing backups can't be tampered or deleted by unauthorized users.
+
+---
+
+## Q82:
+
+You add a resource group deployment from a ARM template that alredy exists.
+The template is stored on a web server repo.
+You have already created the RG named RG1.
+
+You need to deply the resources from the RGD.
+`$ResourceTamplate` is the location of the of the ARM template file on the web server.
+
+Complete the command.
+
+`OPTIONS-1 -ResourceGroupName "RG1" OPTIONS-2 $ResourceTamplate`
+
+OPTIONS-1:
+New-AzResource
+New-AzResourceGroup
+New-AzResourceGroupDeployment
+
+OPTIONS-2:
+-TemplateFile
+-TemplateObject
+-TemplateUri
+
+---
+
+### Answer:
+`New-AzResourceGroupDeployment -ResourceGroupName "RG1" -TemplateUri $ResourceTamplate`
+
+---
+
+### References:
+
+[Deploy resources with ARM templates and Azure PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell)   
+
+[New-AzResourceGroupDeployment](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroupdeployment?view=azps-11.4.0&viewFallbackFrom=azps-3.6.1)  
+
+
+> the meaning of teh param: TemplateObject 
+> Example 2: Use a custom template object and parameter file to create a deployment
+
+This command creates a new deployment by using a custom and a template file on disk that has been converted to an in-memory hashtable. 
+
+```
+$TemplateFileText = [System.IO.File]::ReadAllText("D:\Azure\Templates\EngineeringSite.json")
+$TemplateObject = ConvertFrom-Json $TemplateFileText -AsHashtable
+
+New-AzResourceGroupDeployment -ResourceGroupName "ContosoEngineering" -TemplateObject $TemplateObject -TemplateParameterFile "D:\Azure\Templates\EngSiteParams.json"
+```
+
 
 ---
 
