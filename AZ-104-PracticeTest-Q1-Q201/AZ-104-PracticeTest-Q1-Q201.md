@@ -15,6 +15,410 @@
 
 ---
 
+## Q76:
+
+company1 has varous workloads runnign on Azure.
+In order to acces apps hosted on Azure all users of company1 autheticate to the
+`company1.com` tenant with Microsoft Entra. 
+**Microsoft Entra Connect Sync** is used with the on-porm AD.
+
+company2 own the Azure tenant `company2.com`.
+
+company2 signs an agreement with company1.
+Five users from company2 need access to a number of apps hosted on `company1.com`.
+company2 users should laso be able to use SSO to access `company1.com` resources
+useing their `company2.com` credentials.
+
+You need to implement a solution quickly and at no costs.
+
+What should you do?
+
+- enable B2C authetication to allow the five uses from company2 to use their outlook.com email addresses to access the app on  `company1.com`
+
+- add five company2 users principal namens UPNs as guest users on the `company1.com` tenant
+
+- configure ADFS at company1 to federate thet five company2 users to a utheticate with the company2 AD
+
+- create user accounts for the five users from company2 in the company1 on-prem AD
+
+
+
+---
+
+### Answer:
+- add five company2 users principal namens UPNs as guest users on the `company1.com` tenant
+
+adding these 5 UPN to `company1.com` as guest and sending them an invitation provides them 
+with SSO and it is the easiest solution.
+
+The remaining options do not apply:
+
+- enable B2C authetication to allow the five uses from company2 to use their outlook.com email addresses to access the app on `company1.com`
+This is not a goood solution because if any of these users left company2 theyy would still be able to access `company1.com`. They are not customers by themself the agreement is between
+the companies and you want that if any of this fives are removed from `company2.com`
+then their identities become invalid also in `company1.com`.
+
+- configure ADFS at company1 to federate thet five company2 users to a utheticate with the company2 AD
+This is possible but fairly complex and expensive.
+
+- create user accounts for the five users from company2 in the company1 on-prem AD
+This would work also but it brakes the requirement that the five users need to use
+SSO therefore they want to be able to autheticate to `company1.com` with the same
+credentials used on `company2.com`.
+
+---
+
+### References:
+
+[B2B collaboration overview](https://learn.microsoft.com/en-us/entra/external-id/what-is-b2b)  
+B2B collaboration is a feature within Microsoft Entra External ID that lets you invite guest users to collaborate with your organization. 
+With B2B collaboration, you can securely share your company's applications and services with external users.
+You maintain control over your own corporate data.
+Work safely and securely with external partners, large or small, even if they don't have Microsoft Entra ID or an IT department.
+
+> Invitation & Redemption process:
+A simple invitation and redemption process lets partners use their own credentials to access your company's resources.
+**You can also enable self-service sign-up user flows** to let external users sign up for apps or resources themselves.
+Once the external user has redeemed their invitation or completed sign-up, they're represented in your directory as a user object.
+
+The user type for these B2B collaboration users is typically set to "guest" and their user principal name contains the `#EXT#` identifier.
+
+> Collaborate with any partner using their identities:
+
+With Microsoft Entra B2B, the partner uses their own identity management solution, 
+so **there's no external administrative overhead for your organization**. 
+**Guest users sign in to your apps and services with their own work, school, or social identities**.
+
+- The partner uses their own identities and credentials, **whether or not they have a Microsoft Entra account**
+- You don't need to manage external accounts or passwords.
+- You don't need to sync accounts or manage account lifecycles.
+
+> Manage B2B collaboration with other organizations and clouds:
+
+- B2B collaboration is enabled by default
+- comprehensive admin settings let you control your inbound and outbound B2B collaboration with external partners and organizations
+
+---
+
+[Microsoft Entra Connect Sync: Understand and customize synchronization](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-sync-whatis)   
+
+---
+
+## Q75:
+
+You deploy a LOB app and all the resources for the app are deployed to a single RG.
+The resources where added in different phases.
+
+You need to export teh current configuration of the LOB app resources to an ARM template.
+The ARM template will be used to teh deploy the LOB app infrastructure in a different
+testing enviroment.
+
+The ARM template uses the `complete` deployment mode.
+
+Select Ye/No for each statement.
+
+- you need to export the ARM template from the latest deployment
+- each deployment contains only the resources that have been added in that deployment
+- that parameters file contains teh values used during that deployment
+- the template contains thet scripts needed to deply the template
+
+
+---
+
+### Answer:
+
+
+- you need to export the ARM template from the latest deployment
+No
+The latest deployment contains only the resources that have been deplyed within the latest 
+deployment. In order to get the ARM template to deploy all the resources you must export 
+the ARM template from the RG.
+
+- each deployment contains only the resources that have been added in that deployment
+Yes
+
+- that parameters file contains teh values used during that deployment
+Yes
+
+- the template contains thet scripts needed to deply the template
+No
+
+---
+
+### References:
+
+[Use Azure portal to export a template](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/export-template-portal)   
+
+[Understand the structure and syntax of ARM templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/syntax)  
+
+[Azure Resource Manager deployment modes](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-modes)  
+
+When deploying your resources, you specify that the deployment is either 
+
+- incremental update 
+- complete update
+
+**For both modes**, Resource Manager tries to create all resources specified in the template. **If the resource already exists** in the resource group and 
+**its settings are unchanged, no operation is taken for that resource**.
+
+**If you change the property values for a resource, the resource is updated with those new values.**
+
+**If you try to update the location or type of an existing resource, the deployment fails with an error.** 
+ Instead, deploy a new resource with the location or type that you need.
+
+> Complete mode
+In complete mode, Resource Manager deletes resources that exist in the resource group but aren't specified in the template.  
+
+> Incremental mode
+In incremental mode, Resource Manager leaves unchanged resources that exist in the resource group but aren't specified in the template. Resources in the template are added to the resource group.
+
+[Manage Azure resources by using Azure CLI](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resources-cli)    
+
+---
+
+## Q74:
+
+Your organization uses Azure Blobs for storing data.
+You enabke blob versioning for the SA.
+You need to determine which write operations create a new version.
+
+Which 4 write ops create a new version?
+
+- Put Page
+- Put Blob
+- Put Block List
+- Put Block From URL
+- Append Block
+- Set Blob Metadata
+- Copy Blob
+
+---
+
+### Answer:
+
+- Put Blob
+- Put Block List
+- Copy Blob
+- Set Blob Metadata
+
+- Put Blob
+this creates a new block, page or append blob or it updates the content of
+an existing block blob. Any metadata on the blob will be overwritten.
+
+- Put Block List
+writes a blob by soecifying the list of bloch IDs that make up the blob.
+It allows to update a blob by uploading only those blocks that have changed
+and then committing the new blocks and the old one together as a new version.
+
+- Copy Blob
+this copies a whole blob to a target SA
+
+- Set Blob Metadata
+metadata as a list of name-value pairs can be attached to a blob and it is 
+part of a version of the blob
+
+These ops do not create a new version of teh blob:
+- Put Page
+- Put Block From URL
+- Append Block
+
+---
+
+### References:
+
+
+---
+
+## Q73:
+
+You are the Azure admin at your company that uses AFS to store files.
+You need to permanently delete an AFS that has been soft deleted.
+
+```
+Update-AzStorageFileServiceProperty `
+-ResourceGroupName $rg
+-StorageAccountName $sa
+-EnableShareDeleteRetentionPolicy $false
+```
+
+Which statement is correct reagrding this command?
+
+- the PS command undeletes the file share
+- the PS command only disables soft delete on the SA
+- the PS command does not disable soft delete on the SA
+- the PS command disables soft delete on teh SA and permanently deletes an AFS that has been soft deleted
+
+---
+
+### Answer:
+- the PS command only disables soft delete on the SA
+The clue is the following: `-EnableShareDeleteRetentionPolicy $false`
+
+---
+
+### References:
+
+[az storage account file-service-properties](https://learn.microsoft.com/en-us/cli/azure/storage/account/file-service-properties?view=azure-cli-latest)  
+
+```
+az storage account file-service-properties update --account-name
+                                                  [--add]
+                                                  [--auth-methods]
+                                                  [--channel-encryption]
+                                                  [--delete-retention-days]
+                                                  [--enable-delete-retention {false, true}]
+                                                  [--enable-smb-multichannel {false, true}]
+                                                  [--force-string]
+                                                  [--kerb-ticket-encryption]
+                                                  [--remove]
+                                                  [--resource-group]
+                                                  [--set]
+                                                  [--versions]
+```
+
+
+[Enable soft delete on Azure file shares](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-enable-soft-delete?tabs=azure-portal)   
+
+```
+$resourceGroupName = "<resource-group>"
+$storageAccountName = "<storage-account>"
+
+Update-AzStorageFileServiceProperty `
+    -ResourceGroupName $resourceGroupName `
+    -StorageAccountName $storageAccountName `
+    -EnableShareDeleteRetentionPolicy $true `
+    -ShareRetentionDays 7
+
+# You can use the following command to disable soft delete on your storage account.
+Update-AzStorageFileServiceProperty `
+    -ResourceGroupName $resourceGroupName `
+    -StorageAccountName $storageAccountName `
+    -EnableShareDeleteRetentionPolicy $false
+```
+
+---
+
+## Q72:
+
+You work for a company that uses on-prem Windows servers for file sharing.
+You plan to migrate to Azure File Share and map the AFS to on-prem servers.
+
+The following is the current on-prem situation:
+
+
+| Server Name | OS WS:Windows Server | OPTION |
+| ----------- | -------------------- | ------ |
+| server1     | WS2022  | ? |
+| server2     | WS2022  | ? |
+| server3     | WS2016  | ? |
+| server4     | WS2019  | ? |
+| server5     | WS2012 R2  | ? |
+
+Choose the correct option for each server:
+
+OPTIONS:
+1. support file mapping
+2. requires upgrading
+
+---
+
+### Answer:
+
+| Server Name | OS WS:Windows Server | OPTION |
+| ----------- | -------------------- | ------ |
+| server1     | WS2022  | 1 |
+| server2     | WS2022  | 1 |
+| server3     | WS2016  | 2 |
+| server4     | WS2019  | 1 |
+| server5     | WS2012 R2  | 2 |
+
+Windows Server >= 2019 support file mapping while earlier versions require upgrading
+in order to be able to mount a Azure File Share.
+
+---
+
+### References:
+
+[Planning for an Azure Files deployment](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-planning)   
+
+You can deploy Azure Files in two main ways: 
+1. by directly mounting the serverless Azure file shares 
+2. or by caching Azure file shares on-premises using Azure File Sync.
+
+> Direct mount of an Azure file share: 
+Because Azure Files provides either Server Message Block (SMB) or Network File System (NFS) access, you can mount Azure file shares on-premises or in the cloud using the standard SMB or NFS clients available in your OS. Because Azure file shares are serverless, deploying for production scenarios doesn't require managing a file server or NAS device. This means you don't have to apply software patches or swap out physical disks.
+
+> Available protocols
+
+Azure Files offers two industry-standard file system protocols for mounting Azure file shares: 
+
+1. the Server Message Block (SMB) protocol (SMBv3)
+2. and the Network File System (NFS) protocol
+
+allowing you to choose the protocol that is the best fit for your workload.
+
+
+---
+
+[What is Azure File Sync?](https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction)  
+
+Azure File Sync enables you to centralize your organization's file shares in Azure Files, while keeping the flexibility, performance, and compatibility of a Windows file server.
+
+While some users might opt to keep a full copy of their data locally, Azure File Sync additionally has the ability to transform Windows Server into a quick cache of your Azure file share
+
+ You can use any protocol that's available on Windows Server to access your data locally, including SMB, NFS, and FTPS. You can have as many caches as you need across the world.
+
+---
+
+## Q71:
+
+You work for a company with an Azure subscription.
+The company wants to start using Azure Premium File Shares to replace on-premise file servers.
+
+You currently have three Azure SAs as shown below.
+
+| SA        | SA Type | 
+| --------- | ------- | 
+| storage1  | GPv2    | 
+| storage2  | GPv1    | 
+| storage3  | GPv2    | 
+
+
+Currently, none of teh existing SAa allows you to provision a premium file share,
+but your manager has asked you to provision one in the most cost-effective way possible.
+
+Select Yes/No.
+
+- you should convert storage1 & storage3 to Premium SAa
+- you should convert storage2 to Premium SAa
+- you should create a new premium SA
+
+---
+
+### Answer:
+
+- you should convert storage1 & storage3 to Premium SAa
+No
+- you should convert storage2 to Premium SAa
+
+No
+- you should create a new premium SA:
+Yes
+
+
+In order to provision a Premium Azure File Sahre you must have a Premium SA.
+It is not possible to convert GPv1/2 SAs to Premium.
+---
+
+### References:
+
+[Upgrade to a general-purpose v2 storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-upgrade?tabs=azure-portal)    
+
+Upgrading to a general-purpose v2 storage account from your general-purpose v1 or Blob storage accounts is straightforward. 
+There's no downtime or risk of data loss associated with upgrading to a general-purpose v2 storage account. 
+
+---
+
 ## Q70:
 
 You work for an organization that uses **Azure Virtual Desktop (AVD)**  to facilitate remote working.
