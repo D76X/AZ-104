@@ -15,6 +15,254 @@
 
 ---
 
+## Q92:
+
+You have a Azure SUB named sub1.
+You deploy a Windows Server 2016 VM named VM1 to sub1.
+You must change the Availability Set assignment for VM1.
+
+What should you do?
+
+- redeploy VM1 from a recovery point
+- migrate VM1 to another region
+- assign VM1 to the new Availability Set
+- Move VM1 to a different Availability Zone
+
+
+---
+
+### Answer:
+- redeploy VM1 from a recovery point
+
+**A VM can only be added to an availability set when it is created**.
+
+1. make a backup of thr current VM
+2. delete the current VM
+3. deploy a new vm based on the most recent restore point and to the new availability set 
+
+The remaining options do not apply:
+
+- migrate VM1 to another region:
+this would not work because a region defines the geographical limits of an AS.
+An AS is a set of datacenter within a region. 
+There may be 2 or more datacenters per region and an AS is a selection of these
+datacenters to deply your assets to in order to provide resilience and redundancy.
+
+- Move VM1 to a different Availability Zone:
+the AZ ios a concept **mutually exclusive to AS**.
+You either deploy a VM to an AZ or an AS, the former is similar in concept and purpose but it is cross-region and therefore provides higher resilience and it
+is better suited to satisfy global redundancy requirements.
+
+- assign VM1 to the new Availability Set:
+this cannot be doen without redeplyingthe VM
+
+---
+
+### References:
+
+[Change the availability set for a VM using Azure PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/change-availability-set)    
+
+**A VM can only be added to an availability set when it is created**. 
+
+```
+# Set variables
+    $resourceGroup = "myResourceGroup"
+    $vmName = "myVM"
+    $newAvailSetName = "myAvailabilitySet"
+
+# Get the details of the VM to be moved to the Availability Set
+    $originalVM = Get-AzVM -ResourceGroupName $resourceGroup -Name $vmName
+
+# Create new availability set if it does not exist
+    $availSet = Get-AzAvailabilitySet -ResourceGroupName $resourceGroup -Name $newAvailSetName -ErrorAction Ignore
+    if (-Not $availSet) {
+    $availSet = New-AzAvailabilitySet -Location $originalVM.Location -Name $newAvailSetName -ResourceGroupName $resourceGroup -PlatformFaultDomainCount 2 -PlatformUpdateDomainCount 2 -Sku Aligned
+    }
+
+# Remove the original VM
+    Remove-AzVM -ResourceGroupName $resourceGroup -Name $vmName
+
+# Create the basic configuration for the replacement VM.
+    $newVM = New-AzVMConfig -VMName $originalVM.Name -VMSize $originalVM.HardwareProfile.VmSize -AvailabilitySetId $availSet.Id
+ 
+# For a Linux VM, change the last parameter from -Windows to -Linux
+    Set-AzVMOSDisk -VM $newVM -CreateOption Attach -ManagedDiskId $originalVM.StorageProfile.OsDisk.ManagedDisk.Id -Name $originalVM.StorageProfile.OsDisk.Name -Windows
+
+# Add Data Disks
+    foreach ($disk in $originalVM.StorageProfile.DataDisks) { 
+    Add-AzVMDataDisk -VM $newVM -Name $disk.Name -ManagedDiskId $disk.ManagedDisk.Id -Caching $disk.Caching -Lun $disk.Lun -DiskSizeInGB $disk.DiskSizeGB -CreateOption Attach
+    }
+    
+# Add NIC(s) and keep the same NIC as primary; keep the Private IP too, if it exists.
+    foreach ($nic in $originalVM.NetworkProfile.NetworkInterfaces) {	
+    if ($nic.Primary -eq "True")
+    {
+            Add-AzVMNetworkInterface -VM $newVM -Id $nic.Id -Primary
+               }
+           else
+               {
+                 Add-AzVMNetworkInterface -VM $newVM -Id $nic.Id 
+                }
+      }
+
+# Recreate the VM
+    New-AzVM -ResourceGroupName $resourceGroup -Location $originalVM.Location -VM $newVM -DisableBginfoExtension
+```
+
+---
+
+## Q91:
+
+Your media production company recently moved all of its infrastructure into Azure.
+
+Every 14 days you run a batch to render several thousand video clips into various media formats for your customers. 
+At the moment the batch job runs on a sigle H-series VM.
+
+You need to design a scalable compute solution.
+The requirements are the following:
+
+- ti must use VM instance sizes smaller than teh H-series
+- it must support automatic scale out and scale in based on CPU metrics
+- it must minimi\ze deployment time
+- it must minimize admin overhead
+
+what should you do?
+
+- configure an auto-scaling rule on the existing VM
+- author an ARM template that creates additional VMs
+- deploy a VMSS
+- create a Azure Data Factory pipeline
+
+---
+
+### Answer:
+- deploy a VMSS
+
+VMSS allows automatic horizontal scaling of a VM.
+It may be a Windows Server or a Linux VM.
+VMSS support up to 1000 instances.
+
+The remaining options clearly do not apply:
+
+- configure an auto-scaling rule on the existing VM
+it is not possible to set scaling rule of any kind on an individual VM, it is 
+possible only with VMSS.
+
+- author an ARM template that creates additional VMs
+- create a Azure Data Factory pipeline:
+this is an netirely different PaaS service that has nothing to do with this scenario.
+
+---
+
+### References:
+
+[What are Virtual Machine Scale Sets?](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview)  
+
+[Get started with autoscale in Azure](https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-get-started)    
+
+[Autoscaling](https://learn.microsoft.com/en-us/azure/architecture/best-practices/auto-scaling)    
+
+---
+
+[What is Azure Data Factory?](https://learn.microsoft.com/en-us/azure/data-factory/introduction)   
+
+Azure Data Factory is a managed cloud service that's built for:
+
+- complex hybrid extract-transform-load (ETL)
+- extract-load-transform (ELT)
+- data integration projects.
+
+ It is the cloud-based ETL and data integration service that allows you to create data-driven workflows for orchestrating data movement and transforming data at scale.
+
+ Using Azure Data Factory, you can create and schedule data-driven workflows (called pipelines) that can ingest data from disparate data stores. 
+
+You can build complex ETL processes that transform data visually with data flows or by using compute services such as:
+
+- Azure HDInsight Hadoop
+- Azure Databricks
+- Azure SQL Database
+
+you can publish your transformed data to data stores such as:
+- Azure Synapse Analytics 
+for business intelligence (BI) applications to consume. 
+
+
+
+> Features of Azure Data Factory:
+
+- Data Compression: 
+During the Data Copy activity, it is possible to compress the data and write the compressed data to the target data source. This feature helps optimize bandwidth usage in data copying.
+
+- Extensive Connectivity Support for Different Data Sources: 
+Azure Data Factory provides broad connectivity support for connecting to different data sources. This is useful when you want to pull or write data from different data sources.
+
+- Custom Event Triggers: 
+Azure Data Factory allows you to automate data processing using custom event triggers. This feature allows you to automatically execute a certain action when a certain event occurs.
+
+- Data Preview and Validation: 
+During the Data Copy activity, tools are provided for previewing and validating data. This feature helps you ensure that data is copied correctly and written to the target data source correctly.
+
+- Customizable Data Flows: 
+Azure Data Factory allows you to create customizable data flows. This feature allows you to add custom actions or steps for data processing.
+
+- Integrated Security: 
+Azure Data Factory offers integrated security features such as Azure Active Directory integration and role-based access control to control access to dataflows. This feature increases security in data processing and protects your data.
+
+> Usage scenarios:
+
+- imagine a gaming company that collects petabytes of game logs that are produced by games in the cloud. 
+The company wants to analyze these logs to gain insights into customer preferences, demographics, and usage behavior. 
+
+-
+
+---
+
+[Azure Data Factory Tutorial | Introduction to ETL in Azure](https://www.youtube.com/watch?v=EpDkxTHAhOs&t=280s)   
+
+---
+
+[High performance computing VM sizes](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes-hpc)    
+
+[HBv4-series](https://learn.microsoft.com/en-us/azure/virtual-machines/hbv4-series)   
+
+VMs are optimized for various HPC workloads such as:
+
+- computational fluid dynamics
+- finite element analysis
+- frontend and backend EDA
+- rendering
+- molecular dynamics
+- computational geoscience
+- weather simulation
+- financial risk analysis 
+
+HBv4 VMs will feature:
+
+- up to 176 AMD EPYC™ 9004-series (Genoa) CPU cores
+- 688 GB of RAM
+- and no simultaneous multithreading. 
+
+HBv4-series VMs also provide:
+
+- 800 GB/s of DDR5 memory bandwidth 
+- 768MB L3 cache per VM
+- up to 12 GB/s (reads) 
+- 7 GB/s (writes) of block device SSD performance
+- clock frequencies up to 3.7 GHz.
+
+All HBv4-series VMs feature:
+
+There are also the following series:
+
+
+
+
+
+
+---
+
+*** Bicep End ***
+
 ## Q90:
 
 You are an Azure admin and deploy Azure resource with Bicep.
@@ -96,7 +344,9 @@ For each statement select Yes/No
 
 ---
 
-## Q88:
+*** Bicep Beginning ***
+
+## Q88 :
 
 Your organization uses Azure Advisor to optimize the Azure deployments.
 You want to set up an alert for new recommendation from teh Azure Advisor using Bicep.
