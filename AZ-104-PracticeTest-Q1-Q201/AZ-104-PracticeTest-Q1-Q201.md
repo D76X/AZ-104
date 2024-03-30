@@ -2,7 +2,7 @@
 
 ---
 
-## Q9X:
+## Q10X:
 
 
 ---
@@ -12,6 +12,453 @@
 ---
 
 ### References:
+
+---
+
+## Q100:
+
+You develop a VMSS to support a critical app.
+The upgrade policy for the VMSS is set to Rolling.
+
+You need to apply a change to the OS of the VMSS and Data Disk Profile images.
+
+Which cmdlet should you use?
+
+- Update-AzVmmssInstance
+- Update-AzVmmss
+- Set-AzVmssVM
+- Start-AzVmssRollingOSUpgrade
+
+---
+
+### Answer:
+- Set-AzVmssVM
+
+
+---
+
+### References:
+
+[Modify a Virtual Machine Scale Set](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-upgrade-scale-set)   
+
+Many of the steps listed in this document apply to Virtual Machine Scale Sets using **Uniform Orchestration mode**. 
+We recommend using **Flexible Orchestration** for new workloads. 
+
+Throughout the lifecycle of your applications, you may need to modify or update your Virtual Machine Scale Set.
+
+
+> The scale set model:
+captures the desired state of the scale set as a whole. 
+
+`Get-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet"`
+`az vmss show --resource-group myResourceGroup --name myScaleSet`
+
+
+The exact presentation of the output depends on the options you provide to the command. 
+
+```
+az vmss show --resource-group myResourceGroup --name myScaleSet
+{
+  "location": "westus",
+  "overprovision": true,
+  "plan": null,
+  "singlePlacementGroup": true,
+  "sku": {
+    "additionalProperties": {},
+    "capacity": 1,
+    "name": "Standard_D2_v2",
+    "tier": "Standard"
+  },
+}
+```
+
+> The scale set instance view:
+
+captures the current runtime state of the scale set as a whole. 
+
+`Get-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -InstanceView`
+
+`az vmss get-instance-view --resource-group myResourceGroup --name myScaleSet`
+
+The exact presentation of the output depends on the options you provide to the command. 
+
+> The scale set VM model view
+each VM instance in the scale set has its own model view. 
+query the model view for a particular VM instance in a scale set
+
+`Get-AzVmssVm -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -InstanceId instanceId`
+`az vmss show --resource-group myResourceGroup --name myScaleSet --instance-id instanceId`
+
+> The scale set VM instance view
+each VM instance in the scale set has its own instance view
+
+`Get-AzVmssVm -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -InstanceId instanceId -InstanceView`
+
+`az vmss get-instance-view --resource-group myResourceGroup --name myScaleSet --instance-id instanceId`
+
+[How to update global scale set properties](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-upgrade-scale-set#how-to-update-global-scale-set-properties)  
+
+**update a global scale set property, you must update the property in the scale set model.** 
+
+`Update-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -VirtualMachineScaleSet {scaleSetConfigPowershellObject}`
+
+```
+# To modify a property:
+az vmss update --set {propertyPath}={value}
+
+# To add an object to a list property in a scale set:
+az vmss update --add {propertyPath} {JSONObjectToAdd}
+
+# To remove an object from a list property in a scale set:
+az vmss update --remove {propertyPath} {indexToRemove}
+```
+
+If you previously deployed the scale set with the az vmss create command, 
+you can run the az vmss create command again to update the scale set.
+Make sure that all properties in the az vmss create command are the same as before, except for the properties that you wish to modify.
+
+Once the scale set model is updated, the new configuration applies to any new VMs created in the scale set. 
+However, the models for the existing VMs in the scale set must still be brought up-to-date with the latest overall scale set model. 
+In the model for each VM is a boolean property called `latestModelApplied` that indicates whether or not the VM is up-to-date with the latest overall scale set model (true means the VM is up-to-date with the latest model).
+
+> Scenarios:
+
+- OS Updates:
+If you use Azure platform images, you can update the image by modifying the 
+`imageReference`.
+
+With platform images, it is common to specify "latest" for the image reference version. When you create, scale out, and reimage, VMs are created with the latest available version. However, it does not mean that the OS image is automatically updated over time as new image versions are released. 
+
+> Update the OS image for your scale set:
+
+`Update-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -ImageReferenceVersion 16.04.201801090`
+
+`az vmss update --resource-group myResourceGroup --name myScaleSet --set virtualMachineProfile.storageProfile.imageReference.version=16.04.201801090`
+
+> update or change a custom image used by your scale set:
+
+```
+Update-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet" -ImageReferenceId /subscriptions/{subscriptionID}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/images/myNewImage
+```
+
+- Application updates:
+
+If an application is deployed to a scale set through extensions,
+an update to the extension configuration causes the application to 
+update in accordance with the upgrade policy.
+
+For instance, if you have a new version of a script to run in a Custom Script Extension, you could update the fileUris property to point to the new script. 
+
+It's also common for applications to be deployed through a custom image. 
+This scenario is covered in the following section.
+
+- Update the load balancer for your scale set
+
+Let's say you have a scale set with an Azure Load Balancer, and you want 
+to replace the Azure Load Balancer with an Azure Application Gateway. 
+
+The load balancer and Application Gateway properties for a scale set are part of a list, so you can use the commands to remove or add list elements instead of modifying the properties directly:
+
+```
+# Get the current model of the scale set and store it in a local PowerShell object named $vmss
+$vmss=Get-AzVmss -ResourceGroupName "myResourceGroup" -Name "myScaleSet"
+
+# Create a local PowerShell object for the new desired IP configuration, which includes the reference to the application gateway
+$ipconf = New-AzVmssIPConfig -ApplicationGatewayBackendAddressPoolsId /subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Network/applicationGateways/{applicationGatewayName}/backendAddressPools/{applicationGatewayBackendAddressPoolName} -SubnetId $vmss.VirtualMachineProfile.NetworkProfile.NetworkInterfaceConfigurations[0].IpConfigurations[0].Subnet.Id -Name $vmss.VirtualMachineProfile.NetworkProfile.NetworkInterfaceConfigurations[0].IpConfigurations[0].Name
+
+# Replace the existing IP configuration in the local PowerShell object (which contains the references to the current Azure Load Balancer) with the new IP configuration
+$vmss.VirtualMachineProfile.NetworkProfile.NetworkInterfaceConfigurations[0].IpConfigurations[0] = $ipconf
+
+# Update the model of the scale set with the new configuration in the local PowerShell object
+Update-AzVmss -ResourceGroupName "myResourceGroup" -Name "myScaleSet" -virtualMachineScaleSet $vmss
+```
+---
+
+[Update-AzVmss](https://learn.microsoft.com/en-us/powershell/module/az.compute/update-azvmss?view=azps-11.4.0)  
+updates the state of a Virtual Machine Scale Set (VMSS) to the state of a local VMSS object
+
+[Update-AzVmssInstance](https://learn.microsoft.com/en-us/powershell/module/az.compute/update-azvmssinstance?view=azps-11.4.0&viewFallbackFrom=azps-3.6.1)  
+starts a manual upgrade of the specified Virtual Machine Scale Set (VMSS) instance.
+This is used when the upgrade policy on the VMSS Scale Set is set to manual.
+
+[Set-AzVmssVM](https://learn.microsoft.com/en-us/powershell/module/az.compute/set-azvmssvm?view=azps-11.4.0)  
+modifies the state of a Virtual Machine Scale Set (VMSS) instance.
+
+
+
+---
+
+## Q99:
+
+Your comopany develops a new app.
+The app must be deployed to a VMSS to provide high availability 
+and to meet changing resource requirements.
+
+You run the `New-AzResourceGrou` cmdlet to create the RG for teh VMSS.
+You then want to create the VMSS.
+Which cmdlet should you run next?
+
+- New-AzVmss
+- New-AzVmssVM
+- New-AzVm
+- Set-AzVmss
+
+
+---
+
+### Answer:
+- New-AzVmss
+
+---
+
+### References:
+
+[New-AzVmss](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvmss?view=azps-11.4.0)   
+
+> Example 1: Create a VMSS using the SimpleParameterSet
+```
+$vmssName = 'VMSSNAME'
+# Create credentials, I am using one way to create credentials, there are others as well.
+# Pick one that makes the most sense according to your use case.
+$vmPassword = ConvertTo-SecureString "PASSWORD" -AsPlainText -Force
+$vmCred = New-Object System.Management.Automation.PSCredential('USERNAME', $vmPassword)
+$securityTypeStnd = "Standard"
+
+#Create a VMSS using the default settings
+New-AzVmss -Credential $vmCred -VMScaleSetName $vmssName -SecurityType $securityTypeStnd
+```
+
+The command above creates the following with the name $vmssName :
+
+A Resource Group
+A virtual network
+A load balancer
+A public IP
+the VMSS with 2 instances
+
+The default image chosen for the VMs in the VMSS is:
+2016-Datacenter Windows Server and the SKU is Standard_DS1_v2
+
+---
+
+[Quickstart: Create a Virtual Machine Scale Set with Azure PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/quick-create-powershell)   
+
+```
+New-AzVmss `
+-ResourceGroupName "myResourceGroup" `
+-Location "EastUS" `
+-VMScaleSetName "myScaleSet" `
+-VirtualNetworkName "myVnet" `
+-SubnetName "mySubnet" `
+-PublicIpAddressName "myPublicIPAddress" `
+-LoadBalancerName "myLoadBalancer" `
+-OrchestrationMode 'Uniform' `
+-UpgradePolicyMode "Automatic"
+```
+
+OrchestrationMode
+Specifies the orchestration mode for the virtual machine scale set. Possible values: Uniform, Flexible
+
+[Orchestration modes for Virtual Machine Scale Sets in Azure](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-orchestration-modes)  
+Scale set orchestration modes allow you to have greater control over how virtual machine instances are managed by the scale set.
+
+> Scale sets with Uniform orchestration
+Uniform uses identical VM instances.
+Individual Uniform VM instances are exposed via the Virtual Machine Scale Set VM API commands. 
+**Individual instances aren't compatible with the standard Azure IaaS VM API commands**.
+Uniform orchestration provides fault domain high availability guarantees when configured with fewer than 100 instances. 
+
+> Scale sets with Flexible orchestration:
+
+Achieve high availability at scale with identical **or multiple virtual machine types**.
+
+ Flexible orchestration offers high availability guarantees (up to 1000 VMs) by spreading VMs across fault domains in a region or within an Availability Zone.
+
+> Scenarios for Flexible orchestration:
+
+Quorum-based workloads
+Open-Source databases
+Stateful applications
+Services that require High Availability and large scale
+**Services that want to mix virtual machine types or Spot and on-demand VMs together**
+Existing Availability Set applications
+
+> Main difference between Unifirm & Flexible Orchestration:
+**You can use all of the standard VM APIs when managing Flexible orchestration instances**
+instead of the Virtual Machine Scale Set VM APIs you use with Uniform orchestration. 
+Flexible orchestration mode can be used with all VM sizes.
+---
+
+[New-AzVmssConfig](https://learn.microsoft.com/en-us/powershell/module/az.compute/new-azvmssconfig?view=azps-11.4.0)  
+
+creates a configurable local Virtual Manager Scale Set (VMSS) object.
+
+> Example 1: Create a VMSS configuration object
+```
+$VMSS = New-AzVmssConfig -Location $Loc -SkuCapacity 2 -SkuName "Standard_A0" -UpgradePolicyMode "Automatic" -NetworkInterfaceConfiguration $NetCfg | Add-AzVmssNetworkInterfaceConfiguration -Name "Test" -Primary $True -IPConfiguration $IPCfg | Set-AzVmssOsProfile -ComputerNamePrefix "Test" -AdminUsername $adminUsername -AdminPassword $AdminPassword | Set-AzVmssStorageProfile -Name "Test" -OsDiskCreateOption "FromImage" -OsDiskCaching "None" -ImageReferenceOffer $ImgRef.Offer -ImageReferenceSku $ImgRef.Skus -ImageReferenceVersion $ImgRef.Version -ImageReferencePublisher $ImgRef.PublisherName -VhdContainer $VHDContainer | Add-AzVmssAdditionalUnattendContent -ComponentName  $AUCComponentName -Content  $AUCContent -PassName  $AUCPassName -SettingName  $AUCSetting;
+
+New-AzVmss -ResourceGroupName $RGName -Name $VMSSName -VirtualMachineScaleSet $VMSS;
+```
+
+---
+
+## Q98:
+
+You are asked to configure SSPR (self service password reset) for a subset fo users
+in your organization.
+
+Requirements:
+
+- you should be able to add and remove users who are allowed to use SSPR
+- the user must provide one additional piece of personal info before they are allowed to reset their psw
+
+Which 4 actions should you perform in a sequence?
+
+- register an authentication method for SSPR
+- enable SSPR with the selected option
+- enable SSPR with all options
+- select the ME group for which you want SSOR
+- add user to the SSPR list of users
+- create a Micorsoft Entra security group and add users to it
+
+
+
+---
+
+### Answer:
+
+- create a Micorsoft Entra security group and add users to it
+- enable SSPR with the selected option
+- select the ME group for which you want SSOR
+- register an authentication method for SSPR
+
+The additional personal info that a user can provide during SSPR:
+
+- mobile app notification
+- mobile app code
+- email
+- mobile phone
+- office phone
+- security questions
+
+It is not possivble to add users directly to the SSPR configuration.
+Users are added to Microsoft Entra Security Groups and the the SSPS is activated on these groups.
+
+---
+
+### References:
+
+[Tutorial: Enable users to unlock their account or reset passwords using Microsoft Entra self-service password reset](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr)    
+
+---
+
+## Q97:
+
+You want to install SQL Server 2019 on an Azure Windows VM.
+You must ensure that the VM has 99.99% SLA.
+The solution must minimize costs.
+
+Choose the correct values for each configuration:
+
+Size: 
+`Standard_DS4_v2`
+`Standard_D4_v2`
+`Standard_A8_v2`
+
+OS Disk Type:
+Premium SSD
+Standard SSD
+Standard HDD
+
+Data Storage Type:
+Premium SSD
+Standard SSD
+Standard HDD
+
+
+---
+
+### Answer:
+
+Size: 
+`Standard_DS4_v2`
+
+OS Disk Type:
+Premium SSD
+
+Data Storage Type:
+Premium SSD
+
+**In order to achive 99.99% SLA on a single instance VM any disk must be Premium SSD**.
+`Standard_DS4_v2` is the only option amonge those available that supports Premium SSD.
+
+`Standard_D4_v2` & `Standard_A8_v2` **do not** support Premium SSD.
+
+---
+
+### References:
+
+Refer to the Referenxces of a prevous question in which the sizes of VMs
+are examined.
+
+---
+
+## Q96:
+
+You need to create a Availability Set named AS1.
+You plan to deploy 8 VMs to AS1 to run IIS web app.
+
+You must configure AS1, the requirements are:
+
+- during planned maintenance of the VM host there must be at least 6 VM available the VM must be restarted in groups of 2
+- the VM must be physically separated from each other as much as possible
+
+How should you configure the AS1?
+
+Name: AS1
+Region: US Central US
+fault domains: 1 | 2 | 3 | 4 | 10 | 20
+update domains: 1 | 2 | 3 | 4 | 10 | 20
+use managed disks: Yes
+
+---
+
+### Answer:
+
+fault domains: 3
+update domains: 4
+
+update domains: 4
+this guarantees that VMs will be restarted in groups of 2
+
+fault domains: 3
+This is the max number of Fault Domains available to teh region (US) Central US.
+
+**Availability sets** place VMs in different **fault domains**.
+
+**Fault Domains** are groupings of machines that share similar hardware, power, network etc. If you spread machines over fault domains, they will be on different sets of hardware.
+
+**Upgrade domains** are groupings of machines that will have updates 
+applied at the same time.
+You want to spread machines across updated domains to avoid them being
+updated at the same time. 
+
+
+---
+
+### References:
+
+[Choosing the right number of fault domains for Virtual Machine Scale Set](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-manage-fault-domains)  
+
+Virtual Machine Scale Sets are created with five fault domains by default in Azure regions with no zones. 
+
+---
+
+[Availability sets overview](https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview)  
+
+[Azure VMs : Availability Sets and Availability Zones](https://learn.microsoft.com/en-us/archive/technet-wiki/51828.azure-vms-availability-sets-and-availability-zones)   
+
+[Availability options for Azure Virtual Machines](https://learn.microsoft.com/en-us/azure/virtual-machines/availability)  
 
 ---
 
