@@ -15,6 +15,135 @@
 
 ---
 
+## Q104:
+
+Your company hosts resources on-premise as well on Azure infrastructure (IaaS).
+This includes VMs used by teh HR department.
+HR has recently requested for a new application to be installed on a server
+named `hrvm01` with the following details:
+
+RG: ukrg1
+Location: UK South
+Storage Type: Premium ZRS
+disk name: `hrdisk5`
+
+The app requires a new 1TB data disk to be install.
+You need to complete the script.
+
+```
+$rgn = 'ukrg1'
+$vmn = `hrvm01`
+$loc = 'UK South'
+$stype: 'Premium ZRS'
+$datadiskn= `hrdisk5`
+
+$diskconfig = OPTIONS -SkuName $stype -Location $loc -CreateOption Empty `
+-DiskSizeGB 1024
+
+$datadisk = OPTIONS -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
+
+$vm = OPTIONS -Name $vmn -ResourceGroupName $rgn
+$vm = OPTIONS -VM $vm ??? $datadiskn -CreateOption Attach `
+-ManageDiskId $datadisk.Id -Lun 4
+
+OPTIONS -VM $vm -ResourceGroupName $rgn
+```
+
+OPTIONS:
+Set-AzVM
+Update-AzVM
+Set-AzVMDataDisk
+Update-AzDisk
+
+---
+
+### Answer:
+
+```
+$rgn = 'ukrg1'
+$vmn = `hrvm01`
+$loc = 'UK South'
+$stype: 'Premium ZRS'
+$datadiskn= `hrdisk5`
+
+$diskconfig = OPTIONS -SkuName $stype -Location $loc -CreateOption Empty `
+-DiskSizeGB 1024
+
+$datadisk = OPTIONS -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
+
+$vm = OPTIONS -Name $vmn -ResourceGroupName $rgn
+$vm = OPTIONS -VM $vm ??? $datadiskn -CreateOption Attach `
+-ManageDiskId $datadisk.Id -Lun 4
+
+OPTIONS -VM $vm -ResourceGroupName $rgn
+```
+
+
+---
+
+### References:
+
+---
+
+## Q103:
+
+You have a VM in Azure named vm1 with Ubuntu OS.
+
+You must enable disk encryption on vm1 and store teh encryption key on a new KV named kv1.
+All resources must be privioned in a RG named rg1.
+
+Complete teh script.
+
+```
+OPTIONS --name 'kv1' --resource-group 'rg1' --location 'eastus' \
+OPTIONS 
+
+OPTIONS \
+--resource-group 'rg1' --name 'vm1'
+
+OPTIONS: 'kv1'
+
+```
+
+OPTIONS: 
+az vm encryption enable
+az vm update
+az keyvault create
+--enable-for-disk-encryption
+--disk-encryption-keyvault
+--os-disk-encryption-set
+
+---
+
+### Answer:
+
+```
+az keyvault create --name 'kv1' --resource-group 'rg1' --location 'eastus' \
+--enable-for-disk-encryption 
+
+az vm encryption enable --resource-group 'rg1' --name 'vm1' \
+--disk-encryption-keyvault 'kv1'
+
+```
+
+The raminign options do not apply:
+
+`--os-disk-encryption-set`: set a new VM to use a customer-managed encryption key.
+
+
+---
+
+### References:
+
+[Quickstart: Create and encrypt a Linux VM with the Azure CLI](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disk-encryption-cli-quickstart)  
+
+`az vm encryption enable -g "MyResourceGroup" --name "myVM" --disk-encryption-keyvault "<your-unique-keyvault-name>"`
+
+> Encrypt and Decrypt OS &/or Data Disks:
+[az vm encryption](https://learn.microsoft.com/en-us/cli/azure/vm/encryption?view=azure-cli-latest) 
+
+---
+
 ## Q102:
 
 The manage VM named VM1 has the attached disk DataD2.
@@ -38,14 +167,133 @@ No
 - you must run the `Update-AzVM` on both VM1 and VM2 after moving DataD2
 Yes
 
+you are not required to stop VM1 before detaching DataD2.
+it is sufficient that nothing is actively using teh dada disk while it is being detached.
+the  data disk cannot be accessed while it is detached, ity must be reattached to a VM
+in order to access it again.
+
+`Update-AzVM` must be run on VM1 and on VM2 to aupdate their state after detaching and attaching the disk.
+
+
+`Get-AzDisk` | `New-AzDisk`
+`Add-AzVMDataDisk` 
+`Update-AzVM`
+
+```
+$diskConfig = New-AzDiskConfig -SkuName $storageType -Location $location -CreateOption Empty -DiskSizeGB 128
+$dataDisk1 = New-AzDisk -DiskName $dataDiskName -Disk $diskConfig -ResourceGroupName $rgName
+
+```
+
 ---
 
 ### References:
 
 [How to detach a data disk from a Windows virtual machine](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/detach-disk)  
 
+When you no longer need a data disk that's attached to a virtual machine, you can easily detach it. 
+
+The disk stays in storage but is no longer attached to a virtual machine.
+
+This removes the disk from the virtual machine, but doesn't remove it from storage.
+If you want to use the existing data on the disk again, you can reattach it to the same virtual machine, or another one.
+
+> Detach a data disk using PowerShell:
+
+**You can hot remove a data disk** using PowerShell, but make sure nothing is actively using the disk before detaching it from the VM.
+
+```
+$VirtualMachine = Get-AzVM -ResourceGroupName "myResourceGroup" -Name "myVM"
+
+Remove-AzVMDataDisk -VM $VirtualMachine -Name "myDisk"
+
+Update-AzVM -ResourceGroupName "myResourceGroup" -VM $VirtualMachine
+```
+
+---
+
 [Attach a data disk to a Windows VM with PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/attach-disk-ps)   
 
+First, review these tips:
+
+- The size of the virtual machine controls how many data disks you can attach. 
+- To use premium SSDs, you'll need a premium storage-enabled VM type, like the DS-series or GS-series virtual machine.
+
+> Add an empty data disk to a virtual machine:
+
+```
+$rgName = 'myResourceGroup'
+$vmName = 'myVM'
+$location = 'East US'
+$storageType = 'Premium_LRS'
+$dataDiskName = $vmName + '_datadisk1'
+
+$diskConfig = New-AzDiskConfig -SkuName $storageType -Location $location -CreateOption Empty -DiskSizeGB 128
+$dataDisk1 = New-AzDisk -DiskName $dataDiskName -Disk $diskConfig -ResourceGroupName $rgName
+
+$vm = Get-AzVM -Name $vmName -ResourceGroupName $rgName
+$vm = Add-AzVMDataDisk -VM $vm -Name $dataDiskName -CreateOption Attach -ManagedDiskId $dataDisk1.Id -Lun 1
+
+Update-AzVM -VM $vm -ResourceGroupName $rgName
+```
+
+> Initialize the disk:
+
+After you add an empty disk, you'll need to initialize it. 
+
+you  you can use remote PowerShell to initialize the disk if:
+ 
+- enabled `WinRM` 
+- and a certificate on the VM when you created it
+
+```
+$location = "location-name"
+$scriptName = "script-name"
+$fileName = "script-file-name"
+
+Set-AzVMCustomScriptExtension -ResourceGroupName $rgName `
+-Location $locName `
+-VMName $vmName `
+-Name $scriptName `
+-TypeHandlerVersion "1.4" `
+-StorageAccountName "mystore1" `
+-StorageAccountKey "primary-key" `
+-FileName $fileName -ContainerName "scripts"
+```
+
+The script file can contain code to initialize the disks, for example:
+
+```
+$disks = Get-Disk | Where partitionstyle -eq 'raw' | sort number
+
+$letters = 70..89 | ForEach-Object { [char]$_ }
+    $count = 0
+    $labels = "data1","data2"
+
+foreach ($disk in $disks) {
+        $driveLetter = $letters[$count].ToString()
+        $disk |
+        Initialize-Disk -PartitionStyle MBR -PassThru |
+        New-Partition -UseMaximumSize -DriveLetter $driveLetter |
+        Format-Volume -FileSystem NTFS -NewFileSystemLabel $labels[$count] -Confirm:$false -Force
+	$count++
+    }
+```
+
+> Attach an existing data disk to a VM:
+
+```
+$rgName = "myResourceGroup"
+$vmName = "myVM"
+$dataDiskName = "myDisk"
+$disk = Get-AzDisk -ResourceGroupName $rgName -DiskName $dataDiskName
+
+$vm = Get-AzVM -Name $vmName -ResourceGroupName $rgName
+
+$vm = Add-AzVMDataDisk -CreateOption Attach -Lun 0 -VM $vm -ManagedDiskId $disk.Id
+
+Update-AzVM -VM $vm -ResourceGroupName $rgName
+```
 ---
 
 ## Q101:
