@@ -15,6 +15,89 @@
 
 ---
 
+## Q102:
+
+The manage VM named VM1 has the attached disk DataD2.
+You must move DataD2 to a VM named VM2 with PS.
+keep the time that data on DataD2 is unavailable to a minimum.
+
+Select yes/no:
+
+- you must stop VM1 before you can detach DataD2
+- you can access data ion DataD2 while the disk is unattached
+- you must run the `Update-AzVM` on both VM1 and VM2 after moving DataD2
+---
+
+### Answer:
+
+- you must stop VM1 before you can detach DataD2
+No
+- you can access data ion DataD2 while the disk is unattached
+No
+
+- you must run the `Update-AzVM` on both VM1 and VM2 after moving DataD2
+Yes
+
+---
+
+### References:
+
+[How to detach a data disk from a Windows virtual machine](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/detach-disk)  
+
+[Attach a data disk to a Windows VM with PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/attach-disk-ps)   
+
+---
+
+## Q101:
+
+you have an Azure VM named VM1 deployed via a ARM template to RG1.
+You must move VM1 to RG2.
+
+which cmdlet should you use?
+
+- Move-AzResource
+- Remove-AzVM
+- Stop-AzVM
+- Update-AzVM
+
+
+---
+
+### Answer:
+- Move-AzResource
+
+This is described in teh reference belwo and can also be accomplished manually from 
+the Azure Portal from the Overview blade of the resource. [ChaNge RG]
+
+
+---
+
+### References:
+
+[Move Azure resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-resource-group-and-subscription)  
+Both the source group and the target group are locked during the move operation.
+
+The lock can last for a maximum of four hours, but most moves complete in much less time.
+
+It doesn't mean the resources are frozen. For example, if you move an Azure SQL logical server, its databases and other dependent resources to a new resource group or subscription, applications that use the databases experience no downtime.
+
+They can still read and write to the databases. 
+
+```
+$sourceName = "sourceRG"
+$destinationName = "destinationRG"
+$resourcesToMove = @("app1", "app2")
+
+$resources = Get-AzResource -ResourceGroupName $sourceName | Where-Object { $_.Name -in $resourcesToMove }
+
+Move-AzResource -DestinationResourceGroupName $destinationName -ResourceId $resources.ResourceId
+```
+
+[Move-AzResource](https://learn.microsoft.com/en-us/powershell/module/az.resources/move-azresource?view=azps-11.4.0)   
+moves existing resources to a different resource group. 
+
+---
+
 ## Q100:
 
 You develop a VMSS to support a critical app.
