@@ -15,6 +15,289 @@
 
 ---
 
+## Q95:
+
+You create a VMSS named vmss1.
+The scaling configuration is shown in the exhibit:
+
+<img src="./Q95-exhibit-1.png">
+<img src="./Q95-exhibit-2.png">
+<img src="./Q95-exhibit-3.png">
+<img src="./Q95-exhibit-4.png">
+<img src="./Q95-exhibit-5.png">
+
+As shown in the exhibits, there are three scale conditions:
+
+1. a default scale condition with an overview of the scale-out/in details
+2. specific scale condition 1
+2. specific scale condition 2
+
+You must check the configuration.
+
+What should the observed capacity metric be in the following three scenarios?
+
+
+- scenario 1:
+
+On Wed 06/10/2020.
+scale set instance count: 3 for 2 hours
+CPU: 50% to 60%
+
+after this period:
+CPU: 80% for 11 minutes
+
+> What will be the observed capacity metric? [2..6]
+
+- scenario 2:
+
+On Mon 04/06/2020.
+CPU: 50% to 60% for 2 h
+
+after this period:
+CPU: 80% for 11 minutes
+
+> What will be the observed capacity metric? [2..6]
+
+- scenario 3:
+
+On Tue 05/05/2020.
+scale set instance count: 3 for 4 hours
+CPU: 40% to 60%
+
+after this period:
+CPU: 10% for 6 minutes
+
+> What will be the observed capacity metric? [2..6]
+
+---
+
+### Answer:
+
+scale condition 1:
+min instance: 2
+max instance: 6
+default: 3
+
+scale condition 2:
+type: on metric 
+AVG(CPU%) > 75% over 10 mins
+increase instance count by 1
+
+scale condition 3:
+type: on metric 
+AVG(CPU%) < 25% over 5 mins
+reduce instance count by 1
+
+scale condition 4: 
+type: specific instance count 
+from: 5th April 2020 
+to:  12th April 2020       
+the instance count will be 6
+
+scale condition 5: 
+type: specific instance count 
+every Fri from 6 AM to 6 PM 
+the instance count will be 4
+
+- scenario 1:
+
+On Wed 06/10/2020.
+scale set instance count: 3 for 2 hours
+CPU: 50% to 60%
+
+after this period:
+CPU: 80% for 11 minutes
+
+> What will be the observed capacity metric? [2..6]
+it is not a Fri therefore rule 5 does not apply.
+06/10/2020 = 10th Jun 2020 > [5th April 2020, 12th April 2020] -> rule 4 does not apply
+CPU: 50% to 60% therefore rules 2 & 3 do not apply 
+CPU: 80% -> avg(CPU%) > 75% for over 10 mins -> rule2 kicks in -> increase by 1
+-> from the default count of 3 instances add 1
+-> 4 instances
+-> 4 instances is lower than the maximun number of instances set by rule1: 6
+-> 4 instances
+
+- scenario 2:
+
+On Mon 04/06/2020.
+CPU: 50% to 60% for 2 h
+
+after this period:
+CPU: 80% for 11 minutes
+
+> What will be the observed capacity metric? [2..6]
+it is not a Fri therefore rule 5 does not apply.
+04/06/2020 = 6th Apr 2020 in [5th April 2020, 12th April 2020] -> rule 4 applies!
+-> the default instance ount will be 6 this period
+
+CPU: 80% for 11 minutes ->
+CPU: 80% -> avg(CPU%) > 75% for over 10 mins -> rule2 kicks in -> increase by 1 
+-> from the default count of 6 for this period add 1
+-> 7 instances
+-> 7 instances is greater than the maximun number of instances set by rule1: 6
+-> 6 instances
+
+- scenario 3:
+
+On Tue 05/05/2020.
+scale set instance count: 3 for 4 hours
+CPU: 40% to 60%
+
+after this period:
+CPU: 10% for 6 minutes
+
+> What will be the observed capacity metric? [2..6]
+it is not a Fri therefore rule 5 does not apply.
+05/05/2020 = 5th May 2020 > [5th April 2020, 12th April 2020] -> rule 4 does not apply
+-> default number of instances is set by rule 1 to 3 instances
+CPU: 10% for 6 minutes -> rule3: AVG(CPU%) < 25% over 5 mins 
+-> reduce by 1
+-> from the default of 3 to 2
+-> 2 is >= the min number of instances set by rule1
+-> instance count 2
+
+---
+
+### References:
+
+[Automatically scale a Virtual Machine Scale Set in the Azure portal](https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-portal)  
+
+---
+
+## Q94:
+
+you have an Azure sub named suba with the following resources:
+
+- a KV named kv1 in a RG named RG1
+- a VM named vm1 in RG2
+
+you need to write a PowerShell script to encrypt the disk of the VM 
+using a key stored in the KV.
+
+Complete the script.
+
+```
+$kvrg = 'rg1'
+$vmrg = 'rg2'
+$vmn = 'vm1'
+$kvn = 'kv1'
+
+$kv = Get-AzKeyVault OPTIONS-1 $kvn -ResourceGroupName $kvrg
+$diskEncryptionUrl = OPTIONS-2
+$kvid = OPTIONS-3
+
+Set-AzVMDiskEncryptionExtension  -ResourceGroupName OPTIONS-4 ` 
+-DiskEncryptionKeyVaultUrl $diskEncryptionUrl `
+-DiskEncryptionKeyVaultId $kvid `
+-VMname $vmn 
+```
+
+OPTIONS-1: -Name | -KeyVaultName
+
+OPTIONS-2: $kv.Path | $kv.Uri | $kv.VaultUri
+
+OPTIONS-3: $kv.Id | $kv.ResourceId
+
+OPTIONS-4: $kvrg | $vmrg
+
+
+---
+
+### Answer:
+
+```
+$kvrg = 'rg1'
+$vmrg = 'rg2'
+$vmn = 'vm1'
+$kvn = 'kv1'
+
+$kv = Get-AzKeyVault -KeyVaultName $kvn -ResourceGroupName $kvrg
+$diskEncryptionUrl = $kv.VaultUri
+$kvid = $kv.ResourceId
+
+Set-AzVMDiskEncryptionExtension  -ResourceGroupName $vmrg ` 
+-DiskEncryptionKeyVaultUrl $diskEncryptionUrl `
+-DiskEncryptionKeyVaultId $kvid `
+-VMname $vmn 
+```
+
+This is tricky as the `Get-AzKeyVault` uses a nomenclature that is different
+from other similar `Get-AzXXX` cmdlets.
+
+---
+
+### References:
+
+[Azure Disk Encryption scenarios on Windows VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/disk-encryption-windows)  
+
+
+---
+
+## Q93:
+
+you have a linux VM named VM1 in Azure.
+
+- size: Standard_D4s_v3
+- 4 vCPU
+- premium storage
+- 8 Data Disks
+- 1 public IP Standard SKU
+
+You attempt to resize the VM to `Standard_D2s_v3`.
+The resize operation fails.
+
+Which is the most likely cause for this failure?
+
+- storage type
+- public IP
+- number of data disks
+- number of vCPUs
+
+---
+
+### Answer:
+- number of data disks
+
+`Standard_D4s_v3`: supports up to 8 data disks
+`Standard_D2s_v3`: supports up to 4 data disks
+Both series support premium storage.
+
+Both series support public IP addresses. Moreover, this apply in general to all
+series as the IP adress is attached to a NIC and not directly to a VM.
+
+
+---
+
+### References:
+
+[General purpose virtual machine sizes](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes-general)   
+
+- provide balanced CPU-to-memory ratio 
+- Ideal for testing and development
+- small to medium databases
+- and low to medium traffic web servers
+
+there are lost of options:
+
+Av2-series
+B-series burstable
+DC-series
+Dpsv5 and Dpdsv5-series and Dplsv5 and Dpldsv5-series
+Dv2 and Dsv2-series 
+Dv2 and Dsv2-series 
+Dv3 and Dsv3-series r
+Dav4 and Dasv4-series
+Dv4 and Dsv4-series 
+...
+...
+
+---
+
+[Sizes for virtual machines in Azure](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes)    
+
+---
+
 ## Q92:
 
 You have a Azure SUB named sub1.
@@ -43,10 +326,18 @@ What should you do?
 The remaining options do not apply:
 
 - migrate VM1 to another region:
-this would not work because a region defines the geographical limits of an AS.
-An AS is a set of datacenter within a region. 
+this would not work because a region defines the geographical limits of an AS and also AZ.
+
+**An AS is a collection of independent Fault Domains within the same Datacenter**
+that is these FD have independent Power and Network.
+AS provides 99.95% SLA.
+It provides lower latency than achievable with AZ but at the cost of lower resiliency.
+However, is still supsceptible to failure at a Datacenter level.
+ 
+An AZ is a set of datacenter within a region. 
 There may be 2 or more datacenters per region and an AS is a selection of these
 datacenters to deply your assets to in order to provide resilience and redundancy.
+AZ provides 99.99% SLA.
 
 - Move VM1 to a different Availability Zone:
 the AZ ios a concept **mutually exclusive to AS**.
@@ -108,6 +399,39 @@ this cannot be doen without redeplyingthe VM
 # Recreate the VM
     New-AzVM -ResourceGroupName $resourceGroup -Location $originalVM.Location -VM $newVM -DisableBginfoExtension
 ```
+---
+
+[Availability sets overview](https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview)  
+
+We recommend that customers choose virtual machine scale sets with flexible orchestration mode for high availability with the widest range of features.
+
+> What is an availability set?
+It is a **logical groupings of VMs** that reduce the chance of correlated failures bringing down related VMs at the same time. 
+Availability sets **place VMs in different fault domains** for better reliability.
+It is **especially beneficial if a region doesn't support availability zones**.
+
+When using availability sets, create two or more VMs within an availability set. Using two or more VMs in an availability set helps highly available applications and **meets the 99.95% Azure SLA**. 
+
+**[With AZ you reach 99.99% SLA]**
+
+**There's no extra cost for using availability sets**, you only pay for each VM instance you create.
+
+- improved VM to VM latencies compared to availability zones
+- have fault isolation for many possible failures
+
+> Datacenter Failures:
+- datacenter network failures, which can affect multiple fault domains.
+
+---
+
+[What are availability zones?](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview?tabs=azure-cli)   
+
+Many Azure regions provide availability zones.
+AZ are separated groups of datacenters within a region. 
+
+---
+
+[Availability options for Azure Virtual Machines](https://learn.microsoft.com/en-us/azure/virtual-machines/availability)  
 
 ---
 
