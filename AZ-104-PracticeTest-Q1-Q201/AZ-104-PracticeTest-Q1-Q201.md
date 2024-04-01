@@ -15,6 +15,210 @@
 
 ---
 
+## Q105:
+
+You are an Azure admin. 
+You are tasked with enabling encryption on a running linux VM.
+You have implemented the PS script below. 
+
+```
+$kvrg = "rg1"
+$kvn = "kv1"
+
+$vmrg = "rg2"
+$vmn = "vm1"
+
+$kv = Get-AzKeyVault -VaultName $kvn -ResourceGroupName $kvrg
+
+$diskEncryptionKeyVaultUrl = $kv.VaultUri;
+$kvResourceId = $kv.ResourceId;
+
+$sequenceVersion = [Guid]::NewGuid()
+
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $vmrg -VMNname $vmName `
+-DiskEncryptionKeyVaulId $kvResourceId `
+-DiskEncryptionKeyVaulUrl $diskEncryptionKeyVaultUrl `
+-VolumeType '[Data]' `
+-SequenceVersion $sequenceVersion `
+-skipVmBackup
+
+```
+
+Select yes/no:
+
+- Set-AzVMDiskEncryptionExtension requires the VM to be stopped before initiating encryption to prevent data loss
+No.
+However, the documentation also says the following:
+
+**When encrypting Linux OS volumes, the VM should be considered unavailable**. 
+
+**In all cases, you should take a snapshot and/or create a backup before disks are encrypted**. Backups ensure that a recovery option is possible if an unexpected failure occurs during encryption. 
+
+**VMs with managed disks require a backup before encryption occurs**. 
+
+- only the data volumens of the VM are encrypted:
+Yes in the case of the script above.
+This depends on the options: `-VolumeType '[All|OS|Data]'`
+of the cmdlt: `Set-AzVMDiskEncryptionExtension`
+
+- SequenceVersion is unique per each encryption operation performed on the VM
+Yes.
+The `-SequenceVersion` of teh cmdlet `Set-AzVMDiskEncryptionExtension`
+specifies the sequence number of the encryption operation for the VM.
+It must be a GUID per each VM.
+
+```
+$sequenceVersion = [Guid]::NewGuid()
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $vmrg -VMNname $vmName `
+... ...
+-SequenceVersion $sequenceVersion `
+-skipVmBackup
+```
+
+---
+
+### Answer:
+
+
+[Azure Disk Encryption for Linux VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disk-encryption-overview)   
+
+It uses the DM-Crypt feature of Linux to provide volume encryption for the OS and data disks of Azure virtual machines (VMs), and is integrated with Azure Key Vault to help you control and manage the disk encryption keys and secrets.
+
+>  Microsoft Defender for Cloud: 
+**Azure Disk Encryption is zone resilient, the same way as Virtual Machines**.
+**If you use Microsoft Defender for Cloud, you're alerted if you have VMs that aren't encrypted**.
+The alerts show as **High Severity** and the recommendation is to encrypt these VMs.
+
+> Supported operating systems:
+
+Azure Disk Encryption is supported on a subset of the Azure-endorsed Linux distributions, which is itself a subset of all Linux server possible distributions.
+
+[Endorsed Linux distributions on Azure](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/endorsed-distros)   
+
+> Additional VM requirements:
+
+Azure Disk Encryption requires the **dm-crypt and vfat modules** to be 
+present on the system.
+Before enabling encryption, the data disks to be encrypted must be properly listed in **/etc/fstab**. 
+
+> Networking requirements:
+
+1. NR1
+To get a token to connect to your key vault, the Linux VM must be able to connect to a Microsoft Entra endpoint, [login.microsoftonline.com].
+
+2. NR2
+To write the encryption keys to your key vault, the Linux VM must be able to connect to the key vault endpoint.
+
+3. NR3
+The Linux VM must be able to connect to an Azure storage endpoint that hosts the Azure extension repository and an Azure storage account that hosts the VHD files.
+
+4. NR14
+If your security policy limits access from Azure VMs to the Internet, you can resolve the preceding URI and configure a specific rule to allow outbound connectivity to the IPs. For more information, see Azure Key Vault behind a firewall.
+
+---
+
+[Quickstart: Create and encrypt a Linux VM in Azure with Azure PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disk-encryption-powershell-quickstart)  
+
+```
+$KeyVault = Get-AzKeyVault `
+-VaultName "<your-unique-keyvault-name>" `
+-ResourceGroupName "MyResourceGroup"
+
+Set-AzVMDiskEncryptionExtension -ResourceGroupName MyResourceGroup `
+-VMName "MyVM" `
+-DiskEncryptionKeyVaultUrl $KeyVault.VaultUri `
+-DiskEncryptionKeyVaultId $KeyVault.ResourceId `
+-SkipVmBackup `
+-VolumeType All
+
+Get-AzVmDiskEncryptionStatus -VMName MyVM -ResourceGroupName MyResourceGroup
+
+```
+
+[Quickstart: Create and encrypt a Linux VM with the Azure CLI](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disk-encryption-cli-quickstart)  
+
+
+---
+
+[Azure Disk Encryption scenarios on Linux VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disk-encryption-linux?tabs=azcliazure%2Cenableadeps%2Cefacli%2Cadedatacli)    
+
+**In all cases, you should take a snapshot and/or create a backup before disks are encrypted**. Backups ensure that a recovery option is possible if an unexpected failure occurs during encryption. 
+
+**VMs with managed disks require a backup before encryption occurs**. 
+
+> Important:
+
+**When encrypting Linux OS volumes, the VM should be considered unavailable**. 
+ We strongly recommend to avoid SSH logins while the encryption is in progress to avoid issues blocking any open files that will need to be accessed during the encryption process. 
+
+> Azure Disk Encryption does not work for the following Linux scenarios:
+
+- Encrypting the OS drive for Linux Virtual Machine Scale Sets.
+- Encrypting custom images on Linux VMs.
+- Disabling encryption on an OS drive or data drive of a Linux VM when the OS drive is encrypted.
+- Azure Files (shared file system).
+- Network File System (NFS).
+- Dynamic volumes.
+- Ephemeral OS disks.
+- **Moving an encrypted VM to another subscription or region.**
+- **Creating an image or snapshot of an encrypted VM and using it to deploy additional VMs**
+- etc.
+
+
+> Enable encryption on an existing or running Linux VM:
+
+In this scenario, you can enable encryption by using:
+
+- the Resource Manager template
+- PowerShell cmdlets
+- CLI commands.
+
+```
+$KVRGname = 'MyKeyVaultResourceGroup';
+ $VMRGName = 'MyVirtualMachineResourceGroup';
+ $vmName = 'MySecureVM';
+ $KeyVaultName = 'MySecureVault';
+ $KeyVault = Get-AzKeyVault -VaultName $KeyVaultName -ResourceGroupName $KVRGname;
+ $diskEncryptionKeyVaultUrl = $KeyVault.VaultUri;
+ $KeyVaultResourceId = $KeyVault.ResourceId;
+ $sequenceVersion = [Guid]::NewGuid();
+
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $VMRGName -VMName $vmName -DiskEncryptionKeyVaultUrl $diskEncryptionKeyVaultUrl -DiskEncryptionKeyVaultId $KeyVaultResourceId -VolumeType '[All|OS|Data]' -SequenceVersion $sequenceVersion -skipVmBackup;
+```
+
+Modify the -VolumeType parameter to specify which disks you're encrypting:
+`-VolumeType '[All|OS|Data]'`
+
+> Encrypt a running VM using KEK (Key Encryption Key):
+```
+$KVRGname = 'MyKeyVaultResourceGroup';
+ $VMRGName = 'MyVirtualMachineResourceGroup';
+ $vmName = 'MyExtraSecureVM';
+ $KeyVaultName = 'MySecureVault';
+ 
+ $keyEncryptionKeyName = 'MyKeyEncryptionKey';
+
+ $KeyVault = Get-AzKeyVault -VaultName $KeyVaultName -ResourceGroupName $KVRGname;
+ $diskEncryptionKeyVaultUrl = $KeyVault.VaultUri;
+ $KeyVaultResourceId = $KeyVault.ResourceId;
+ 
+ $keyEncryptionKeyUrl = (Get-AzKeyVaultKey -VaultName $KeyVaultName -Name $keyEncryptionKeyName).Key.kid;
+ 
+ $sequenceVersion = [Guid]::NewGuid();
+
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $VMRGName -VMName $vmName -DiskEncryptionKeyVaultUrl $diskEncryptionKeyVaultUrl -DiskEncryptionKeyVaultId $KeyVaultResourceId -KeyEncryptionKeyUrl $keyEncryptionKeyUrl -KeyEncryptionKeyVaultId $KeyVaultResourceId -VolumeType '[All|OS|Data]' -SequenceVersion $sequenceVersion -skipVmBackup;
+```
+
+---
+
+[Set-AzVMDiskEncryptionExtension](https://learn.microsoft.com/en-us/powershell/module/az.compute/set-azvmdiskencryptionextension?view=azps-11.4.0&viewFallbackFrom=azps-10.1.0)  
+
+---
+
+### References:
+
+---
+
 ## Q104:
 
 Your company hosts resources on-premise as well on Azure infrastructure (IaaS).
