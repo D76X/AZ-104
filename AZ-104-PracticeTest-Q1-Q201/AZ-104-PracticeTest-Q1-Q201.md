@@ -18,9 +18,9 @@
 ## Q104:
 
 Your company hosts resources on-premise as well on Azure infrastructure (IaaS).
-This includes VMs used by teh HR department.
+This includes VMs used by the HR department.
 HR has recently requested for a new application to be installed on a server
-named `hrvm01` with the following details:
+named `hrvm1` with the following details:
 
 RG: ukrg1
 Location: UK South
@@ -32,27 +32,45 @@ You need to complete the script.
 
 ```
 $rgn = 'ukrg1'
-$vmn = `hrvm01`
+$vmn = `hrvm1`
 $loc = 'UK South'
-$stype: 'Premium ZRS'
+$stype: 'Premium_ZRS'
 $datadiskn= `hrdisk5`
 
-$diskconfig = OPTIONS -SkuName $stype -Location $loc -CreateOption Empty `
+$diskconfig = OPTIONS-1 -SkuName $stype -Location $loc -CreateOption Empty `
 -DiskSizeGB 1024
 
-$datadisk = OPTIONS -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
+$datadisk = OPTIONS-2 -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
 
-$vm = OPTIONS -Name $vmn -ResourceGroupName $rgn
-$vm = OPTIONS -VM $vm ??? $datadiskn -CreateOption Attach `
+$vm = OPTIONS-3 -Name $vmn -ResourceGroupName $rgn
+$vm = OPTIONS-4 -VM $vm -Name $datadiskn -CreateOption Attach `
 -ManageDiskId $datadisk.Id -Lun 4
 
-OPTIONS -VM $vm -ResourceGroupName $rgn
+OPTIONS-5 -VM $vm -ResourceGroupName $rgn
 ```
 
-OPTIONS:
-Set-AzVM
+OPTIONS-1 & -2:
+New-AzDiskConfig
+New-AzVMDataDisk
+New-AzDataDisk
 Update-AzVM
+
+OPTIONS-3:
+New-AzDisk
+New-AzVM
+Get-AzVM
+Update-AzVM
+
+OPTIONS-4:
+Get-AzVM
+Add-AzVMDataDisk
+New-AzDataDisk
+New-AzDiskConfig
+
+OPTIONS-5:
+Set-AzVM
 Set-AzVMDataDisk
+Update-AzVM
 Update-AzDisk
 
 ---
@@ -66,22 +84,33 @@ $loc = 'UK South'
 $stype: 'Premium ZRS'
 $datadiskn= `hrdisk5`
 
-$diskconfig = OPTIONS -SkuName $stype -Location $loc -CreateOption Empty `
+$diskconfig = New-AzDiskConfig -SkuName $stype -Location $loc -CreateOption Empty `
 -DiskSizeGB 1024
 
-$datadisk = OPTIONS -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
+$datadisk = New-AzDataDisk -DiskName $datadiskn -Disk $diskconfig -ResourceGroupName $rgn
 
-$vm = OPTIONS -Name $vmn -ResourceGroupName $rgn
-$vm = OPTIONS -VM $vm ??? $datadiskn -CreateOption Attach `
+$vm = Get-AzVM -Name $vmn -ResourceGroupName $rgn
+$vm = Add-AzVMDataDisk -VM $vm -Name $datadiskn -CreateOption Attach `
 -ManageDiskId $datadisk.Id -Lun 4
 
-OPTIONS -VM $vm -ResourceGroupName $rgn
+Update-AzVM -VM $vm -ResourceGroupName $rgn
 ```
 
+1. create a new disk config for the data disk that you want to add to an existing VM
+
+2. create a new data disk based on that config
+
+3. get the VM you want to add the data disk to
+
+4. add the data disk to the VM or in general any changes to the VM
+
+5. update the VM so that the changes are enforced on it (finilize)
 
 ---
 
 ### References:
+
+[Attach a data disk to a Windows VM with PowerShell](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/attach-disk-ps)    
 
 ---
 
@@ -89,10 +118,10 @@ OPTIONS -VM $vm -ResourceGroupName $rgn
 
 You have a VM in Azure named vm1 with Ubuntu OS.
 
-You must enable disk encryption on vm1 and store teh encryption key on a new KV named kv1.
+You must enable disk encryption on vm1 and store the encryption key on a new KV named kv1.
 All resources must be privioned in a RG named rg1.
 
-Complete teh script.
+Complete the script.
 
 ```
 OPTIONS --name 'kv1' --resource-group 'rg1' --location 'eastus' \
