@@ -15,6 +15,272 @@
 
 ---
 
+## Q108:
+
+You organization uses **Azure Container Registry** to store and manage container
+images and relevant artifacts for various DevOps projects.
+
+You are an Azure admin and must set up the appropriate authentication methods
+to the Azure Container Registry.
+
+You assign a Microsoft Entra Serive Principal to you ACR.
+
+You must identify which ACR roles alllo pull of a non-quarantined image from the 
+ACR.
+
+Which three roles fullfill this requirement?
+
+- AcrImageSigner
+- AcrDelete
+- AcrPush
+- AcrPull
+- Owner
+
+---
+
+### Answer:
+
+- AcrPull
+- AcrPush
+- Owner
+
+> AcrPull:
+- pull non-quarantined image 
+- pull another supported artifact i.e. Helm chart
+- it requires authentication with the ACR with the authorized identity
+
+> AcrPush:
+- push an image to the ACR
+- push another supported artifact i.e. Helm chart
+- it requires authentication with the ACR with the authorized identity
+
+> Owner:
+- assign roles to other users
+- change policies
+- delete image
+- push & pull an image to the ACR
+- push another supported artifact i.e. Helm chart
+- it **CANNOT sign images** - this is **the only missing permission** for this you need the specific role **AcrImageSigner**.
+
+---
+
+### References:
+
+[Authenticate with an Azure container registry](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-authentication?tabs=azure-cli)   
+
+There are several ways to authenticate with an Azure container registry, 
+each of which is applicable to one or more registry usage scenarios.
+
+> Recommended ways:
+
+- Authenticate to a registry directly via individual login:
+Interactive push/pull by developers, testers. 
+`az acr login` in Azure CLI | `Connect-AzContainerRegistry` in Azure PowerShell. 
+AD token must be renewed every 3 hours.
+
+- Applications and container orchestrators can perform unattended, or "headless," authentication by using a Microsoft Entra service principal:
+Unattended push from CI/CD pipeline
+Unattended pull to Azure or external services 
+SP password default expiry is 1 year 
+```
+docker login
+az acr login in Azure CLI
+```
+`Connect-AzContainerRegistry`  in Azure PowerShell
+
+> There are also other authetication options:
+- use Azure managed identities: 
+
+this is practically the same as the option above where MEID SP is used.
+The difference is that with a managed identoty only a machine-to-machine
+scenario is covered in which a resource in Azure **and not outside of Azure**
+can authenticate.
+
+Managed Identtities can be assigned **only to Azure Resources**.
+If the authenticating resource lives outside of Azure then the **MEID SP must be used instead**.
+
+- there are then some specific methods for AKS.
+
+---
+
+[Azure Container Registry authentication with service principals](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-auth-service-principal)  
+
+For example, configure your web application to use a service principal that provides it with image pull access only, while your build system uses a service principal that provides it with both push and pull access. If development of your application changes hands, you can rotate its service principal credentials without affecting the build system.
+
+> When to use a service principal:
+
+**You should use a service principal to provide registry access in headless scenarios** i.e. DevOps, scripts, etc. 
+
+---
+
+[Azure Container Registry roles and permissions](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-roles?tabs=azure-powershell)  
+
+- Owner
+- Contributor
+- Reader
+- AcrhPush
+- AcrPull
+- AcrDelete
+- AcrImageSigner
+
+---
+
+[Scenarios to authenticate with Azure Container Registry from Kubernetes](https://learn.microsoft.com/en-us/azure/container-registry/authenticate-kubernetes-options)  
+
+
+---
+
+## Q107:
+
+You have an Azure sub with VMs and storage.
+
+The Dev team wants to start using **Azure Containers Apps** to allow them to 
+run Microservices and containerized apps without deploying serverless VMs.
+
+You decide to set up the Azure Container App environment with **bash**.
+You **install the container app extension** for the Azure CLI and register the
+`Microsoft.App` namespace.
+
+You try to create a **Azure Monitor Log Analytics** workspace but you receive 
+an error message that indicates taht the command is not recognized.
+
+You need to uise the **az provider resgister** command to register the 
+**Azure Monitor Log Analytics** workspace.
+
+Which provider name do you need to register?
+
+- Microsoft.PolicyInsights
+- Microsoft.Automation
+- Microsoft.NotoficationHubs
+- Microsoft.OperationalInsights
+
+---
+
+### Answer:
+- Microsoft.OperationalInsights
+this is namespace for **Azure Monitor Log Analytics** workspace.
+
+
+The remining options:
+
+- Microsoft.NotificationHubs
+this is namespace for **Azure Event Hubs** workspace.
+
+- Microsoft.Automation
+this is namespace for **Azure Automation** workspace.
+
+- Microsoft.PolicyInsights:
+this is namespace for **Azure Policy** workspace.
+
+
+---
+
+### References:
+
+[Azure Container Apps overview](https://learn.microsoft.com/en-us/azure/container-apps/overview)  
+
+Azure Container Apps is a serverless platform that allows you to maintain less infrastructure and save costs while running containerized applications.
+
+ Instead of worrying about server configuration, container orchestration, and deployment details, Container Apps provides all the up-to-date server resources required to keep your applications stable and secure.
+
+> Common uses of Azure Container Apps include:
+
+- Deploying API endpoints
+- Hosting background processing jobs
+- Handling event-driven processing
+- Running microservices
+
+> applications built on Azure Container Apps can dynamically scale based on the following characteristics:
+
+- HTTP traffic
+- Event-driven processing
+- CPU or memory load
+- Any KEDA-supported scaler
+
+---
+
+[How to Build and Deliver Apps Fast and Scalable with Azure Container Apps - Microsoft Mechanics](https://youtu.be/b3dopSTnSRg)  
+
+---
+
+[Quickstart: Deploy your first container app with containerapp up](https://learn.microsoft.com/en-us/azure/container-apps/get-started?tabs=bash)  
+
+> Azure CLI Bash:
+
+```
+az login
+
+# upgrade the azure cli to the latest
+az upgrade
+
+# install or update the Azure Container Apps extension for the CLI.
+az extension add --name containerapp --upgrade
+
+# Register the Microsoft.App and Microsoft.OperationalInsights namespaces 
+# if you haven't already registered them in your Azure subscription.
+
+az provider register --namespace Microsoft.App
+az provider register --namespace Microsoft.OperationalInsights
+
+az group create --location centralus --resource-group my-container-apps
+
+# Create and deploy the container app
+
+az containerapp up \
+  --name my-container-app \
+  --resource-group my-container-apps \
+  --location centralus \
+  --environment 'my-container-apps' \
+  --image mcr.microsoft.com/k8se/quickstart:latest \
+  --target-port 80 \
+  --ingress external \
+  --query properties.configuration.ingress.fqdn
+
+# clean up
+az group delete --name my-container-apps
+```
+
+---
+
+## Q106:
+
+Yiyu have a **hybrid network** configuration.
+Most user accounts are in Microsof Entra ID and the on-prem domain.
+Some users accounts are Microsof Entra only.
+You plan to deply SSPR.
+
+You must ensure that SSPR meets the company's password requirements:
+
+Select yes/no:
+
+- SSPR is supported for all user includign cloud-only users
+
+- you can configure SSPR registration for all domain users, by group, or by individual user
+
+- supported authentication methods include mobile phone text messages and voice call
+
+
+---
+
+### Answer:
+
+- SSPR is supported for all user includign cloud-only users
+Yes
+
+- you can configure SSPR registration for all domain users, by group, or by individual user
+No: it is not possible to set SSPR for individual users, only all domain users or individual security groups can be set uop with SSPR.
+
+- supported authentication methods include mobile phone text messages and voice call
+Yes.
+
+---
+
+### References:
+
+SSPR was deiscussed in detail in one of the previous questions.
+
+---
+
 ## Q105:
 
 You are an Azure admin. 
@@ -212,6 +478,64 @@ Set-AzVMDiskEncryptionExtension -ResourceGroupName $VMRGName -VMName $vmName -Di
 ---
 
 [Set-AzVMDiskEncryptionExtension](https://learn.microsoft.com/en-us/powershell/module/az.compute/set-azvmdiskencryptionextension?view=azps-11.4.0&viewFallbackFrom=azps-10.1.0)  
+
+The Set-AzVMDiskEncryptionExtension cmdlet enables encryption on a running infrastructure as a service (IaaS) virtual machine in Azure. It enables encryption by installing the disk encryption extension on the virtual machine.
+
+**This cmdlet requires confirmation from the users as one of the steps to enable encryption requires a restart of the virtual machine.**
+
+>Windows: 
+The VolumeType parameter may be omitted, in which case the operation defaults to All; if the VolumeType parameter is present for a Windows virtual machine, it must be set to either All or OS.
+
+> Example 2: Enable encryption with pipelined input:
+
+```
+$params = New-Object PSObject -Property @{
+    ResourceGroupName = "[resource-group-name]"
+    VMName = "[vm-name]"
+    DiskEncryptionKeyVaultId = "/subscriptions/[subscription-id-guid]/resourceGroups/[resource-group-name]/providers/Microsoft.KeyVault/vaults/[keyvault-name]"
+    DiskEncryptionKeyVaultUrl = "https://[keyvault-name].vault.azure.net"
+    KeyEncryptionKeyVaultId = "/subscriptions/[subscription-id-guid]/resourceGroups/[resource-group-name]/providers/Microsoft.KeyVault/vaults/[keyvault-name]"
+    KeyEncryptionKeyUrl = "https://[keyvault-name].vault.azure.net/keys/[kekname]/[kek-unique-id]"
+    VolumeType = "All"
+}
+
+$params | Set-AzVMDiskEncryptionExtension
+```
+
+> Example 3: Enable encryption using Microsoft Entra Client ID and Client Secret:
+
+This is virtually the same as themethods above but it uses secrets for an 
+app created in Microsoft Entra ID:
+
+[Azure Disk Encryption with Microsoft Entra ID for Windows VMs (previous release)](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/disk-encryption-windows-aad)  
+
+This is the **old method**.
+
+The new release of Azure Disk Encryption eliminates the requirement for providing a Microsoft Entra application parameter to enable VM disk encryption.
+With the new release, you are no longer required to provide Microsoft Entra credentials during the enable encryption step.
+All new VMs must be encrypted without the Microsoft Entra application parameters using the new release. 
+
+```
+$RGName = "MyResourceGroup"
+$VMName = "MyTestVM"
+
+$AADClientID = "<clientID of your Azure AD app>"
+$AADClientSecret = "<clientSecret of your Azure AD app>"
+
+$VaultName= "MyKeyVault"
+$KeyVault = Get-AzKeyVault -VaultName $VaultName -ResourceGroupName $RGName
+$DiskEncryptionKeyVaultUrl = $KeyVault.VaultUri
+$KeyVaultResourceId = $KeyVault.ResourceId
+$VolumeType = "All"
+
+# the 
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $RGName -VMName $VMName ` -AadClientID $AADClientID `
+-AadClientSecret $AADClientSecret `
+-DiskEncryptionKeyVaultUrl $DiskEncryptionKeyVaultUrl `
+-DiskEncryptionKeyVaultId $KeyVaultResourceId `
+-VolumeType $VolumeType
+
+```
 
 ---
 
