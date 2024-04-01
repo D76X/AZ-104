@@ -2,7 +2,7 @@
 
 ---
 
-## Q10X:
+## Q12X:
 
 
 ---
@@ -12,6 +12,609 @@
 ---
 
 ### References:
+
+---
+
+## Q120:
+
+You manage Azure Workloads for company1.
+You have recently migrated your public website to Azure Web Apps.
+You are told that the public site is not available at the company URL:
+`https://wwww.company1.com`
+
+You must configure the **Domain Name System (DNS)** record to resolve the issue.
+
+What are two possible options?
+
+- create a Name Server NS record and map it to the IP address og teh WebApp1
+- create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
+- create a PTR (pointer record) and map it to `webapp1.azurewebsites.net`
+- create an A record (Address) and map it to the IP address of WbApp1
+
+---
+
+### Answer:
+
+- create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
+- create an A record (Address) and map it to the IP address of WbApp1
+
+---
+
+### References:
+
+[Map an existing custom DNS name to Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain?tabs=root%2Cazurecli)  
+
+[AZ-104: Deploy and manage Azure compute resources  Configure Azure App Service / Create custom domain names](https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/8-create-custom-domain-names)
+
+---
+
+## Q119:
+
+You build a new Azure Web App for ASP.
+
+<img src="./Q119-exhibit.png">
+
+You must publish each Web App in an ASP that supports its runtime.
+
+app1: Plan 1 only | Plan2 only | Plan1 & Plan2
+app2: Plan 1 only | Plan2 only | Plan1 & Plan2
+app3: Plan 1 only | Plan2 only | Plan1 & Plan2
+app4: Plan 1 only | Plan2 only | Plan1 & Plan2
+
+---
+
+### Answer:
+
+app1: Plan1 & Plan2
+app2: Plan 1 only 
+app3: Plan1 & Plan2
+app4: Plan2* 
+
+*Python runtime is not supported on Windows ASP. 
+It was an offer in the past but the option of Python on Windows ahs been retired.
+
+
+---
+
+### References:
+
+---
+
+## Q118:
+
+
+You deploy an Azure Web App named `wapp1` to teh West US region.
+The app strams videos to user located globally.
+Users in North US can stram video content without interruption.
+User in Europe, Africa and Asia complain of buffering problems and inconsistent playback quality.
+
+you must recommend a solution to correct these problems.
+
+What should you do?
+
+- deploy Azure Application Gateway
+- configure Azure File Sync
+- scale out the ASP
+- configure a Azure Content Delivery Network (CDN) with endpoints
+
+---
+
+### Answer:
+- configure a Azure Content Delivery Network (CDN) with endpoints
+
+---
+
+### References:
+
+[What is a content delivery network on Azure?](https://learn.microsoft.com/en-us/azure/cdn/cdn-overview)   
+
+- is a distributed network of servers that can efficiently deliver web content to users. 
+- store cached content on edge servers in **point of presence (POP)** locations that are close to end users, to minimize latency.
+- offers developers a global solution for rapidly delivering high-bandwidth content to users
+- **can also accelerate dynamic content**, which can't get cached, by using various network optimizations using content delivery network POPs
+
+The remaing options do not apply in this case.
+
+
+---
+
+## Q117:
+
+You plan to use a deployment template to deploy 5 instances of an Azure Web App
+to the West US region.
+
+You must ensure that you have met the minimal requirements for deployment.
+You must minimize costs.
+
+What should you do?
+
+- deploy one App Service Plan (ASP)
+- deploy Azure Application Gateway
+- deploy five ASPs
+- deploy AFD: Azure Front Door
+
+---
+
+### Answer:
+- deploy one App Service Plan (ASP)
+
+This is the option that minimizes costs and the APS should be on the Standard S1 tier to support 5 instances as teh basic tier supports up to three with no autoscaling while Standard S1 up to 10 with autoscaling.
+
+
+
+---
+
+### References:
+
+---
+
+## Q116:
+
+Your company has the following App Service Plans:
+
+ASP1  | Windows | East US
+ASP2  | Linux   | East US
+ASP3  | Windows | West US
+ASP4  | Linux   | West US
+
+Yiu paln to deply the following apps:
+
+Web14 | .Net Core 3.0 | East US
+Web15 | asp.nET 4.8   | West US
+
+You must identify which App Service plans can hiost these apps.
+
+Web14 : OPTIONS
+Web15 : OPTIONS
+
+OPTIONS:
+
+APS1 only
+APS2 only
+APS3 only
+APS1 & ASP2 only
+APS3 & ASP4 only
+APS1 & ASP3 only
+APS1 APS2 ASP3 APS4 
+
+---
+
+### Answer:
+
+Web14 : ASP1 & ASP2
+
+Web14 | .Net Core 3.0 | East US
+East US: removes all West US APSs -> remaining: ASP1 & ASP2
+.Net Core 3.0: can run on windows and linux -> ASP1 & ASP2
+
+Web15 : APS3
+
+Web15 | asp.nET 4.8 | West US
+West US: removes all East US APSs -> remaining: ASP3 & ASP4
+asp.nET 4.8: can run only on Windows -> APS3 
+
+
+---
+
+### References:
+
+---
+
+## Q115:
+
+
+Am Azure web app named `wapp1` runs as 2 instances on a ASP Basic tier named `asp1`.
+Users complain about performance during peak periods.
+You determine that the instances do not have sufficient CPU during peak times.
+
+You must ensure that the problemn is solved by providing the required CPU resources when required.
+
+What should you di first?
+
+- create a scale rule
+- stop the app
+- scale upp the pricing tier
+- enable aoutoscale
+
+
+---
+
+### Answer:
+- scale upp the pricing tier
+
+The basic tier offfers: max 3 instances, no autoscale.
+You must upgrade to Standard S1 in order to access a max of 10 instances and the autoscale feature.
+
+This was discussed in detail in few of the previous questions.
+
+---
+
+### References:
+
+---
+
+## Q114:
+
+You plan to depoly a new Azure web app and teh deployment must support autoscaling to 20 instances of teh web app.
+
+You need to create a App Service plan that support this deployment.
+You must minimize cost.
+
+Which ASP tier should you choose?
+
+- basic
+- shared 
+- standard
+- premium
+
+---
+
+### Answer:
+- premium
+The reuirement to run up to 20 instances exceeds the maximum that can be obtain with the ASP Standard Tier that is 10 instances.
+The ASP Premium tier can run up to 30 instances.
+
+This was discussed in detail in a previous question.
+
+The remaining options do not meet teh requrements:
+
+- basic: max 3 instances
+- shared: no scaling out available
+
+---
+
+### References:
+
+
+---
+
+## Q113:
+
+You develop an Azure web app named `app1`.
+The app runs on a **Basic App Service Plan** named `asp1`.
+You want to deploy two scripts to run **WebJobs** in teh context of `app1`.
+
+You must ensure that you can support the WebJobs on the `app1` instances.
+
+Select yes/no:
+
+- you must deploy the scripts as continuos WebJobs
+- you must scale up the plan to the Satandard S1 tier
+- you must create the WebJobs as linked to a web project
+
+
+---
+
+### Answer:
+
+- you must deploy the scripts as continuos WebJobs
+Yes
+
+- you must scale up the plan to the Satandard S1 tier
+No
+
+- you must create the WebJobs as linked to a web project
+Yes
+
+
+---
+
+### References:
+
+[Run background tasks with WebJobs in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/webjobs-create)  
+
+It is a feature of Azure Web Apps and there's no extra cost to use WebJobs.
+You can use the **Azure WebJobs SDK** with WebJobs to simplify many programming tasks.
+**WebJobs aren't supported for App Service on Linux yet**. 
+
+WebJobs is a feature of Azure App Service that enables you to run:
+- a program or script in the same instance as a web app, API app, or mobile app. 
+
+> supported script types:
+`.cmd / .ps1 / .sh / .php /.py /. js / .jar`
+
+> WEBJOBS_STOPPED / WEBJOBS_DISABLE_SCHEDULE:
+
+You can also add an application setting named WEBJOBS_STOPPED with a value of 1 to stop all WebJobs running on your site. You can use this method to prevent conflicting WebJobs from running both in staging and production slots. You can similarly use a value of 1 for the WEBJOBS_DISABLE_SCHEDULE setting to disable triggered WebJobs in the site or a staging slot. 
+
+For slots, remember to enable the Deployment slot setting option so that the setting itself doesn't get swapped.
+
+> WebJob statuses:
+
+- Initializing 
+The app has just started and the WebJob is going through its initialization process.
+
+- Starting 
+The WebJob is starting up.
+
+- Running 
+The WebJob is running.
+
+- PendingRestart 
+A continuous WebJob exits in less than two minutes since it started for any reason, and App Service waits 60 seconds before restarting the WebJob. If the continuous WebJob exits after the two-minute mark, App Service doesn't wait the 60 seconds and restarts the WebJob immediately.
+
+- Stopped 
+The WebJob was stopped (usually from the Azure portal) and is currently not running and won't run until you start it again manually, even for a continuous or scheduled WebJob.
+
+- Aborted 
+This can occur for a number of reasons, such as when a long-running WebJob reaches the timeout marker.
+
+---
+
+[Develop and deploy WebJobs using Visual Studio](https://learn.microsoft.com/en-us/azure/app-service/webjobs-dotnet-deploy-vs)  
+
+> deploy a console app project to a web app in Azure App Service as an Azure WebJob.
+
+You can choose to develop a WebJob that runs as either:
+- a .NET Core app 
+- a .NET Framework app. 
+
+
+---
+
+[Azure WebJobs SDK](https://github.com/Azure/azure-webjobs-sdk/wiki)  
+
+a framework that simplifies the task of writing background processing code that runs in Azure WebJobs.
+It includes a declarative binding and trigger system that works with:
+
+- Azure Storage Blobs
+- Azure Storage Queues 
+- Azure Storage Tables 
+- Azure Service Bus
+
+The binding system makes it incredibly easy to write code that reads or writes Azure Storage objects. 
+he trigger system automatically invokes a function in your code whenever any new data is received in a queue or blob. 
+
+> WebJob types: continuos vs. triggered
+
+- Continuous:
+
+> Continuous start:
+**Starts immediately when the WebJob is created**. 
+The program or script typically does its work inside an endless loop.
+If the job does end, you can restart it.
+Typically used with WebJobs SDK.
+
+> Continuous Instances:
+Runs on all instances that the web app runs on. 
+You can optionally restrict the WebJob to a single instance.
+
+> Continuos Remote Debugging:
+supported
+
+> Continuos deployment EP:
+`\site\wwwroot\app_data\Jobs\Continuous`
+
+- Triggered:
+
+> Triggered start:
+**Starts only when triggered manually or on a schedule**.
+
+> Triggered Instance:
+Runs on a single instance that Azure selects for load balancing.
+
+> Triggered Remote Debugging:
+not supported
+
+> Triggered deployment EP:
+` \site\wwwroot\app_data\Jobs\Triggered`
+
+> Set Always on:
+If you set the web app that hosts your job to run continuously, run on a schedule, or use event-driven triggers, enable the Always on setting on your web app's Azure Configuration page. The Always on setting helps to make sure that these kinds of WebJobs run reliably.
+
+---
+
+[Introducing Windows Azure WebJobs](https://www.hanselman.com/blog/introducing-windows-azure-webjobs)    
+---
+
+[Choose the right integration and automation services in Azure](https://learn.microsoft.com/en-us/azure/azure-functions/functions-compare-logic-apps-ms-flow-webjobs)    
+
+All of these services can solve integration problems and automate business processes.
+
+- Microsoft Power Automate (was Microsoft Flow)
+- Azure Logic Apps
+- Azure Functions
+- Azure App Service WebJobs
+
+---
+
+## Q112:
+
+Your company has a **Microsoft 365 business standard licence**.
+You configure **SSPR**.
+You want to configure a **hybruid environment** with your **on-prem AD DS**.
+You **enable writeback to your on-prem network**.
+
+You must make sure that prerequisites are met to support writeback.
+
+Select yes/no :
+
+- you should upgrade to Microsoft Entra ID P1
+- you should installl and configure Microsoft Entra Connect
+- you should enable & configure MFA
+
+---
+
+### Answer:
+
+The following are absolute requirements:
+
+- you should upgrade to Microsoft Entra ID P1
+Yes
+- you should installl and configure Microsoft Entra Connect
+Yes
+
+The following is not a requirement for SSPR:
+- you should enable & configure MFA
+
+enabling MFA is recommended but not required and it is not a requirement to support writebacks to the on-prem AD DS.
+
+
+---
+
+### References:
+
+[How does self-service password reset writeback work in Microsoft Entra ID?](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-sspr-writeback)  
+
+Microsoft Entra self-service password reset (SSPR) lets users reset their passwords in the cloud, but most companies also have an on-premises Active Directory Domain Services (AD DS) environment for users.
+
+Password writeback allows password changes in the cloud to be written back to an on-premises directory in real time by using either:
+
+- Microsoft Entra Connect 
+- Microsoft Entra Connect cloud sync (RECOMMENDED)
+
+This was described in detail in a previous question.
+
+---
+
+[Tutorial: Enable Microsoft Entra self-service password reset writeback to an on-premises environment](https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-enable-sspr-writeback)  
+
+Password writeback can be used to synchronize password changes in Microsoft Entra back to your on-premises AD DS environment. 
+
+> [Licensing requirements for Microsoft Entra self-service password reset](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-sspr-licensing)
+
+> for hybrid environments you need either:
+- Microsoft Entra ID P1 or P2
+- Microsoft 365 Business Premium
+
+Other requirements:
+
+- a MEID account with Hybrid Identity Administrator.
+- Microsoft Entra ID configured for self-service password reset.
+- existing on-premises AD DS environment configured with a current version of Microsoft Entra Connect.
+- To use password writeback, domain controllers can run any supported version of Windows Server
+
+- To correctly work with SSPR writeback, the account specified in Microsoft Entra Connect must have the appropriate permissions and options set.
+
+the following permissions and options must be set on the account:
+
+- Reset password
+- Change password
+- Write permissions on lockoutTime
+- Write permissions on pwdLastSet
+- Extended rights for "Unexpire Password" on the root object of each domain in that forest, if not already set.
+
+---
+
+[Microsoft Entra Connect: Enabling device writeback](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-device-writeback)  
+
+
+---
+
+## Q111:
+
+You have an app hotsed in an Azure Service Plan (ASP) Premium V2.
+You configure the scale ouu setting for the app as follows:
+
+- R1: AVG(copu%) >= 70%  for t > 10 mins -> increase by 2 & cool down 5 mins
+- R2: AVG(copu%) <=> 35% for t > 10 mins -> decrese  by 1 & cool down 5 mins
+
+the initial instance count is set at 3.
+the min instance count is set at 2.
+the max instance count is set at 10.
+
+The app goes throughthe following state:
+- AVG(copu%) = 80%  for 15 mins 
+- after for 20 mins AVG(copu%) = 30%
+
+What would be the instance count after 35 mins?
+2 | 3 | 4 | 5
+
+---
+
+### Answer: 4
+
+The state: 
+- AVG(copu%) = 80%  for 15 mins 
+
+causes the rule R1 to kick in because it exceeds the 10 mims time span for it and the cool down buffer of 5 min. 
+This causes the number of instances to be bumped up by 2 from the starting count of 3.
+
+The resulting number of instance is now 5.
+
+The state: 
+- after for 20 mins AVG(copu%) = 30%
+
+causes the rule R2 to kick in because it exceeds the 10 mims time span for it and the cool down buffer of 5 min. 
+This causes the number of instances to be bumped down by 1 from the present count of 5.
+
+The resulting number of instance is now 4.
+
+---
+
+### References:
+
+[Get started with autoscale in Azure](https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-get-started)  
+
+---
+
+## Q110:
+
+You have to provide a website hosting env that meets the following 
+scalability and security requirements:
+
+- at peak load the web app should be able to scale to 10 ibnstances
+- the web app storage requirement are minimal and will not excede 5 GB
+- the web app perform complex calculations and requires enhanced compute capability
+- the VM where the web app is hosted should be dedicated to your company
+- you must keep costs to a minimum
+
+You need to propose **Azure App Services** as a host for this web app.
+
+Which Azure App Service plan should you choose?
+
+- shared
+- isolated
+- standard 
+- premium V2
+
+
+---
+
+### Answer:
+- premium V2
+
+Azure App Service plan **premium V2 includes enhanced compute capabilities**.
+It uses **Dv2 series VMs which have (compared to theStandard Tier)**: 
+
+- a faster processor
+- SSD storage
+- **double** memory-to-core ratio
+
+With the **Premium V2 the app can scale up to 30 instances**.
+
+> Premium V3: another possible options
+
+- faster CPU: min 195 ACU per vCPU
+- SSD storage
+- momory-optimized options
+- **quadruple**  memory-to-core ratio compared to Standard Tier
+
+The remaining options are not suitable as these cannot meet the reuirements:
+
+- Stadard Tier:
+This satisfies almost all requirements, in particular the following:
+
+- at peak load the web app should be able to scale to 10 ibnstances
+- the web app storage requirement are minimal and will not excede 5 GB
+- the VM where the web app is hosted should be dedicated to your company
+
+However the following would not be satisfied by the Standard Tier:
+- the web app perform complex calculations and requires enhanced compute capability
+
+> The isolated Tier:
+This is the most expensive options.
+
+It would be possible to satify all the requirements except the cost requirement.
+- you must keep costs to a minimum
+
+In particvular, with this plan the app may scale to up to 100 instances.
+
+---
+
+### References:
+
+[Azure App Service plan overview](https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans)  
 
 ---
 
@@ -586,6 +1189,11 @@ az containerapp up \
 # clean up
 az group delete --name my-container-apps
 ```
+
+---
+
+[Tutorial: Build and deploy your app to Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/tutorial-code-to-cloud?source=recommendations&tabs=bash%2Ccsharp&pivots=acr-remote)    
+
 
 ---
 
