@@ -15,6 +15,353 @@
 
 ---
 
+## Q109:
+
+you are Azure admin and want to use **Azure Container Apps** for your app.
+You must configure the scaling rules.
+
+You use a **custom Container App scaling rule** based on 
+any `ScaledObject-based Kubernetes-based` **Event Driven Autoscaler (KEDA)**.
+
+The deafult scale rule is applied to your container app.
+
+You have created the following scale rule JSON:
+
+```
+...
+"scale": {
+          "minReplicas": 0,
+          "maxReplicas": 32,
+  "rules": [
+    {
+      "name": "azure-servicebus-queue-rule",
+      "custom": {
+        "type": "azure-servicebus",
+        "metadata": {
+          "queueName": "my-queue",
+          "namespace": "service-bus-namespace",
+          "messageCount": "15"
+        }
+      }
+    }
+  ]
+}
+...
+
+```
+
+Select yes/no:
+
+- KEDA checks `my-queue` once every 30 seconds
+
+- if the queue length > 15 KEDA scales the app by adding one new istance aka replica
+
+- the code snippet uses the `TriggerAuthentication` type for the authentication object
+
+---
+
+### Answer:
+
+- KEDA checks `my-queue` once every 30 seconds
+Yes, KEDA checks scaling rules every 30 secs by default.
+
+- if the queue length > 15 KEDA scales the app by adding one new istance aka replica
+Yes, teh KEDA scale-up step is ny 1 by default.
+The other options are: 1, 4, 8, 16, 32... up to teh configured max replica count.
+
+- the code snippet uses the `TriggerAuthentication` type for the authentication object
+No. 
+This snippet **does not use** the KEDA `TriggerAuthentication` for authentication of objets. This would be thecase if you specified secrets referenced by the
+`autheticationRef` property.
+
+1. Find the TriggerAuthentication object referenced by the KEDA ScaledObject specification.
+
+2. From the KEDA specification, find each `secretTargetRef` of the TriggerAuthentication object and its associated secret.
+
+```
+spec:
+  secretTargetRef:
+  - parameter: connection
+    name: my-secrets
+    key: connection-string-secret
+```
+
+3. In the ARM template, add all entries to the auth array of the scale rule.
+
+```
+{
+  ...
+  "resources": {
+    ...
+    "properties": {
+      ...
+      "configuration": {
+        ...
+        "secrets": [
+          {
+            "name": "connection-string-secret",
+            "value": "<SERVICE_BUS_CONNECTION_STRING>"
+          }
+        ]
+      },
+      ...
+      ...
+      "scale": {
+          "minReplicas": 0,
+          "maxReplicas": 5,
+          "rules": [
+            {
+              "name": "azure-servicebus-queue-rule",
+              "custom": {
+                "type": "azure-servicebus",
+                "metadata": {
+                  "queueName": "my-queue",
+                  "namespace": "service-bus-namespace",
+                  "messageCount": "5"
+                },
+                "auth": [
+                  {
+                    "secretRef": "connection-string-secret",
+                    "triggerParameter": "connection"
+                  }
+                ]
+}
+```
+
+---
+
+### References:
+
+[Set scaling rules in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/scale-app?pivots=azure-cli)  
+
+> ARM:
+
+> The http section defines an HTTP scale rule:
+```
+{
+  ...
+  "resources": {
+    ...
+    "properties": {
+      ...
+      "template": {
+        ...
+        "scale": {
+          "minReplicas": 0,
+          "maxReplicas": 5,
+          "rules": [{
+            "name": "http-rule",
+            "http": {
+              "metadata": {
+                "concurrentRequests": "100"
+              }
+            }
+          }]
+        }
+      }
+    }
+  }
+}
+```
+
+> convert a KEDA scaler to a Container App scale rule:
+
+This example shows how to convert an Azure Service Bus scaler to a Container Apps scale rule, but you use the same process for any other ScaledObject-based KEDA scaler specification.
+
+For authentication, KEDA scaler authentication parameters convert into Container Apps secrets.
+
+```
+{
+  ...
+  "resources": {
+    ...
+    "properties": {
+      ...
+      "configuration": {
+        ...
+        "secrets": [
+          {
+            "name": "<NAME>",
+            "value": "<VALUE>"
+          }
+        ]
+      },
+      "template": {
+        ...
+        "scale": {
+          "minReplicas": 0,
+          "maxReplicas": 5,
+          "rules": [
+            {
+              "name": "<RULE_NAME>",
+              "custom": {
+                "metadata": {
+                  ...
+                },
+                "auth": [
+                  {
+                    "secretRef": "<NAME>",
+                    "triggerParameter": "<PARAMETER>"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+1. From the KEDA scaler specification, find the type value.
+
+```
+triggers:
+- type: azure-servicebus
+  metadata:
+    queueName: my-queue
+    namespace: service-bus-namespace
+    messageCount: "5"
+```
+
+2. In the ARM template, enter the scaler type value into the custom.type property of the scale rule.
+
+3. In the ARM template, add all metadata values to the custom.metadata section of the scale rule.
+
+```
+...
+"rules": [
+  {
+    "name": "azure-servicebus-queue-rule",
+    "custom": {
+      "type": "azure-servicebus",
+      "metadata": {
+        "queueName": "my-queue",
+        "namespace": "service-bus-namespace",
+        "messageCount": "5"
+      }
+    }
+  }
+]
+...
+```
+
+> Authentication:
+
+A KEDA scaler may support using secrets.
+You can map the TriggerAuthentication object to the Container Apps scale rule.
+
+- KEDA spec:
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secrets
+  namespace: my-project
+type: Opaque
+data:
+  connection-string-secret: <SERVICE_BUS_CONNECTION_STRING>
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: azure-servicebus-auth
+spec:
+  secretTargetRef:
+  - parameter: connection
+    name: my-secrets
+    key: connection-string-secret
+```
+
+- mapped ARM template for Azure Container Apps scaling rules:
+
+```
+{
+  ...
+  "resources": {
+    ...
+    "properties": {
+      ...
+      "configuration": {
+        ...
+        "secrets": [
+          {
+            "name": "connection-string-secret",
+            "value": "<SERVICE_BUS_CONNECTION_STRING>"
+          }
+        ]
+      },
+      "template": {
+        ...
+        "scale": {
+          "minReplicas": 0,
+          "maxReplicas": 5,
+          "rules": [
+            {
+              "name": "azure-servicebus-queue-rule",
+              "custom": {
+                "type": "azure-servicebus",
+                "metadata": {
+                  "queueName": "my-queue",
+                  "namespace": "service-bus-namespace",
+                  "messageCount": "5"
+                },
+                "auth": [
+                  {
+                    "secretRef": "connection-string-secret",
+                    "triggerParameter": "connection"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+[Set scaling rules in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/scale-app?pivots=azure-resource-manager)  
+
+Azure Container Apps manages automatic horizontal scaling through a set of declarative scaling rules. 
+
+[Event-driven jobs](https://learn.microsoft.com/en-us/azure/container-apps/jobs?tabs=azure-cli#event-driven-jobs)  
+
+Container apps and event-driven jobs use KEDA scalers.
+They both evaluate scaling rules on a polling interval to measure the volume of events for an event source, but the way they use the results is different.
+
+> Scaling in Azure Container Apps:
+In an app, each replica continuously processes events and a scaling rule determines the number of replicas to run to meet demand.
+
+> Scaling in Event Driven Jobs:
+
+In event-driven jobs, each job typically processes a single event, and a scaling rule determines the number of jobs to run.
+
+**Use jobs when each event requires a new instance of the container** with dedicated resources **or needs to run for a long time**. 
+Event-driven jobs are conceptually similar to KEDA scaling jobs.
+
+Event-driven jobs are triggered by events from supported custom scalers. 
+Examples of event-driven jobs include:
+
+- A job that runs when a new message is added to a queue such as Azure Service Bus, Kafka, or RabbitMQ.
+
+- A self-hosted GitHub Actions runner or Azure DevOps agent that runs when a new job is queued in a workflow or pipeline.
+
+---
+
+[KEDA Scalers](https://keda.sh/docs/2.11/scalers/)  
+
+[KEDA Scaling Deployments, StatefulSets & Custom Resources](https://keda.sh/docs/2.11/concepts/scaling-deployments/)  
+
+[KEDA Authentication](https://keda.sh/docs/2.11/concepts/authentication/)    
+
+---
+
 ## Q108:
 
 You organization uses **Azure Container Registry** to store and manage container
