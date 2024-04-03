@@ -17,10 +17,36 @@
 
 ## Q130:
 
+You must configure a subnet named `subnet1` that is part of a Vnet named `vnet1`.
+Hosts on `subnet1` of `vnet1` must be able to reach resources on `vnet2` 
+and also to reach a **proxy server** that scans all outbount internet requests 
+from resources hosted on `subnet1`.
+
+The **proxy server** is hosted on your on-prem Vnet.
+You have an **ExpressRoute** circuit named `exp-route1` configured 
+between `vnet2` and your on-prem network.
+
+You want `vnet1` to use `exp-route1` to reach the proxy server.
+The solution must minimize costs and create no additional resources!
+
+Which two actions should you perform?
+
+- configure VNet Peering between vnet1 and vnet2
+- create a Virtual Network Gateway in vnet1
+- link the virtual betwork gateways in vnet1 with `exp-route1`
+- configure vnet1 peering to use the remote gateway
+- configure vnet2 peering to use the remote gateway
 
 ---
 
 ### Answer:
+- configure VNet Peering between vnet1 and vnet2
+- configure vnet1 peering to use the remote gateway
+
+For `vnet1` to leverage the `exp-route1` to connect the on-prem network
+`vnet1` must be peered with `vnet2` as `vnet2` holds the link to `exp-route1`
+and then `vnet1` must use the gateway of `vnet2`.
+This gateway is used to reach the on-prem network.
 
 ---
 
@@ -93,9 +119,10 @@ they can use one of four methods:
 
 2. [Azure-provided name resolution](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#azure-provided-name-resolution)  
 
-3. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)    
+3. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)    
 
-4. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)    
+4. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)    
+
 
 The type of name resolution you use depends on how your resources need to communicate with each other. 
 
@@ -176,13 +203,114 @@ to best suit your organization's needs.
 **It provides a naming resolution for virtual machines (VMs) within a virtual network and connected** 
 **virtual networks**.
 
+> Link a VNet with a Zone 
+To resolve the records of a **private DNS zone from your virtual network**, you must link the virtual network with the zone.
+Linked virtual networks have full access and can resolve all DNS records published in the private zone. 
+
+> Autoregistration:
+**You can also enable autoregistration on a virtual network link** and then the DNS records for the virtual machines 
+in that virtual network are **automatically** registered in the private zone. 
+When autoregistration gets enabled, Azure DNS will update the zone record whenever a virtual machine gets 
+**created, changes its' IP address, or gets deleted**.
+
+> Benefits of Azure Private DNS:
+
+- Removes the need for custom DNS solutions
+
+- Use all common DNS records types:
+Azure DNS supports A, AAAA, CNAME, MX, PTR, SOA, SRV, and TXT records. 
+
+- Automatic hostname record management:
+Azure automatically maintains hostname records for the VMs in the specified virtual networks. 
+> Autoregistration enabled: Automatic registration of virtual machines from a virtual network that's linked to a private zone 
+
+- Hostname resolution between virtual networks:
+Unlike Azure-provided host names, private DNS zones can be shared between virtual networks. 
+This capability simplifies cross-network and service-discovery scenarios, such as virtual network peering.
+
+- **Split-horizon DNS support**:
+With Azure DNS, you can create zones with the same name that resolve to different answers from 
+within a virtual network and from the public internet. 
+A typical scenario for split-horizon DNS is to provide a dedicated version of a service for use inside your virtual network.
+
+- Forward DNS resolution is supported across virtual networks that are linked to the private zone
+- Reverse DNS lookup is supported within the virtual-network scope
+
 ---
 
 2. [Azure-provided name resolution](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#azure-provided-name-resolution)  
 
-3. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)    
+Azure provided name resolution **provides only basic authoritative DNS capabilities**.
+VMs and instances in a cloud service share the same DNS suffix, so the host name alone is sufficient.
+Azure provides internal name resolution for VMs and role instances that reside within the same virtual network or cloud service. 
 
-4. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)    
+> ARM Deployment Model:
+In virtual networks deployed using the Azure Resource Manager deployment model, the DNS suffix is consistent 
+across the all virtual machines within a virtual network, so the FQDN isn't needed.
+
+> Classic Deployment Model:
+**But in virtual networks deployed using the classic deployment model**, 
+different cloud services have different DNS suffixes. 
+**In this situation, you need the FQDN to resolve names between different cloud services**.
+
+> Advantages:
+
+- easy to use
+- high availability
+- You can use the service with your own DNS servers, to resolve both on-premises and Azure host names
+- You can use name resolution between VMs and role instances within the same cloud service, without the need for an FQDN
+- You can use name resolution between VMs in virtual networks that use the Azure Resource Manager deployment model, without need for an FQDN
+- You can use host names that best describe your deployments, rather than working with autogenerated names.
+
+> Notes:
+- The **Azure DNS IP** address is `168.63.129.16`. This address is a static IP address and doesn't change.
+
+> Limitations:
+
+- Virtual networks in the classic deployment model require an FQDN when you're resolving names in different cloud services.
+- The Azure-created DNS suffix can't be modified
+- You can't manually register your own records
+- Use a different name for each virtual machine in a virtual network to avoid DNS resolution issues.
+
+---
+
+3. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)  
+
+[Azure DNS Private Resolver Deep Dive](https://www.youtube.com/watch?v=V8ChsYAyxTc&t=236s)    
+
+Azure DNS Private Resolver is a service that enables you to query Azure DNS private zones 
+**from an on-premises environment and vice versa without deploying VM based DNS servers**.
+You don't need to change any DNS client settings on your virtual machines (VMs) to use the Azure DNS Private Resolver.
+
+> Inbound endpoints:
+**Azure DNS Private Resolver requires an Azure Virtual Network.**
+When you create an Azure DNS Private Resolver inside a virtual network, 
+**one or more inbound endpoints are established that can be used as the destination for DNS queries**.
+
+> outbound endpoint:
+The resolver's outbound endpoint processes DNS queries based on a DNS forwarding ruleset that you configure. 
+
+> Process:
+A client in a virtual network issues a DNS query.
+If the DNS servers for this virtual network are specified as custom, then the query is forwarded to the specified IP addresses.
+If Default (Azure-provided) DNS servers are configured in the virtual network, and there are Private DNS zones linked to the same virtual network, these zones are consulted.
+If the query doesn't match a Private DNS zone linked to the virtual network, then Virtual network links for DNS forwarding rulesets are consulted.
+If no ruleset links are present, then Azure DNS is used to resolve the query.
+If ruleset links are present, the DNS forwarding rules are evaluated.
+If a suffix match is found, the query is forwarded to the specified address.
+If multiple matches are present, the longest suffix is used.
+If no match is found, no DNS forwarding occurs and Azure DNS is used to resolve the query.
+
+> Benefits:
+Fully managed: Built-in high availability, zone redundancy.
+Cost reduction: Reduce operating costs and run at a fraction of the price of traditional IaaS solutions.
+Private access to your Private DNS zones: Conditionally forward to and from on-premises.
+Scalability: High performance per endpoint.
+DevOps Friendly: Build your pipelines with Terraform, ARM, or Bicep.
+
+---
+
+4. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)      
 
 ---
 
