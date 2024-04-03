@@ -2,7 +2,7 @@
 
 ---
 
-## Q12X:
+## Q13X:
 
 
 ---
@@ -12,6 +12,329 @@
 ---
 
 ### References:
+
+---
+
+## Q130:
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q129:
+
+You deployed two VNets that have the following properties:
+
+- dev-vnet-west (West US)
+- prod-vnet-east (East US)
+
+You configure **global VNet peering** to link to `dev-vnet-west` and `prod-vnet-east` VNets.
+You need to ensure that VMs in either VNet can resolve fully qualified domain names (FQDNs)
+of any other VM in Azure.
+
+What should you do?
+
+- use Azure provided DNS in each VNet
+- create a private zone in Azure DNS
+- add service endpoints to each VNet
+- deploy DNS servers in each VNet and add their private IP addresses to the DNS server list
+
+
+
+---
+
+### Answer:
+- create a private zone in Azure DNS
+
+**Peered VNets are unable to support hostname resolution between themselves**.
+That is if you have a FQDN on a VM2 in a peered VNet2 you cannot automatically 
+resove its IP address from VNet1, **you must either**: 
+
+- set up an external DNS server in VNet1
+- use Azure DNS and a private zone to resolve the non-public, routable IP of VM2 in VNet2
+
+The rpinciple is that VM2 in VNet2 registers its non-public, routable IP and host record 
+with the private Azure DNS Zone and the Azure DNS provides resolution of the hostename
+from Vnet1 to Vnet2.
+
+The remaining options do not apply:
+
+- use Azure provided DNS in each VNet
+- add service endpoints to each VNet
+- deploy DNS servers in each VNet and add their private IP addresses to the DNS server list
+
+
+
+---
+
+### References:
+
+[Name resolution for resources in Azure virtual networks](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat)    
+
+In order to facilitate communication between the virtual machines (VMs) and 
+other resources deployed in a virtual network, it may be necessary to allow them 
+to communicate with each other. 
+
+The use of easily remembered and unchanging names simplifies the communication 
+process, rather than relying on IP addresses.
+
+> Resolve FQDNs to IP addresses internal to Azure:
+When resources deployed in virtual networks need to resolve domain names to internal IP addresses, 
+they can use one of four methods:
+
+1. [Azure DNS private zones](https://learn.microsoft.com/en-us/azure/dns/private-dns-overview)  
+
+2. [Azure-provided name resolution](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#azure-provided-name-resolution)  
+
+3. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)    
+
+4. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)    
+
+The type of name resolution you use depends on how your resources need to communicate with each other. 
+
+> Scenario-1:
+- VMs in the same VNet 
+- or Azure Cloud Services role in the same cloud service
+> solution-1: Azure Private DNS | Azure-provided name resolution
+> DNS suffix: FQDN | hostname 
+
+-------------------------------------------------------------------------------------
+
+> Scenario-2:
+- VMs in different VNets
+- or Azure Cloud Services role in the different cloud service
+> solution-2: Azure Private DNS | Azure DNS Private Resolver
+> DNS suffix: FQDN
+
+> Scenario-3:
+- from an Azure App Service, Function, Bot with VNet integration 
+  to role instances or VMs in the same virtual network.
+> solution-3: Azure DNS Private Resolver | Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+> Scenario-4:
+- from App Service Web Apps to VMs in the same virtual network
+> solution-4: Azure DNS Private Resolver | Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+> Scenario-5:
+- from App Service Web Apps to VMs in a DIFFERENT virtual network
+> solution-5: Azure DNS Private Resolver | Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+> Scenario-6:
+- from VMs or role instances in Azure TO on-premises computer and service names
+> solution-6: Azure DNS Private Resolver | Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+-------------------------------------------------------------------------------------
+
+> Scenario-6:
+- from on-premises computer TO VMs or role instances in Azure
+> solution-6 :  Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+> Scenario-7:
+- from on-premises computer TO Azure hostnames
+> solution-7 :  Name resolution using your own DNS server
+> DNS suffix: FQDN
+
+> Scenario-8:
+- resolution between VMs or role instances located in different cloud services, not in a virtual network
+> solution-8 : all 4 methods are applicable
+> DNS suffix: NA
+
+-------------------------------------------------------------------------------------
+
+> Scenario-9:
+- Reverse DNS for internal IPs
+> solution-9 : Connectivity between VMs and role instances in different cloud services isn't supported outside a virtual network.
+> DNS suffix: NA
+
+-------------------------------------------------------------------------------------
+
+
+---
+
+1. [What is Azure Private DNS?](https://learn.microsoft.com/en-us/azure/dns/private-dns-overview)  
+
+Azure DNS is a hosting service for domains and provides naming resolution using the Microsoft Azure infrastructure. 
+Azure DNS not only supports internet-facing DNS domains, but **it also supports private DNS zones**.
+**Azure Private DNS provides a reliable and secure DNS service for your virtual networks**,
+**without the need to configure a custom DNS solution.**
+
+By using private DNS zones, you can use your own custom domain name instead of the Azure-provided
+names during deployment. Using a custom domain name helps you tailor your virtual network architecture 
+to best suit your organization's needs. 
+**It provides a naming resolution for virtual machines (VMs) within a virtual network and connected** 
+**virtual networks**.
+
+---
+
+2. [Azure-provided name resolution](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#azure-provided-name-resolution)  
+
+3. [Name resolution that uses your own DNS server](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat#name-resolution-that-uses-your-own-dns-server)    
+
+4. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)    
+
+---
+
+## Q128:
+
+your company's Azure Infrastructure team needs a traffic control solution for their deployment.
+
+The topology for the deployment:
+
+- edge subnet:
+a linux NVA that runs an enterprise firewall with IP forwarding enabled
+
+- data1 subnet:
+four Windows Server VMs
+
+- data2 subnet:
+four Ubuntu VMs
+
+You must recommend a solution to the infrastructure team so that 
+all outbound Azure VM traffic must pass through the NVA firewall on the edge subnet.
+
+What two actions should you perform?
+
+- create a route table with the next-hop IP address
+- deploy two internal load balancers between the three subnets
+- create a NSG with an outbound rule
+- bind the resource to each VM's NIC
+- bind the resource ti eah subnet
+
+
+---
+
+### Answer:
+- create a route table with the next-hop IP address
+- bind the resource to each subnet
+
+A route table with the next-hop IP address will route all traffic to the IP of the 
+next-hop from any subnet to which the route table is **bound** to. 
+
+The available next hops are:
+
+- NVA (Network Visrtual Appliance)
+- Internet
+- another Virtual Network
+- Virtual Network Gateway
+
+The remaining options do not apply:
+- deploy two internal load balancers between the three subnets
+- create a NSG with an outbound rule
+- bind the resource to each VM's NIC
+
+---
+
+### References:
+
+[Tutorial: Route network traffic with a route table using the Azure portal](https://learn.microsoft.com/en-us/azure/virtual-network/tutorial-create-route-table-portal)   
+
+[Use network virtual appliances on a virtual network](https://learn.microsoft.com/en-us/windows-server/networking/sdn/manage/use-network-virtual-appliances-on-a-vn)  
+
+```
+$routetableproperties = new-object Microsoft.Windows.NetworkController.RouteTableProperties
+
+$route = new-object Microsoft.Windows.NetworkController.Route
+$route.ResourceID = "0_0_0_0_0"
+$route.properties = new-object Microsoft.Windows.NetworkController.RouteProperties
+$route.properties.AddressPrefix = "0.0.0.0/0"
+$route.properties.nextHopType = "VirtualAppliance"
+$route.properties.nextHopIpAddress = "192.168.1.10"
+
+$routetableproperties.routes += $route
+
+$routetable = New-NetworkControllerRouteTable -ConnectionUri $uri -ResourceId "Route1" -Properties $routetableproperties
+
+$vnet = Get-NetworkControllerVirtualNetwork -ConnectionUri $uri -ResourceId "Tenant1_VNet1"
+$vnet.properties.subnets[0].properties.RouteTable = $routetable
+new-networkcontrollervirtualnetwork -connectionuri $uri -properties $vnet.properties -resourceId $vnet.resourceid
+
+```
+
+As soon as you apply the routing table to the virtual network, traffic gets forwarded to the virtual appliance. 
+**You must configure the routing table in the virtual appliance to forward the traffic**, in a manner that is 
+appropriate for your environment.
+
+
+
+--- 
+
+[Virtual network traffic routing](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)    
+
+---
+
+## Q127:
+
+You have a VNet `corp-net` that has been recently deployed with the follwoing properties:
+
+- address range:    172.16.0.0/16
+- front-end subnet: 172.16.2.0/24
+- mid-tier subnet: 172.16.3.0/24
+- back-end subnet:  172.16.4.0/24
+
+You must change the `corp-net` address space beacause it conflicts with your 
+on-prem IPv4 space. 
+The new address psace should be `192.168.0.0/16` and you must also redifine the subnets IDs 
+before your collegues attempt to migrate VMs to the new VNet.
+
+What should you do?
+
+- delete the three subnets from `corp-vnet`
+- add the `192.168.0.0/16` address space to `corp-vnet`
+- remove and redeploy `corp-vnet`
+- edit and change the `corp-vnet`address range to `192.168.0.0/16`
+
+---
+
+### Answer:
+- remove and redeploy `corp-vnet`
+**The definition of a VNet and its subnets is immutable**.
+The delition of a VNet **requires** the delition of its subnets firts!
+In this scenario a complete redeploy is the simplest solution available.
+
+---
+
+### References:
+
+[Create, change, or delete a virtual network](https://learn.microsoft.com/en-us/azure/virtual-network/manage-virtual-network)   
+
+```
+## Create myVNet virtual network. ##
+New-AzVirtualNetwork -ResourceGroupName myResourceGroup -Name myVNet -Location eastus -AddressPrefix 10.0.0.0/16
+
+# Azure CLI
+## Create myVNet virtual network with the default address space: 10.0.0.0/16. ##
+az network vnet create --resource-group myResourceGroup --name myVNet
+```
+
+> Delete a virtual network:
+
+**You can delete a virtual network only if there are no resources connected to it**. 
+If there are resources connected to any subnet within the virtual network, 
+**you must first delete the resources that are connected to all subnets within the virtual network**. 
+
+The steps you take to delete a resource vary depending on the resource. 
+To learn how to delete resources that are connected to subnets, read the documentation for each resource type you want to delete. 
+To delete a virtual network:
+
+`az network vnet delete --resource-group myResourceGroup --name myVNet`
+`Remove-AzVirtualNetwork -ResourceGroupName myResourceGroup -Name myVNet`
+
+
+---
+
+[Add, change, or delete a virtual network subnet](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet?tabs=azure-portal)  
 
 ---
 
@@ -102,6 +425,65 @@ No downtime to resources in either virtual network when creating the peering, or
 
 [Quickstart: Use Azure PowerShell to create a virtual network](https://learn.microsoft.com/en-us/azure/virtual-network/quick-create-powershell)    
 
+```
+$vnet = @{
+    Name = 'vnet-1'
+    ResourceGroupName = 'test-rg'
+    Location = 'eastus2'
+    AddressPrefix = '10.0.0.0/16'
+}
+$virtualNetwork = New-AzVirtualNetwork @vnet
+
+
+$subnet = @{
+    Name = 'subnet-1'
+    VirtualNetwork = $virtualNetwork
+    AddressPrefix = '10.0.0.0/24'
+}
+$subnetConfig = Add-AzVirtualNetworkSubnetConfig @subnet
+
+
+$virtualNetwork | Set-AzVirtualNetwork
+
+```
+
+> Deploy Azure Bastion:
+
+```
+$subnet = @{
+    Name = 'AzureBastionSubnet'
+    VirtualNetwork = $virtualNetwork
+    AddressPrefix = '10.0.1.0/26'
+}
+$subnetConfig = Add-AzVirtualNetworkSubnetConfig @subnet
+
+$virtualNetwork | Set-AzVirtualNetwork
+
+# Create a public IP address for Bastion. 
+# The Bastion host uses the public IP to access SSH and RDP over port 443.
+$ip = @{
+        ResourceGroupName = 'test-rg'
+        Name = 'public-ip'
+        Location = 'eastus2'
+        AllocationMethod = 'Static'
+        Sku = 'Standard'
+        Zone = 1,2,3
+}
+New-AzPublicIpAddress @ip
+
+$bastion = @{
+    Name = 'bastion'
+    ResourceGroupName = 'test-rg'
+    PublicIpAddressRgName = 'test-rg'
+    PublicIpAddressName = 'public-ip'
+    VirtualNetworkRgName = 'test-rg'
+    VirtualNetworkName = 'vnet-1'
+    Sku = 'Basic'
+}
+
+New-AzBastion @bastion
+
+```
 ---
 
 [Tutorial: Create a secure n-tier app in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-secure-ntier-app)   
