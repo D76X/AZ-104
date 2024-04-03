@@ -62,6 +62,48 @@ The remaining options do not apply:
 
 ### References:
 
+[Virtual Network service endpoints](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview)  
+
+Virtual Network (VNet) service endpoint provides secure and direct connectivity to Azure services over an optimized route over the Azure backbone network.
+
+Endpoints allow you to secure your critical Azure service resources to only your virtual networks.
+
+**Service Endpoints enables private IP addresses in the VNet to reach the endpoint** 
+**of an Azure service without needing a public IP address on the VNet**.
+
+---
+
+[Virtual network peering](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview)    
+
+Virtual network peering enables you to seamlessly connect two or more Virtual Networks in Azure. The virtual networks appear as one for connectivity purposes. The traffic between virtual machines in peered virtual networks uses the Microsoft backbone infrastructure. Like traffic between virtual machines in the same network, traffic is routed through Microsoft's private network only.
+
+Azure supports the following types of peering:
+
+- Virtual network peering: Connecting virtual networks within the same Azure region.
+- Global virtual network peering: Connecting virtual networks across Azure regions.
+
+> benefits :
+
+
+- A low-latency, high-bandwidth connection 
+between resources in different virtual networks.
+
+The ability for resources in one virtual network to communicate with resources in a different virtual network.
+
+The ability to transfer data between virtual networks across Azure subscriptions, Microsoft Entra tenants, deployment models, and Azure regions.
+
+The ability to peer virtual networks created through the Azure Resource Manager.
+
+The ability to peer a virtual network created through Resource Manager to one created through the classic deployment model. To learn more about Azure deployment models, see Understand Azure deployment models.
+
+No downtime to resources in either virtual network when creating the peering, or after the peering is created.
+
+---
+
+[Quickstart: Use Azure PowerShell to create a virtual network](https://learn.microsoft.com/en-us/azure/virtual-network/quick-create-powershell)    
+
+---
+
 [Tutorial: Create a secure n-tier app in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-secure-ntier-app)   
 
  It's important that N-tier applications are architected to protect back-end 
