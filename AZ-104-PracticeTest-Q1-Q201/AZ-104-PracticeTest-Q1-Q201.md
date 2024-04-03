@@ -15,6 +15,146 @@
 
 ---
 
+## Q126:
+
+Ypu plan to deploy a new app to your Azure sub.
+You must configure the required layered infrastructure.
+
+- front-end servers on VMs
+- back-end servers on VMs
+- database on Azure SQL Server
+
+You must ensure that you can apply **security filtering on each layer independently**.
+The solution must be with minimal effort.
+
+Which five actions in a sequence should you perform?
+
+- create a VNet for each layer
+- create three subnets
+- enable service endpoints for the subnets
+- create a single VNet
+- enable service endpoints for the VNet
+- create two subnets
+- create a resource group
+- configure peering on each VNet
+
+---
+
+### Answer:
+
+- create a resource group
+- create a single VNet
+- create two subnets
+- enable service endpoints for the VNet
+- enable service endpoints for the subnets
+
+This sequence is self-explanatory the only step that might need a clarifycation
+is the last: **enable service endpoints for the subnets**.
+It is not sufficient to enable SEP on the VNet, it must ALSO be done at the 
+subnets level.
+
+The remaining options do not apply:
+- create three subnets
+- create a VNet for each layer
+- configure peering on each VNet
+
+---
+
+### References:
+
+[Tutorial: Create a secure n-tier app in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-secure-ntier-app)   
+
+ It's important that N-tier applications are architected to protect back-end 
+ resources to the greatest extent possible.
+
+In this tutorial, you learn how to deploy a secure N-tier application, 
+with a front-end web app that connects to another network-isolated web app. 
+All traffic is isolated within your Azure Virtual Network using 
+**Virtual Network integration and private endpoints**. 
+
+<img src="./Q126-1.png">
+
+- Virtual network:
+Contains two subnets, one is integrated with the front-end web app, and the other 
+has a private endpoint for the back-end web app. The virtual network blocks all 
+inbound network traffic, except for the front-end app that's integrated with it.
+
+- Front-end web app
+Integrated into the virtual network and accessible from the public internet.
+
+- Back-end web app 
+Accessible only through the private endpoint in the virtual network.
+
+- Private endpoint 
+Integrates with the back-end web app and makes the web app accessible with a private IP address.
+
+- Private DNS zone 
+Lets you resolve a DNS name to the private endpoint's IP address.
+
+> Notes:
+
+- Public traffic to the back-end app is blocked.
+- Outbound traffic from App Service is routed to the virtual network and can reach the back-end app.
+- App Service is able to perform DNS resolution to the back-end app.
+
+You'll create the following network resources:
+
+You need **two instances of a web app**
+- one for the frontend 
+- and one for the backend. 
+You need to use at least the Basic tier in order to use virtual network integration and private endpoints.
+You'll configure the virtual network integration and other configurations later on.
+
+A virtual network.
+A subnet for the App Service virtual network integration.
+A subnet for the private endpoint.
+A private DNS zone.
+A private endpoint.
+
+> 4. Enable deployment to back-end web app from internet
+
+Since your backend web app isn't publicly accessible, you must let your continuous deployment 
+tool reach your app by making the SCM site publicly accessible. 
+The main web app itself can continue to deny all traffic.
+
+1. 
+
+Enable public access for the back-end web app.:
+`az webapp update --resource-group $groupName --name <backend-app-name> --set publicNetworkAccess=Enabled`  
+
+2. 
+Set the unmatched rule action for the main web app to deny all traffic. 
+This setting denies public access to the main web app even though the general app access 
+setting is set to allow public access.
+`az resource update --resource-group $groupName --name <backend-app-name> --namespace Microsoft.Web --resource-type sites --set properties.siteConfig.ipSecurityRestrictionsDefaultAction=Deny`
+
+3. Set the unmatched rule action for the SCM site to allow all traffic.
+`az resource update --resource-group $groupName --name <backend-app-name> --namespace Microsoft.Web --resource-type sites --set properties.siteConfig.scmIpSecurityRestrictionsDefaultAction=Allow`
+
+> 5. Lock down FTP and SCM access:
+
+Disable FTP access for both the front-end and back-end web apps. 
+Replace <frontend-app-name> and <backend-app-name> with your app names.
+
+```
+az resource update --resource-group $groupName --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/<frontend-app-name> --set properties.allow=false
+
+az resource update --resource-group $groupName --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/<backend-app-name> --set properties.allow=false
+```
+
+Disable basic auth access to the WebDeploy ports and SCM/advanced tool sites
+for both web apps. Replace <frontend-app-name> and <backend-app-name> with your app names
+
+```
+az resource update --resource-group $groupName --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/<frontend-app-name> --set properties.allow=false
+
+az resource update --resource-group $groupName --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/<backend-app-name> --set properties.allow=false
+```
+
+THERE ARE MORE STEPS...
+
+---
+
 ## Q125:
 
 You are an Azure admin and you mneed to swap deployment slots for a web app.
