@@ -15,6 +15,501 @@
 
 ---
 
+## Q125:
+
+You are an Azure admin and you mneed to swap deployment slots for a web app.
+You must swat the slots staging with production.
+
+```
+OPTIONS-1 -SourceSlotName 'source' -DestinationSlotName 'production' `
+-ResourceGroupName 'rg1' -Name 'wapp1' -SwapWithPreviewAction OPTIONS-2
+
+OPTIONS-3 - -SourceSlotName 'source' -DestinationSlotName 'production' `
+-ResourceGroupName 'rg1' -Name 'wapp1' -SwapWithPreviewAction OPTIONS-4
+```
+
+OPTIONS-1/-3
+New-AzWebAppSlot
+Switch-AzWebAppSlot
+Set-AzWebAppSlot
+
+OPTIONS-2/4
+ApplySlotConfig
+ResetSlotSwap
+CompleteSlotSwap
+
+---
+
+### Answer:
+
+```
+# preview the swap
+Switch-AzWebAppSlot -SourceSlotName 'source' -DestinationSlotName 'production' `
+-ResourceGroupName 'rg1' -Name 'wapp1' -SwapWithPreviewAction ApplySlotConfig
+
+# verify
+
+# complet the swap
+Switch-AzWebAppSlot- -SourceSlotName 'source' -DestinationSlotName 'production' `
+-ResourceGroupName 'rg1' -Name 'wapp1' -SwapWithPreviewAction CompleteSlotSwap
+```
+
+This is a swap done with a preview action set by the switch `SwapWithPreviewAction`
+and it is referred to as **multi-stage swap**. It allows to perform the swap with a 
+preview so that the result can be verified and later the swap can be completed.
+
+---
+
+### References:
+
+[Switch-AzWebAppSlot](https://learn.microsoft.com/en-us/powershell/module/az.websites/switch-azwebappslot?view=azps-11.5.0&viewFallbackFrom=azps-10.1.0)  
+
+[Set up staging environments in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots?tabs=cli)    
+
+> Swap with preview (multi-phase swap):
+
+Before you swap into production as the target slot, validate that the app runs with the swapped settings. 
+The source slot is also warmed up before the swap completion, which is desirable for mission-critical applications.
+
+When you perform a swap with preview, App Service performs the same swap operation but pauses after the first step.
+You can then verify the result on the staging slot before completing the swap.
+
+If you cancel the swap, App Service reapplies configuration elements to the source slot.
+
+- To swap a slot into production with preview:
+`az webapp deployment slot swap --resource-group <group-name> --name <app-name> --slot <source-slot-name> --target-slot production --action preview`  
+
+`Switch-AzWebAppSlot -SourceSlotName "<source-slot-name>" -DestinationSlotName "production" -ResourceGroupName "<group-name>" -Name "<app-name>" -SwapWithPreviewAction ApplySlotConfig`
+
+- To complete the swap:
+
+`az webapp deployment slot swap --resource-group <group-name> --name <app-name> --slot <source-slot-name> --target-slot production --action swap`
+
+`Switch-AzWebAppSlot -SourceSlotName "<source-slot-name>" -DestinationSlotName "production" -ResourceGroupName "<group-name>" -Name "<app-name>" -SwapWithPreviewAction CompleteSlotSwap`
+
+- To cancel the swap:
+
+`az webapp deployment slot swap --resource-group <group-name> --name <app-name> --slot <source-slot-name> --target-slot production --action reset`
+
+`Switch-AzWebAppSlot -SourceSlotName "<source-slot-name>" -DestinationSlotName "production" -ResourceGroupName "<group-name>" -Name "<app-name>" -SwapWithPreviewAction ResetSlotSwap`
+
+> Roll back a swap:
+
+If any errors occur in the target slot (for example, the production slot) after a slot swap, 
+restore the slots to their pre-swap states by swapping the same two slots immediately.
+
+> Configure auto swap:
+
+Auto swap streamlines Azure DevOps scenarios where you want to deploy your app continuously with zero cold starts and zero downtime for customers of the app. When auto swap is enabled from a slot into production, every time you push your code changes to that slot, App Service automatically swaps the app into production after it's warmed up in the source slot.
+
+**Auto swap isn't supported in web apps on Linux and Web App for Containers.**
+
+`az webapp deployment slot auto-swap --name <app-name> --resource-group <group-name> --slot <source-slot-name>`
+`Set-AzWebAppSlot -ResourceGroupName "<group-name>" -Name "<app-name>" -Slot "<source-slot-name>" -AutoSwapSlotName "production"`  
+
+--
+
+## Q124:
+
+You are an Azure admin for a company.
+
+You have been tasked with configuring TLS mutual authentication for 
+Azure App Service. 
+You set up your app with **required client certificates**.
+
+You need to enable client certificates using ARM templates.
+
+```
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2020-06-01",
+    "name": "[parameters('webAppName')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
+    ],
+    "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]",
+        "siteConfig": {
+            "linuxFxVersion": "[parameters('linuxFxVersion')]"
+        },
+        "OPTIONS": true,
+        "OPTIONS": "Required",
+        "OPTIONS": "/sample1;/sample2"
+    }
+}
+```
+
+OPTIONS:
+clientCertExclusionPaths
+clientAffinityEnabled
+clientCertEnabled
+clientCertMode
+
+
+---
+
+### Answer:
+
+```
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2020-06-01",
+    "name": "[parameters('webAppName')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
+    ],
+    "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]",
+        "siteConfig": {
+            "linuxFxVersion": "[parameters('linuxFxVersion')]"
+        },
+        "clientCertEnabled": true,
+        "clientCertMode": "Required",
+        "clientCertExclusionPaths": "/sample1;/sample2"
+    }
+}
+```
+
+---
+
+### References:
+
+[Configure TLS mutual authentication for Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-configure-tls-mutual-auth?tabs=azurecli)  
+
+> Enable client certificates: ARM + Bicep + Azure CLI
+
+`az webapp update --set clientCertEnabled=true --name <app-name> --resource-group <group-name>`
+
+> Bicep:
+
+```
+resource appService 'Microsoft.Web/sites@2020-06-01' = {
+  name: webSiteName
+  location: location
+  kind: 'app'
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: linuxFxVersion
+    }
+    clientCertEnabled: true
+    clientCertMode: 'Required'
+    clientCertExclusionPaths: '/sample1;/sample2'
+  }
+}
+```
+
+```
+{
+    "type": "Microsoft.Web/sites",
+    "apiVersion": "2020-06-01",
+    "name": "[parameters('webAppName')]",
+    "location": "[parameters('location')]",
+    "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
+    ],
+    "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]",
+        "siteConfig": {
+            "linuxFxVersion": "[parameters('linuxFxVersion')]"
+        },
+        "clientCertEnabled": true,
+        "clientCertMode": "Required",
+        "clientCertExclusionPaths": "/sample1;/sample2"
+    }
+}
+```
+
+You can restrict access to your Azure App Service app by enabling different types of authentication for it. 
+**One way to do it is to request a client certificate when the client request is over TLS/SSL and validate the certificate**. 
+**This mechanism is called TLS mutual authentication or client certificate authentication**. 
+This article shows how to set up your app to use client certificate authentication.
+
+If you access your site over HTTP and not HTTPS, you will not receive any client certificate.
+So if your application requires client certificates, you should not allow requests to your application over HTTP.
+
+> Requirements:
+
+To **create custom TLS/SSL bindings or enable client certificates** for your App Service app, 
+your **App Service plan** must be in the: 
+**Basic, Standard, Premium, or Isolated tier**.
+
+**Make sure that your web app isn't in the F1 or D1 tier, which doesn't support custom TLS/SSL**.
+
+> Exclude paths from requiring authentication:
+
+When you enable mutual auth for your application, all paths under the root of your app 
+require a client certificate for access.
+To remove this requirement for certain paths, define exclusion paths as part of your 
+application configuration.
+
+> Access client certificate:
+
+In App Service, **TLS termination of the request happens at the frontend load balancer**. 
+
+**When forwarding the request to your app code with client certificates enabled**, 
+App Service injects an `X-ARR-ClientCert` request header with the client certificate. 
+App Service does not do anything with this client certificate other than forwarding it to your app. 
+**Your app code is responsible for validating the client certificate**.
+
+For ASP.NET, the client certificate is available through the `HttpRequest.ClientCertificate` 
+property. For other application stacks (Node.js, PHP, etc.), the client cert is available in 
+your app through a base64 encoded value in the `X-ARR-ClientCert` request header.
+
+---
+
+[Use a TLS/SSL certificate in your code in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/configure-ssl-certificate-in-code)    
+
+ Your app code may act as a client and access an external service that requires 
+ certificate authentication, or it may need to perform cryptographic tasks. 
+ This how-to guide shows how to use public or private certificates in your application code.
+
+ This approach to using certificates in your code makes use of the TLS functionality in 
+ App Service, which requires your app to be in Basic tier or higher.
+
+---
+
+## Q123:
+
+You recently joined a company to take over the management of their Azure tenant.
+You find that  their Azure App Service are not backed up and that they are ta risk.
+
+The App Service features:
+
+Data usage: 6 GB
+linked database: MySQL
+linked database size: 3 GB
+
+You decide to use **Premium** storage for the backups and to perform it once 
+a day. You also want indefinite retention points for the backups.
+
+Select yes/no:
+
+- automatic App Service backups include linked databases
+- custom app service backups support indefinite retention
+- custom app service backups are available on the Premium storage tier
+---
+
+### Answer:
+
+- automatic App Service backups include linked databases
+No, only manual custom backup includes the also the database as follows:
+Backup size	10 GB, 4 GB of which cab be the linked to a database.
+
+Automatic backups do not include the linked DB and are up to 30 GB.
+
+- custom app service backups support indefinite retention
+Yes
+
+- custom app service backups are available on the Premium storage tier
+Yes.
+
+Custom backups are available on Basic, Standard, Premium and isolated tier of App Services and in all cases Oremium storage can be used.
+
+Automatic backups do not require a storage account.
+
+---
+
+### References:
+
+The references have been examined in detailed in a previous question.
+
+---
+
+## Q122:
+
+You develop a new Web app whose source code is in an Azure DevOps Git Repo.
+Before moving to production the app must be reviewed by test users.
+
+You must prepare teh target envirinment to be ready to publish the app.
+
+Which four commands should you run in sequence?
+
+`New-AzWebApp`
+`Publish-AzWebApp`
+`Start-AzWebAppSlot`
+`New-AzWebAppSlot`
+`New-AzAppServicePlan`
+`New-AzResourceGroup`
+
+---
+
+### Answer:
+
+`New-AzResourceGroup`
+`New-AzAppServicePlan`
+`New-AzWebApp`
+`New-AzWebAppSlot`
+
+
+This sequnece is self-explanatory.
+Thecommand `New-AzWebAppSlot` create a slot dor the app to be published into
+so that testers can test the app on this test slot before rolling it out to 
+production with a swap.
+
+The remaining options:
+
+`Publish-AzWebApp`:
+this cmdlet performs the upload of the zip with the binary files to an existing App Service Slot.
+
+`Start-AzWebAppSlot`:
+Thsi cmdlet can b used to control teh state of a web app lot to initiate teh start process.
+
+---
+
+### References:
+
+[New-AzWebAppSlot](https://learn.microsoft.com/en-us/powershell/module/az.websites/new-azwebappslot?view=azps-11.4.0)  
+creates an Azure Web App Slot in a given a resource group that uses the specified App Service plan and data center
+
+[Publish-AzWebApp](https://learn.microsoft.com/en-us/powershell/module/az.websites/publish-azwebapp?view=azps-11.4.0)   
+Deploys an Azure Web App from a ZIP, JAR, or WAR file using zipdeploy.
+
+[Start-AzWebAppSlot](https://learn.microsoft.com/en-us/powershell/module/az.websites/start-azwebappslot?view=azps-11.4.0)   
+
+---
+
+## Q121:
+
+You administer an Azure Web App called `wapp1`.
+The app hosts a public website for your company.
+The Marketuing department publishes over 35 GB of images, audio and video files.
+You notice that follwing this publish event the backup of teh app has stopped working.
+
+You must resolve the issue and minimize teh effort.
+
+Which two actions should you perform?
+
+- perform a backup to an on-premise backup solution
+- configure an operational backup for Azure Blobs
+- perform a backup using a snapshot
+- move images, audio and video files to Azure Storage
+
+---
+
+### Answer:
+
+- move images, audio and video files to Azure Storage
+- configure an operational backup for Azure Blobs
+
+App Servervice in Basic, Standard, Premium, and Isolated tiers provides: 
+
+- custom on-demand manual backup
+- or on a schedule basis backup
+
+You can restore a backup: 
+
+- by overwriting an existing app 
+- by restoring to a new app or slot
+
+The remaining options do not apply:
+
+- perform a backup using a snapshot:
+this deons not minimize cost and effort
+
+- perform a backup to an on-premise backup solution:
+this deons not minimize cost and effort
+
+
+---
+
+For App Service Environments:
+
+- Automatic backups can be restored to a target app within the App Service environment itself, not in another App Service environment.
+
+- Custom backups can be restored to a target app in another App Service environment, such as from App Service Environment v2 to App Service Environment v3.
+
+- Backups can be restored to target app of the same OS platform as the source app.
+
+---
+
+> Back up & restore vs. disaster recovery:
+
+- Disaster recovery guidance:
+Bring App Service resources back online in a different Azure region during a regional disaster.
+
+> Automatic vs. custom backups:
+
+There are two types of backups in App Service. 
+[ Premium, Isolated.	Basic, Standard, Premium, Isolated.]
+
+- Automatic backups 
+made for your app regularly as long as it's in a supported pricing tier. 
+Backup size	30 GB
+Linked database	Not backed up.
+Storage account required:	No.	
+Backup frequency:	Hourly, not configurable
+Downloadable:	No.	
+Backups over VNet: Not supported.
+
+- Custom backups 
+require initial configuration, and can be made on-demand or on a schedule. 
+Backup size	10 GB, 4 GB of which cab be the linked to a database.
+
+Linked database > The following linked databases can be backed up:
+ - SQL Database
+ - Azure Database for MySQL
+ - Azure Database for PostgreSQL
+ - MySQL in-app
+
+Storage account required: Yes.
+Backup frequency:	Configurable.
+Downloadable:	Yes, as Azure Storage blobs.
+Backups over VNet:	Supported.
+
+---
+
+### References:
+
+[Back up and restore your app in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/manage-backup?tabs=portal)    
+
+Azure Backup allows you to configure operational and vaulted backups to protect **block blobs** in your storage accounts. 
+
+
+
+---
+
+[Configure and manage backup for Azure Blobs using Azure Backup](https://learn.microsoft.com/en-us/azure/backup/blob-backup-configure-manage?tabs=operational-backup)   
+
+> Operational backup:
+
+Operational backup of blobs is a local backup solution that maintains data for a specified duration in the source storage account itself. This solution doesn't maintain an additional copy of data in the vault. This solution allows you to retain your data for restore for up to 360 days. Long retention durations may, however, lead to longer time taken during the restore operation.
+
+The solution can be used to perform restores to the source storage account only and may result in data being overwritten.
+
+If you delete a container from the storage account by calling the Delete Container operation, that container can't be restored with a restore operation. Rather than deleting an entire container, delete individual blobs if you may want to restore them later. 
+**Microsoft recommends enabling soft delete for containers**, in addition to operational backup, to protect against accidental deletion of containers.
+
+Ensure that the `Microsoft.DataProtection` provider is registered for your subscription.
+
+> Vaulted backup:
+
+Vaulted backup of blobs is a **managed offsite backup solution** that transfers data to the backup vault and retains as per the retention configured in the backup policy. You can retain data **for a maximum of 10 years**.
+
+Currently, you can use the vaulted backup solution to 
+**restore data to a different storage account only**. 
+
+While performing restores, ensure that the target storage account doesn't contain any containers with the same name as those backed up in a recovery point. If any conflicts arise due to the same name of containers, the restore operation fails.
+
+**Ensure the storage accounts that need to be backed up have cross-tenant** **replication enabled**. You can check this by navigating to:
+`the storage account > Object replication > Advanced settings`. 
+Once here, ensure that the check-box is enabled.
+
+> Grant permissions to the Backup vault on storage accounts:
+
+It requires the **Backup vault to have certain permissions on the SAs** 
+that need to be protectedn the minimum permissions have been consolidated under the `Storage Account Backup Contributor` role.
+
+We recommend you to assign this role to the Backup vault before you configure backup.
+
+> Create a backup policy:
+
+A backup policy defines the schedule and frequency of the recovery points creation, and its retention duration in the Backup vault. 
+
+---
+
 ## Q120:
 
 You manage Azure Workloads for company1.
@@ -26,7 +521,7 @@ You must configure the **Domain Name System (DNS)** record to resolve the issue.
 
 What are two possible options?
 
-- create a Name Server NS record and map it to the IP address og teh WebApp1
+- create a Name Server NS record and map it to the IP address og the WebApp1
 - create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
 - create a PTR (pointer record) and map it to `webapp1.azurewebsites.net`
 - create an A record (Address) and map it to the IP address of WbApp1
@@ -38,13 +533,87 @@ What are two possible options?
 - create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
 - create an A record (Address) and map it to the IP address of WbApp1
 
+The remaining options do not apply:
+
+- create a Name Server NS record and map it to the IP address og the WebApp1
+NS records are used to reference an IP address of a name server that is responsible for hosting the records related to your app. In this scenario, for example, you would query the name server to resolve the IP address of 
+`www.company1.com`.
+**Web Apps do not support NS record types**!
+
+- create a PTR (pointer record) and map it to `webapp1.azurewebsites.net`
+PTR records are used to resolve the IP address to a hostname: IP > HOSTNAME.
+This is **the inverse procedure** with respect what you need to do in this 
+case. Here you want to resolve a HOSTNAME such as `www.company1.com` to the
+IP address that has been assigned to your Azure Web App.
+
 ---
 
 ### References:
 
 [Map an existing custom DNS name to Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain?tabs=root%2Cazurecli)  
 
+The DNS record type you need to add with your domain provider depends on the domain you want to add to App Service.
+
+1. Root domain: contoso.com
+You must use a **A record**. 
+Don't use the CNAME record for the root record (for information, see RFC 1912 Section 2.4).
+
+2. Wildcard	*.contoso.com
+You must use a **CNAME record.**. 
+
+> Prerequisites:
+Your custom domains i.e. `contoso.com`must be in a public DNS zone; 
+private DNS zones are not supported.
+
+> Configure a custom domain:
+
+1. Azure Portal > App Service > Custom Domain > Add CD
+
+2. **TLS/SSL certificate**:
+For TLS/SSL certificate, select App Service Managed Certificate if your app is in Basic tier or higher. 
+If you want to remain in Shared tier, or if you want to use your own certificate, select Add certificate later.
+
+3. TLS/SSL type, select the binding type you want:
+> type IP SSL: 
+Only one IP SSL binding may be added. This option allows only one TLS/SSL certificate to secure a dedicated public IP address. 
+
+> type SNI (Server Name Indication) SSL: 
+Multiple SNI SSL bindings may be added. This option allows multiple TLS/SSL certificates to secure multiple domains on the same IP address. Most modern browsers (including Internet Explorer, Chrome, Firefox, and Opera) support SNI
+
+4. Domain:
+specify a fully qualified domain name you want based on the domain you own. 
+The Hostname record type box defaults to the recommended DNS record to use, depending on whether the domain is:
+> a root domain (like contoso.com), > use a A record
+> a subdomain (like www.contoso.com, or a wildcard domain *.contoso.com). > use a CNAME record
+
+5. Don't select Validate yet.
+
+6. For each custom domain in App Service, you need two DNS records with your domain provider. 
+
+7. TXT Record:
+[Prevent dangling DNS entries and avoid subdomain takeover](https://learn.microsoft.com/en-us/azure/security/fundamentals/subdomain-takeover)  
+
+While it's not absolutely required to add the TXT record, 
+**it's highly recommended for security**. 
+The TXT record is a domain verification ID that helps avoid subdomain takeovers from other App Service apps. 
+For custom domains you previously configured without this verification ID, you should protect them from the same risk by adding the verification ID (the TXT record) to your DNS configuration.
+
+> Create the DNS records on your DNS Provider:
+Select the type of record to create and follow the instructions. 
+You can use either a CNAME record or an A record to map a custom DNS name to App Service as explained above. 
+**When your function app is hosted in a Consumption plan, only the CNAME option is supported. This implies that with teh Consumption Paln only root domain are supported.**
+
+> Validate and complete:
+Azure Portal > App Service > Custom Domain > Back in the Add custom domain dialog in the Azure portal, select Validate.
+
+
+---
+
 [AZ-104: Deploy and manage Azure compute resources  Configure Azure App Service / Create custom domain names](https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/8-create-custom-domain-names)
+
+---
+
+[Overview of DNS zones and records](https://learn.microsoft.com/en-us/azure/dns/dns-zones-records)  
 
 ---
 
