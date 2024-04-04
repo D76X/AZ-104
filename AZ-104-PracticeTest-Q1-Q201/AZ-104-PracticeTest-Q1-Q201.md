@@ -15,6 +15,43 @@
 
 ---
 
+## Q133:
+
+Your company maintains two subscriptions named s1 and s2.
+These are associated to the Microsoft Entra ID t1 and t2 respectively.
+
+s1 contains three VNets: vnet1-1, vnet1-2, vnet1-3
+s2 contains two   VNets: vnet2-1, vnet2-2
+
+You need to use VNet peering to manage communication between the VNets.
+
+Which VNets can be peered with vnet1-1?
+
+- vnet2-1 only
+- vnet2-2 only
+- vnet1-2, vnet1-3 only
+- vnet1-1, vnet1-2, vnet2-1, vnet2-2
+
+---
+
+### Answer:
+- vnet1-1, vnet1-2, vnet2-1, vnet2-2
+
+Peering between VNets can be configured between any VNet even 
+accross Azure subscriptions and tenants and/or on-prem networks.
+It can also be configured **accross regions**.
+
+There are two types of VNet peering:
+- Virtual network peering: Connecting virtual networks within the same Azure region.
+
+- Global virtual network peering: Connecting virtual networks across Azure regions.
+
+---
+
+### References:
+
+---
+
 ## Q132:
 
 You company's Azure subscription contains three VNets: `vnet1`, `vnet2`, `vnet3`.
@@ -34,15 +71,109 @@ Select yes/no:
 
 ### Answer:
 
+- you should configure allow gateway transit in the `vnet2` peering connection only
+yes
+
+- you should configure allow forwarding traffic transit in the `vnet2` peering connection only
+no
+
+- you should configure use remote gateways in the `vnet1` and `vnet3`  peering connection only
+yes
+
+This makes it possible for the spokes to communicate through the Hub.
+
+You must **allow gateway transit** in the Hub node: `vnet2`
+You must **use remote gateways** in the spokes: `vnet1` & `vnet3`
+You must **allow forward traffic** in the spokes: `vnet1` & `vnet3` NOT in the hub!
+
 ---
 
 ### References:
+
+[Hub-spoke network topology in Azure](https://learn.microsoft.com/en-us/azure/architecture/networking/architecture/hub-spoke?tabs=cli)   
+
+This topology is useful for when you want to isolate a virtual network 
+but still want it to have connectivity to common resources in the 
+hub virtual network.
+
+**By default, this connectivity is only for virtual networks in the same region**. 
+To allow connectivity across different Azure regions, you need to enable **Global mesh**. 
+
+You can also **enable Gateway transit** to 
+**allow spoke virtual networks to use the VPN or ExpressRoute gateway deployed in the hub**.
+
+> Hub virtual network:
+
+The hub virtual network hosts shared Azure services. 
+Workloads hosted in the spoke virtual networks can use these services. 
+The hub virtual network is the central point of connectivity for cross-premises networks.
+
+> Spoke virtual networks:
+
+Spoke virtual networks isolate and manage workloads separately in each spoke. 
+Each workload can include multiple tiers, with multiple subnets connected 
+through Azure load balancers. 
+Spokes can exist in different subscriptions and represent different environments, 
+such as Production and Non-production.
+
+> Virtual network connectivity:
+his architecture connects virtual networks by using 
+
+- peering connections 
+
+- or connected groups:
+[connected groups](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#connected-group)  
+A virtual network can be part of up to two connected groups.
+Virtual networks in a connected group can communicate to each other just like if 
+you were to connect virtual networks together manually. 
+Virtual networks connected together in a connected group 
+**don't have a peering configuration listed** under Peerings for the virtual network.
+
+> [Use hub as a gateway](https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-connectivity-configuration#use-hub-as-a-gateway)    
+
+You can also enable Gateway transit to allow spoke virtual networks to use the VPN or ExpressRoute gateway deployed in the hub.
+Each virtual network, including a peered virtual network, can have its own gateway. 
+A virtual network can use its gateway to connect to an on-premises network.
+
+---
+
+[Configure VPN gateway transit for virtual network peering](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-peering-gateway-transit)  
+
+Virtual network peering seamlessly connects two Azure virtual networks, 
+merging the two virtual networks into one for connectivity purposes. 
+
+Gateway transit is a peering property that lets one virtual network use the
+VPN gateway in the peered virtual network for cross-premises or VNet-to-VNet 
+connectivity.
+
+<img src="./Q132-1.png">
+
+> Motivation:
+
+**In hub-and-spoke network architecture**, gateway transit allows spoke virtual networks to share the VPN gateway in the hub, instead of deploying VPN gateways in every spoke virtual network. 
+
+```
+$SpokeRG = "SpokeRG1"
+$SpokeRM = "Spoke-RM"
+$HubRG   = "HubRG1"
+$HubRM   = "Hub-RM"
+
+$spokermvnet = Get-AzVirtualNetwork -Name $SpokeRM -ResourceGroup $SpokeRG
+$hubrmvnet   = Get-AzVirtualNetwork -Name $HubRM -ResourceGroup $HubRG
+
+Add-AzVirtualNetworkPeering -Name SpokeRMtoHubRM -VirtualNetwork $spokermvnet -RemoteVirtualNetworkId $hubrmvnet.Id -UseRemoteGateways
+
+Add-AzVirtualNetworkPeering -Name HubRMToSpokeRM -VirtualNetwork $hubrmvnet -RemoteVirtualNetworkId $spokermvnet.Id -AllowGatewayTransit
+```
 
 ---
 
 ## Q131:
 
 You have two VMs running Windows as shown in the first exhibit.
+
+<img src="./Q131-exhibit.png">
+
 You create a VNet peering by executing the following:
 
 ```
@@ -53,7 +184,7 @@ Add-AzVirtualNetworkPeering -Name `vnet1-vnet2` `
 -RemoteVirtualNetwork $vnet2.Id 
 ```
 
-The peering overview of VNet1 is shown in teh second exhibit.
+The peering overview of VNet1 is shown in the second exhibit.
 
 You open the local Windows Firewall by running the following on both VMs:
 
@@ -77,6 +208,36 @@ What should you do?
 ---
 
 ### Answer:
+- add a VNet peering from vnet2 to vnet1
+
+VNet peering requires both channels in both directions:
+VNet1-VNet2 & VNet2-VNet1
+
+The exhibit shows that the status of the peering `VNet1-VNet2` is `initiated`
+but in order to be working the status should progress to `connected`.
+This will happen when the `VNet2-VNet1` sideof teh peering is also created and
+set up.
+
+When you create a Vnet peering from the Azure Portal this option is available
+in the form a check box. By clicking it the Portal will create and configure
+both sides of the peering: `VNet1-VNet2` & `VNet2-VNet1`
+
+When the same process is perform with a script you must take care of both sides:
+
+```
+$vnet1 = Get-AzVirtualNetwork -Name 'vnet1' -ResourceGroup 'rg1'
+$vnet2 = Get-AzVirtualNetwork -Name 'vnet2' -ResourceGroup 'rg2'
+
+# vnet1-vnet2
+Add-AzVirtualNetworkPeering -Name `vnet1-vnet2` `
+-VirtualNetwork $vnet1 `
+-RemoteVirtualNetwork $vnet2.Id 
+
+# vnet2-vnet1
+Add-AzVirtualNetworkPeering -Name `vnet2-vnet1` `
+-VirtualNetwork $vnet2 `
+-RemoteVirtualNetwork $vnet1.Id 
+```
 
 ---
 
@@ -117,8 +278,6 @@ For `vnet1` to leverage the `exp-route1` to connect the on-prem network
 `vnet1` must be peered with `vnet2` as `vnet2` holds the link to `exp-route1`
 and then `vnet1` must use the gateway of `vnet2`.
 This gateway is used to reach the on-prem network and therefore the proxy server.
-
-
 
 ---
 
