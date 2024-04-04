@@ -15,6 +15,76 @@
 
 ---
 
+## Q132:
+
+You company's Azure subscription contains three VNets: `vnet1`, `vnet2`, `vnet3`.
+`vnet2` isncludes a **virtual appliance that operates as a router**.
+
+You configure a **VNet hub and spoke topology** that uses `vnet2` as a hub network.
+You must configure communication between `vnet1` and `vnet3`.
+You must keep configuration changes ot a minimum.
+
+Select yes/no:
+
+- you should configure allow gateway transit in the `vnet2` peering connection only
+- you should configure allow forwarding traffic transit in the `vnet2` peering connection only
+- you should configure use remote gateways in the `vnet1` and `vnet3`  peering connection only
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q131:
+
+You have two VMs running Windows as shown in the first exhibit.
+You create a VNet peering by executing the following:
+
+```
+$vnet1 = Get-AzVirtualNetwork -Name 'vnet1' -ResourceGroup 'rg1'
+$vnet2 = Get-AzVirtualNetwork -Name 'vnet2' -ResourceGroup 'rg2'
+Add-AzVirtualNetworkPeering -Name `vnet1-vnet2` `
+-VirtualNetwork $vnet1 `
+-RemoteVirtualNetwork $vnet2.Id 
+```
+
+The peering overview of VNet1 is shown in teh second exhibit.
+
+You open the local Windows Firewall by running the following on both VMs:
+
+`New-NetFirewallRule -DisplayName 'Enable ping' -Protocol 'ICMPv4'`
+
+a ping from VM1 to the private IP address VM2 fails.
+
+You must make sure that VM1 can connet to VM2.
+
+What should you do?
+
+- create a VNet gateway
+- use the public IP address to connect
+- move VM2 to East US region
+- add a VNet peering from vnet2 to vnet1
+- modify the vnet addres space of Vnet2
+- create a NSG and associate both subnets to the NSG
+- create a VNet gateway
+- move VM2 to the East US region
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
 ## Q130:
 
 You must configure a subnet named `subnet1` that is part of a Vnet named `vnet1`.
@@ -46,11 +116,140 @@ Which two actions should you perform?
 For `vnet1` to leverage the `exp-route1` to connect the on-prem network
 `vnet1` must be peered with `vnet2` as `vnet2` holds the link to `exp-route1`
 and then `vnet1` must use the gateway of `vnet2`.
-This gateway is used to reach the on-prem network.
+This gateway is used to reach the on-prem network and therefore the proxy server.
+
+
 
 ---
 
 ### References:
+
+[Virtual network peering](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview)    
+[What is Azure ExpressRoute?](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction)   
+[About ExpressRoute virtual network gateways](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-about-virtual-network-gateways)   
+[Connect a virtual network to ExpressRoute circuits using the Azure portal](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-howto-linkvnet-portal-resource-manager?pivots=expressroute-current)   
+
+---
+
+[About ExpressRoute virtual network gateways](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-about-virtual-network-gateways)   
+
+To o connect your Azure virtual network and your on-premises network using ExpressRoute, 
+**you must first create a virtual network gateway**. 
+
+**A virtual network gateway serves two purposes**: 
+
+1. exchange IP routes between the networks and route network traffic. 
+This article explains different gateway types, gateway SKUs, and estimated performance by SKU. 
+
+2. **ExpressRoute FastPath**:
+This article also explains **ExpressRoute FastPath**, a feature that enables the network traffic 
+from your on-premises network to bypass the virtual network gateway to improve performance.
+
+> Gateway Types:
+`-GatewayType`: specifies whether the gateway is used for 
+Each virtual network can have only one virtual network gateway per gateway type.
+
+- VPN traffic:
+aka Site-to-Site, Point-to-Site, and VNet-to-VNet connection
+to send **encrypted** traffic across the public Internet
+
+- ExpressRoute:
+to send network traffic on a private connection
+
+> Gateway SKU: 
+When you create a virtual network gateway, you need to specify the gateway SKU.
+
+- ERGwScale (Preview)
+- Standard
+- HighPerformance
+- UltraPerformance
+- ErGw1Az
+- ErGw2Az
+- ErGw3Az
+
+The SKU controls the following specs: 
+
+- Express route coexistence: yes/no
+- FastPath Feature: yes/no
+- Max number of circuit connections: 4, 8, 16
+- Bandwith Gbps: 1, 2, 10 
+- Connections per seconds x1000: 7, 14, 16 
+
+> Gateway subnet:
+Before you create an ExpressRoute gateway, you must create a gateway subnet named `GatewaySubnet`.
+Is is recommended that you create a gateway subnet of **/27 or larger**. 
+The gateway subnet contains the IP addresses that the virtual network gateway VMs and services use.
+Never deploy anything else into the gateway subnet.
+
+> Zone-redundant gateway SKUs:
+You can also deploy ExpressRoute gateways in Azure Availability Zones. 
+his configuration physically and logically separates them into different Availability Zones.
+
+- ErGw1AZ
+- ErGw2AZ
+- ErGw3AZ
+
+> FastPath:
+When enabled, sends network traffic directly to virtual machines in the virtual network, bypassing the gateway
+to improve the data path performance between your on-premises network and your virtual network.
+
+> VNet-to-VNet connectivity:
+By default, connectivity between virtual networks is enabled when you link multiple virtual networks 
+to the same ExpressRoute circuit.
+**Microsoft recommends not using your ExpressRoute circuit for communication between virtual networks.**
+**Instead, we recommend you to use virtual network peering.**
+
+[Connectivity between virtual networks over ExpressRoute](https://learn.microsoft.com/en-us/azure/expressroute/virtual-network-connectivity-guidance)  
+
+When multiple virtual networks are linked to an ExpressRoute circuit, VNet to VNet connectivity is enabled. 
+**Microsoft doesn't recommend this solution.**
+
+An ExpressRoute virtual network gateway gets deployed into each virtual network.
+Then a connection is created between the gateway and the ExpressRoute circuit
+When this connection gets established, connectivity to virtual machines (VMs) and private endpoints are enabled from on-premises. 
+
+**To establish connectivity between virtual networks, VNet peering should be implemented instead for the best performance possible.** 
+
+---
+
+[What is Azure ExpressRoute?](https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction)   
+
+ExpressRoute lets you extend your on-premises networks into the Microsoft cloud 
+over a private connection with the help of a connectivity provider.
+With ExpressRoute, you can establish connections to Microsoft cloud services, such as Microsoft Azure and Microsoft 365.
+
+<img src="./Q130-1.png">
+
+- Layer 3 connectivity between your on-premises network and the Microsoft Cloud (BGP protocol)
+- more reliability + redundancy: two connections to two Microsoft Enterprise edge routers (MSEEs) at an ExpressRoute Location 
+- faster speeds
+- consistent latencies
+- higher security than typical connections over the Internet, because they don’t go over the public Internet. 
+
+> Resiliency
+
+Microsoft offers multiple ExpressRoute peering locations in many geopolitical regions. For maximum resiliency, 
+Microsoft recommends that you establish connection to two ExpressRoute circuits in two peering locations.
+
+ If **ExpressRoute Metro** is available with your service provider and in your preferred peering location, 
+ you can achieve a higher level of resiliency compared to a **standard ExpressRoute circuit**.
+
+**For non-production and non-critical workloads**, you can achieve standard resiliency by connecting 
+to a single ExpressRoute circuit that offers redundant connections within a single peering location.
+
+---
+
+[Virtual network peering](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview)    
+Virtual network peering enables you to seamlessly connect two or more Virtual Networks in Azure.
+The virtual networks appear as one for connectivity purposes.
+The traffic between virtual machines in peered virtual networks uses the Microsoft backbone infrastructure. 
+Like traffic between virtual machines in the same network, traffic is routed through Microsoft's private network only.
+
+There are two types of VNet peering:
+- Virtual network peering: Connecting virtual networks within the same Azure region.
+- Global virtual network peering: Connecting virtual networks across Azure regions.
+
+This subject was examined in detail in one of the previous questions.
 
 ---
 
@@ -71,8 +270,6 @@ What should you do?
 - create a private zone in Azure DNS
 - add service endpoints to each VNet
 - deploy DNS servers in each VNet and add their private IP addresses to the DNS server list
-
-
 
 ---
 
@@ -96,11 +293,13 @@ The remaining options do not apply:
 - add service endpoints to each VNet
 - deploy DNS servers in each VNet and add their private IP addresses to the DNS server list
 
-
-
 ---
 
 ### References:
+
+[AZ-700-Azure DNS Private Resolver Deep Dive - John Savill](https://www.youtube.com/watch?v=V8ChsYAyxTc&t=236s)    
+
+--- 
 
 [Name resolution for resources in Azure virtual networks](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat)    
 
@@ -276,7 +475,7 @@ different cloud services have different DNS suffixes.
 
 3. [What is Azure DNS Private Resolver?](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview)  
 
-[Azure DNS Private Resolver Deep Dive](https://www.youtube.com/watch?v=V8ChsYAyxTc&t=236s)    
+[AZ-700-Azure DNS Private Resolver Deep Dive - John Savill](https://www.youtube.com/watch?v=V8ChsYAyxTc&t=236s)    
 
 Azure DNS Private Resolver is a service that enables you to query Azure DNS private zones 
 **from an on-premises environment and vice versa without deploying VM based DNS servers**.
