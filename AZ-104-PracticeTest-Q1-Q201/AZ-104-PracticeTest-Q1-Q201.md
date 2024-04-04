@@ -11,6 +11,36 @@
 
 ---
 
+## Q136:
+
+you manage VNets in Azure.
+There are the following VMs accross the following VNets:
+
+- vnet1 with address space 10.0.0.0/16
+- vnet2 with address space 10.1.0.0/16
+- vnet3 with address space 10.2.0.0/16
+
+You configure teh VNet Peering on the following VNets:
+
+- vnet1-vnet2
+- vnet2-vnet3
+- vnet3-vnet2
+
+You must determine if VMs in a specific VNet can communicate with the
+VMs in the other VNets.
+
+Azure VMs on vnet1 can conect to VMs on: OPTIONS
+Azure VMs on vnet2 can conect to VMs on: OPTIONS
+Azure VMs on vnet3 can conect to VMs on: OPTIONS
+
+---
+
+### Answer:
+
+
+
+---
+
 ### References:
 
 ---
