@@ -15,6 +15,106 @@
 
 ---
 
+## Q135:
+
+You manage an Azure SA named `sa1`, this is used exclusively by 
+an Azure VM which uses a VNet named `vnet1` that is configured
+as shown below:
+
+- `vnet1` has address range 10.0.0.0/16
+- `appsubnet` has address range 10.0.0.0/24 in `vnet1`
+- `storagesubnet` has address range 10.0.1.0/24 in `vnet1`
+
+The VM is configured to use `appsubnet`.
+To meet a security requirement you must secure `sa1` to allow only network 
+connection that originates from `storagesubnet`.
+All resources are in a RG named `rg1`.
+
+You must configuer a network access rule to meet the requirement.
+
+```
+OPTIONS-1 -ResourceGroupName `rg1` -Name 'sa1' -DefaultAction Deny
+
+Get-AzVirtualNetwork -ResourceGroupName `rg1` -Name 'vnet1' | `
+OPTIONS-2 -Name 'OPTIONS-3' `
+-AddressPrefix "OPTIONS-4" `
+-ServiceEndpoint 'Microsoft.Storage' | Set-AzVirtualNetwork
+
+$subnet = Get-AzVirtualNetwork -ResourceGroupName `rg1` -Name 'vnet1' | ` 
+Get-AzVirtualNetworkSubnetConfig -Name -Name 'OPTIONS-5' | `
+
+OPTIONS-6 -ResourceGroupName `rg1` -Name 'sa1' `
+-VirtualNetworkResourceId $subnet.Id
+```
+
+OPTIONS-1/2/6:
+Add-AzStorageAccountNetworkRule
+Update-AzStorageAccountNetworkRuleSet
+Set-AzVirtualNetworkSubnetConfig
+
+OPTIONS-3/5:
+appsubnet
+storagesubnet
+
+OPTIONS-4:
+10.0.0.0/16
+10.0.0.0/24
+10.0.1.0/24
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+## Q134:
+
+You have an Azure VM named `vm1`.
+The networking blade of `vm1` is shown in the exhibit.
+
+<img src="./Q134-1.png">
+
+You want to connect to a web app running on port 80 in `vm1` 
+over the Internet.
+
+What should you do firts?
+
+- create a NSG and associate it with the subnet in the `0419b-vnet` VNet
+- enable just-in-time access on vm1
+- enable accelerated networking
+- create a public IP and associate it with the IP configuration of `ipconfig1`
+
+---
+
+### Answer:
+- create a public IP and associate it with the IP configuration of `ipconfig1`
+
+The `vm1` NIC `vm166` does not have a public IP in the configuration `ipconfig1`.
+Inbound communication from the Internet requires such IP address.
+
+The remaining options do not apply:
+
+- enable accelerated networking:
+this is to enhance network performance but it does not solve the problem
+
+- create a NSG and associate it with the subnet in the `0419b-vnet` VNet
+this is to enhance network security but it does not solve the problem
+
+- enable just-in-time access on vm1
+this is partof **access control** but will not solve the problem
+
+
+---
+
+### References:
+
+---
+
 ## Q133:
 
 Your company maintains two subscriptions named s1 and s2.
