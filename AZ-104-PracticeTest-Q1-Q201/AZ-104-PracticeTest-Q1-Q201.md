@@ -13,6 +13,243 @@
 
 ### References:
 
+
+---
+
+## Q146:
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+## Q145:
+
+You have an Azure VNet anemd `vnet1` with IPAS 10.2.0.0/22.
+vnet1 conyains `subnet1` with IPAS 10.2.0.0/24.
+subnet1 contains an Azure Windows 10 VM `vm1`.
+The NIC of vm1 does not have a public IP.
+
+You must implement **Azure Bastion** and connect to vm1 using
+RDP from the Internet.
+
+Which three actions do you perform in a sequence?
+
+- connect vm1 using RDP client
+- create a subnat named BastionSubnet and IPAS 10.2.0.2/28
+- create a subnat named AzureBastionVNet and IPAS 10.3.0.0/22
+- create a subnat named AzureBastionSubnet and IPAS 10.2.1.0/26
+- cerate a bastion and assign the existing relevant subnet
+- add a public Satndard SKU IP to vm1 
+- connect to  vm1 using teh Azure Portal in web browser
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+## Q144:
+
+You have four VMs in Azure all connected to teh same `subnet1`.
+The VMNs host applications exposed to the Internet.
+A NSG is associated to the subnet.
+The output of the command `AzNetworkSecurityRuleConfig` is 
+shown in the exhibit.
+
+
+<img src="./Q144-1.png">
+
+The VMs can be accessed by RDP.
+The security department approves RDP connection only from a specific range of IP addresses.
+You notice RDP connections from non-approved IP addresses are still possible.
+
+You must correct this issue.
+
+What should you do?
+
+- modify rule2 of nsg1 and set the source to teh approved address range
+- delete rule3 of nsg1
+- modify rule3 of nsg1 and set the source to the approved IP range
+- modify rule1 of nsg1 and set the source to the approved IP range
+- disable the public IP addresses of the VMs NICs
+- create an ASG and associate the VMs with this ASG
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+## Q143:
+
+You have a subnet named `private-subnet1` in a VNet named `vnet1`.
+The NSG `nsg1` is shown in the exhibit and is applied to `private-subnet1`.
+
+<img src="./Q143-1.png">
+
+The organization has various teams that have their own VNet in Azure.
+The VNets are ALL peered with `vnet1` and have NSGs that allow ALL ports to reach the `private-subnet1`.
+All the Vnet are configured with IP addresses from the range 10.0.0.0/8.
+
+A DNS is hosted on `private-subnet1` and listens for requests on port 53.
+
+Various teams in your organization report that are delays in resolving
+DNS names using the DNS server.
+
+You must resolve the issue.
+What should you do?
+
+- change the priority of the DNS rule to 100
+- delete the DNS-Deny rule from `nsg1`
+- change the port for the DNS rule to Any
+- change the protocol for the DNS rule to Any
+
+---
+
+### Answer:
+- change the port for the DNS rule to Any
+
+In the exhibit you see that the DNS rule is defined with protocol
+set to TCP while the DNS-Deny is set to Any.
+
+The teams report that are delays in teh DNS resolution, that is
+the DNS eventually resolves the URL to an IP but it takes longer 
+that it should be.
+
+This is the case due to teh fact that DNS resolution is carried out
+with UDP (User Datagram Protocol) as the **primary** protocol, as it is faster than TCP, thus the DNS-Deny rule will be matched for the UDP traffic instead of the DNS rule therefore blocking the primary traffic fro DNS resolution.
+
+DNS is designed to be robust therefore it tries to resolve also over TCP and this time it succeeds as this traffic matches the DNS rule on teh NSG for teh subnet of teh DNS Server.
+
+
+---
+
+### References:
+
+
+---
+
+## Q142:
+
+The Azure subscription is named `subA`.
+You are configuring a Linux VM to be used as a SFTP Server. 
+Secure File Transfer Protocol requires SSH port 22.
+
+The SFTP server has to be accessable over the Internet 
+and 
+allow only SSH calls from IP addresses in the range 151.112.10.0/24.
+
+The NIC for the VM si dynamically assigned a private IP address from its subnet.
+
+The subnet that hosts the VM must:
+
+- allow HTTP (80)
+- allow HTTPS (443)
+- block SSH (port 22) from 151.112.10.0/24 as there are also other servers on the same subnet
+
+How shold you configure the VM?
+
+- configure a NSG on the VM NIC to allow inbound SSH from 151.112.10.0/24
+- configure a NSG on the subnet to allow inbound SSH from 151.112.10.0/24
+- configure a NSG on the VM NIC to allow SSH from the Internet
+- configure a NSG on the VM NIC to deny HTTP and HTTPS
+
+---
+
+### Answer:
+- configure a NSG on the VM NIC to allow inbound SSH from 151.112.10.0/24
+
+This answer is obvious as the NSG applied to the subnet that provides 
+the SFTP Server VM NIC with a private IP address has a NSG rule to: 
+block SSH (port 22) from 151.112.10.0/24 as there are also other servers on the same subnet
+
+This rule must be overridden at the VM NIC's level.
+
+
+---
+
+### References:
+
+
+---
+
+## Q141:
+
+You host a LOB app on a VNet in Azure.
+A S2S VPN links the on-prem environment with Azure VNet.
+
+You plan to use a NSG to restric inbound traffic into the 
+VNet following the IPv4 address ranges:
+
+192.168.2.0/24
+192.168.4.0/24
+192.168.8.0/24
+
+Solution requirements:
+
+1. limit rule scope to the three IPv4 address ranges above
+2. minimize the number of NSG rules
+3. minimize future admin management effort
+
+What should you do?
+
+- pass the IPv4 range 192.168.0.0/22 into the NSG rule
+- pass the IPv4 ranges into the NSG rule as comma-separated list
+- define a NSG rule that includes the VirtualNetwork service tag
+- define three NSG rules one for each IPv4 range
+
+---
+
+### Answer:
+- pass the IPv4 ranges into the NSG rule as comma-separated list
+
+It is possible to use comma-separated list of IPv4 ranges in the 
+source IP of 
+
+> security rule:
+- Name
+- Priority: between 100 and 4096.
+- Protocol: TCP, UDP, ICMP, ESP, AH, or Any.
+- Direction: inbound | outbound
+- Action: allow | deny
+
+- Source OR Destination: 
+Any, or an individual IP address, classless inter-domain routing (CIDR) block (10.0.0.0/24, for example), service tag, or application security group.
+Fewer security rules are needed when you specify a range, a service tag, or application security group. 
+
+- Port range: i.e.  80 or 10000-10005 
+Specifying ranges enables you to create fewer security rules. 
+
+---
+
+### References:
+
+[How network security groups filter network traffic](https://learn.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)    
+
+[Augmented security rules](https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview#augmented-security-rules)    
+
+You can combine multiple ports and multiple explicit IP addresses and ranges into a single, easily understood security rule. 
+Use augmented rules in the source, destination, and port fields of a rule. 
+There are limits to the number of addresses, ranges, and ports that you can specify in a rule. 
+
 ---
 
 ## Q140:
@@ -363,7 +600,80 @@ This multiuse enables multiple connections to the same destination IP with the s
 
 ---
 
-[]
+[How does default SNAT work?](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections#how-does-default-snat-work)  
+
+When a VM creates an outbound flow, Azure translates the source IP address to an **ephemeral IP address**. 
+
+This translation is done via SNAT:
+
+> SOURCE IP ADDRESS -> EPHEMERAL IP ADDRESS
+
+If using SNAT **without outbound rules** via a public load balancer, 
+SNAT ports are pre-allocated as described in the following 
+**default SNAT ports allocation table**:
+
+- load balancing rules are selected to use default port allocation 
+OR
+- outbound rules are configured with "Use the default number of outbound ports", 
+
+SNAT ports are allocated by default based on the backend pool size. 
+Backends will receive the number of ports defined by the table, 
+per frontend IP, up to a maximum of 1024 ports.
+
+> Example:
+
+with 100 VMs in a backend pool and only one frontend IP
+each VM will receive 512 ports: 512/vm
+If a second frontend IP is added
+each VM will receive an additional 512 ports: 1024 / vm
+- exhaustion:
+As a result, adding a third frontend IP **will NOT increase** 
+the number of allocated SNAT ports beyond 1024 ports.
+
+```
+MIN
+(
+  #default SNAT ports provided based on pool size * number of frontend IPs associated with the pool, 
+  1024
+)
+```
+Default SNAT table
+Pool size (VM instances)	Default SNAT ports
+1-50	          : 1,024
+51-100	        : 512
+101-200	        : 256
+201-400	        : 128
+401-800	        : 64
+801-1,000	       : 32
+
+---
+
+[2. Associate a NAT gateway to the subnet](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections)  
+
+<img src="./Q137-3.png">
+
+**Azure NAT Gateway simplifies outbound-only Internet connectivity** 
+for virtual networks. 
+
+When configured on a subnet, all outbound connectivity uses your specified static public IP addresses. 
+
+Outbound connectivity is possible without load balancer or public IP addresses directly attached to virtual machines. NAT Gateway is fully managed and highly resilient.
+
+Using a NAT gateway is the best method for outbound connectivity. 
+A NAT gateway is highly extensible, reliable, and 
+**doesn't have the same concerns of SNAT port exhaustion**.
+
+---
+
+[3. Assign a public IP to the virtual machine](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections#3-assign-a-public-ip-to-the-virtual-machine)  
+This is the least secure solution and it is also much harder to maintain.
+
+> default outbound access:
+
+In Azure, virtual machines created in a virtual network without explicit outbound connectivity defined are assigned a default outbound public IP address.
+This IP address enables outbound connectivity from the resources to the Internet.
+This access is referred to as **default outbound access**.
+**This method of access is not recommended as it is insecure and the IP addresses are subject to change.** 
 
 ---
 
@@ -442,10 +752,7 @@ $nic | Set-AzNetworkInterface
 ---
 
 
-
-
 ---
-
 
 [IP flow verify overview](https://learn.microsoft.com/en-us/azure/network-watcher/ip-flow-verify-overview)   
 
