@@ -2,12 +2,505 @@
 
 ---
 
-## Q13X:
+## Q14X:
 
 
 ---
 
 ### Answer:
+
+---
+
+### References:
+
+---
+
+## Q140:
+
+You configure a NSG, the default security rules are already in place.
+
+You must configure the NSG to support the following traffic into the
+subnet from the Internet:
+
+- RDM: Remote Desktop Management 
+- HTTPS
+- HTTP
+
+Which three ports should you configure in teh NSG configuration?
+
+- 3389
+- 21
+- 443
+- 80
+- 53
+
+---
+
+### Answer:
+
+- 3389 : RDP
+- 443  : HTTPS
+- 80   : HTTP
+
+The remaining options do not apply:
+
+- 21 : Telnet
+- 53 : FTP
+
+---
+
+### References:
+
+[Port Assignments for Well-Known Ports](https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959828(v=technet.10))  
+
+---
+
+## Q139:
+
+you have an Azure VNet named `vnet1` with a subnet named `subnet1`.
+there are three Windows Server 2019 VMs in `subnet1`. 
+You must design a NSG that blocks inbound RDP traffic into `subnet1`.
+
+How should you configure the NSG?
+
+source: ?
+desitnation: ?
+desitnationport ranges: ?
+
+OPTIONS: 
+Service Tag | 3389 | Any | Internet | Azure Cloud |
+App Security Group | 5985 (WinRM: Windows Remote Manager)
+
+---
+
+### Answer:
+
+source: Internet
+desitnation: Any
+desitnationport ranges: 3389
+
+I think this is the correct solution.
+
+The author instead uses: 
+source: Service Tag
+
+which I do not think is the correct option in this specific case.
+
+
+---
+
+### References:
+
+
+[Network security groups](https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview)    
+
+[Tutorial: Filter network traffic with a network security group using the Azure portal](https://learn.microsoft.com/en-us/azure/virtual-network/tutorial-filter-network-traffic)    
+
+[Troubleshoot Remote Desktop connections to an Azure virtual machine](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/troubleshoot-rdp-connection)  
+
+---
+
+## Q138:
+
+you configure a NSG to:
+- allow RDP connectivity 
+- HTTP traffic from the Internet
+
+the NSG will be created for resuse on multiple VMs subnets in the same subscription.
+
+Complete the script:
+
+```
+$rule1 = OPTIONS -Name rdp -Description "allor rdp" `
+-Access Allow Protocol Tcp -Direction Inbound `
+-Priority 100 `
+-SourceAddressPrefix Internet `
+-SourceAddressPortRange * `
+-DestinationAddressPortRange 3389 `
+
+$rule2 = OPTIONS -Name web -Description "allor http"
+-Access Allow Protocol Tcp -Direction Inbound `
+-Priority 101 `
+-SourceAddressPrefix Internet `
+-SourceAddressPortRange 80 `
+-DestinationAddressPortRange * `
+
+$nsg = OPTIONS -ResourceGroupName rg1 -Location westus `
+-Name "nsg-frontend" -SecurityRules $rule1, $rule2
+```
+
+OPTIONS:
+New-AzNetworkSecurityGroup
+Set-AzNetworkSecurityGroup
+New-AzNetworkSecurityGroupRuleConfig
+Set-AzNetworkSecurityGroupRuleConfig
+New-AzNetworkInterfaceIpConfig
+
+---
+
+### Answer:
+
+```
+$rule1 = New-AzNetworkSecurityGroupRuleConfig -Name rdp -Description "allor rdp" `
+-Access Allow Protocol Tcp -Direction Inbound `
+-Priority 100 `
+-SourceAddressPrefix Internet `
+-SourceAddressPortRange * `
+-DestinationAddressPortRange 3389 `
+
+$rule2 = New-AzNetworkSecurityGroupRuleConfig -Name web -Description "allor http"
+-Access Allow Protocol Tcp -Direction Inbound `
+-Priority 101 `
+-SourceAddressPrefix Internet `
+-SourceAddressPortRange 80 `
+-DestinationAddressPortRange * `
+
+$nsg = New-AzNetworkSecurityGroup -ResourceGroupName rg1 -Location westus `
+-Name "nsg-frontend" -SecurityRules $rule1, $rule2
+```
+
+The remaining options do not apply.
+
+---
+
+### References:
+
+[Set-AzNetworkSecurityGroup](https://learn.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecuritygroup?view=azps-11.4.0)   
+updates a network security group
+
+```
+Get-AzNetworkSecurityGroup -Name "Nsg1" -ResourceGroupName "Rg1" | Add-AzNetworkSecurityRuleConfig -Name "Rdp-Rule" -Description "Allow RDP" -Access "Allow" -Protocol "Tcp" -Direction "Inbound" -Priority 100 -SourceAddressPrefix "Internet" -SourcePortRange "*" -DestinationAddressPrefix "*" -DestinationPortRange "3389" | Set-AzNetworkSecurityGroup
+```
+
+[Set-AzNetworkSecurityRuleConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/set-aznetworksecurityruleconfig?view=azps-11.4.0)
+Updates a network security rule configuration for a network security group.
+
+```
+$nsg = Get-AzNetworkSecurityGroup -Name "NSG-FrontEnd" -ResourceGroupName "TestRG"
+$nsg | Get-AzNetworkSecurityRuleConfig -Name "rdp-rule"
+Set-AzNetworkSecurityRuleConfig -Name "rdp-rule" -NetworkSecurityGroup $nsg -Access "Deny"
+```
+
+---
+
+[New-AzNetworkInterfaceIpConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/new-aznetworkinterfaceipconfig?view=azps-11.4.0)   
+Creates a network interface IP configuration.
+
+[Add-AzNetworkInterfaceIpConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/add-aznetworkinterfaceipconfig?view=azps-11.5.0)  
+Adds a network interface IP configuration to a network interface.
+
+```
+$subnet = New-AzVirtualNetworkSubnetConfig -Name MySubnet -AddressPrefix 10.0.1.0/24
+$vnet = New-AzVirtualNetwork -Name MyVNET -ResourceGroupName MyResourceGroup -Location "West US" -AddressPrefix 10.0.0.0/16 -Subnet $subnet
+
+$nic = New-AzNetworkInterface -Name MyNetworkInterface -ResourceGroupName MyResourceGroup -Location "West US" -Subnet $vnet.Subnets[0]
+
+$asg = New-AzApplicationSecurityGroup -ResourceGroupName MyResourceGroup -Name MyASG -Location "West US"
+
+$nic | Set-AzNetworkInterfaceIpConfig -Name $nic.IpConfigurations[0].Name -Subnet $vnet.Subnets[0] -ApplicationSecurityGroup $asg | Set-AzNetworkInterface
+
+$nic | Add-AzNetworkInterfaceIpConfig -Name MyNewIpConfig -Subnet $vnet.Subnets[0] -ApplicationSecurityGroup $asg | Set-AzNetworkInterface
+```
+
+---
+
+## Q137:
+
+You are an Azure admin and the company uses VMs to host applications.
+You modify the NIC for an Azure VM.
+The VM is a **multi-NIC** with Windows OS.
+Tge CM fails to connect to another Azure VM.
+
+You must troubleshoot this issue with minimal effort.
+What should you do first?
+
+- **use Azure Network Watcher IP flow verify** to determine whether there is a NSG that interferes with the traffic flow
+
+- add a NIC
+- disable the organization firewall
+- redeploy the VM 
+
+
+---
+
+### Answer:
+- add a NIC
+
+the most significant point in this scenario is that the VM is a **multi-NIC** with Windows OS. However, the statement of the question does not say that there are already multiple NIC attached to the VM, it only says that there is one attached NIC and the VM fails to communicate to another VM **after** this NIC has been modified .
+
+In such case, the simplest solution and therefore the solution with minimal effort to troubleshoot the issue is to try to add a second NIC and test whether this second NIC restores the communication.
+
+The next best answer is clealy:
+
+- **use Azure Network Watcher IP flow verify** to determine whether there is a NSG that interferes with the traffic flow
+
+and you would use this after the simpler option above fails.
+
+The remaining optins clearly do not apply as they required much greater effort.
+
+---
+
+### References:
+
+[Troubleshooting connectivity problems between Azure VMs](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-troubleshoot-connectivity-problem-between-vms)    
+
+
+> Troubleshooting guidance
+
+1. Check whether NIC is misconfigured:
+see details below
+
+2. Check whether network traffic is blocked by NSG or UDR
+use Network Watcher IP Flow Verify as described later 
+and Connection troubleshoot (below)
+
+3. Check whether network traffic is blocked by VM firewall
+Disable the firewall, and then test the result.
+Verify the firewall settings, and then re-enable the firewall.
+
+4. Check whether VM app or service is listening on the port
+for VMs and App Services
+```
+# Windows
+netstat –ano
+
+#Linux
+netstat -l
+```
+
+5. Check whether the problem is caused by SNAT:
+Source Network Address Translation (SNAT)
+In scenarios when a VM is placed behind a load balance solution that has a dependency on resources outside of Azure and there is **intermittent** 
+**outbound connectivity**. 
+The problem may be caused by **SNAT port exhaustion**. 
+
+
+6. Check whether traffic is blocked by ACLs for the classic VM
+7. Check whether the endpoint is created for the classic VM
+8. Try to connect to a VM network share
+9. Check Inter-VNet connectivity
+
+
+> Details:
+
+---
+
+5. Check whether the problem is caused by SNAT:
+
+There are number of solution for outbound connectivity:
+
+<img src="./Q137-1.png">
+
+[1. Use Source Network Address Translation (SNAT) for outbound connections](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections)  
+
+The frontend IPs of a public load balancer can be used to provide outbound connectivity to the internet for backend instances. 
+This configuration uses source network address translation (SNAT) to translate virtual machine's private IP into the load balancer's public IP address. 
+
+> VM Private IP -> LB Public IP
+> SNAT maps the backend VM IP address to the public IP of the LB
+
+<img src="./Q137-2.png">
+
+Outbound rules enable you to explicitly define SNAT (source network address translation) for a standard SKU public load balancer. 
+This configuration allows you to use the public IP or IPs of your load balancer for outbound connectivity of the backend instances.
+
+This configuration enables:
+
+- IP masquerading
+- Simplifying your allowlists
+- Reduces the number of public IP resources for deployment
+
+With outbound rules, you have full declarative control over outbound internet connectivity.
+
+> Manual allocation of SNAT ports:
+
+Manually allocating SNAT port based on the backend pool size and number of `frontendIPConfigurations` **can help avoid SNAT exhaustion**.
+
+You can manually allocate SNAT ports either:
+- by "ports per instance" (recommended for VMs backend) 
+- or "maximum number of backend instances" (recommended for VMSS backend) 
+
+> Calculate ports per instance as follows:
+`Number of frontend IPs * 64K / Number of backend instances`
+
+> If you have Virtual Machine Scale Sets in the backend:
+allocate ports by "maximum number of backend instances"
+
+---
+
+[SNAT Port exhaustion](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections#port-exhaustion)  
+
+Every connection to: 
+- the same destination IP 
+- and destination port uses a SNAT port
+
+This connection maintains a distinct traffic flow from the 
+backend instance or client to a server. 
+This process gives the server a distinct port on which to address traffic. 
+Without this process, the client machine is unaware of which flow a packet is part of.
+
+Without SNAT ports for the return traffic, the client has no way to separate one query result from another.
+
+> Example:
+Destination IP = 23.53.254.142
+Destination Port = 443
+Protocol = TCP
+
+**Outbound connections can burst**.
+A backend instance can be allocated insufficient ports. 
+New outbound connections to a destination IP fail when port exhaustion occurs.
+Connections succeed when a port becomes available. 
+**Each IP address provides 64,000 ports that can be used for SNAT.**
+Each port can be used for both TCP and UDP connections to a destination IP address.
+A TCP SNAT port can be used for multiple connections to the same destination IP provided the destination ports are different.
+**This exhaustion occurs when the 64,000 ports from an IP address are spread thin across many backend instances**. 
+
+> Load Balancer:
+
+For TCP connections, the load balancer uses **a single SNAT port for every destination IP and port**. 
+This multiuse enables multiple connections to the same destination IP with the same SNAT port. 
+**This multiuse is limited if the connection isn't to different destination ports**.
+
+---
+
+[]
+
+---
+
+2. Check whether network traffic is blocked by NSG or UDR
+
+[Connection troubleshoot overview](https://learn.microsoft.com/en-us/azure/network-watcher/connection-troubleshoot-overview)  
+
+**This is especially useful in complex networking scenarios**.
+
+The connection troubleshoot feature of Azure Network Watcher helps 
+reduce the amount of time to diagnose and troubleshoot network 
+connectivity issues.
+
+**Connection troubleshoot reduces the Mean Time To Resolution (MTTR)**:
+- performing all connection major checks
+detect issues pertaining to: 
+- network security groups
+- user-defined routes
+- blocked ports
+
+It provides the following results with **actionable insights**. 
+
+check TCP or ICMP connections from any of these Azure resources:
+
+Virtual machines
+Virtual machine scale sets
+Azure Bastion instances
+Application gateways (except v1)
+
+---
+
+1. Check whether NIC is misconfigured:
+
+[How to reset network interface for Azure Windows VM](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/reset-network-interface)  
+
+The virtual machine will restart to initialize the new NIC to the system.
+
+```
+#Set the variables 
+$SubscriptionID = "<Subscription ID>"​
+$ResourceGroup = "<Resource Group>"
+$NetInter="<The Network interface of the VM>"
+$VNET = "<Virtual network>"
+$subnet= "<The virtual network subnet>"
+$PrivateIP = "<New Private IP>"
+
+#You can ignore the publicIP variable if the VM does not have a public IP associated.
+$publicIP = Get-AzPublicIpAddress -Name <the public IP name> `
+-ResourceGroupName  $ResourceGroup
+
+#Log in to the subscription​ 
+Add-AzAccount
+Select-AzSubscription -SubscriptionId $SubscriptionId
+
+#Check whether the new IP address is available in the virtual network.
+Get-AzVirtualNetwork -Name $VNET -ResourceGroupName $ResourceGroup | Test-AzPrivateIPAddressAvailability -IPAddress $PrivateIP
+
+#Add/Change static IP. This process will change MAC address
+$vnet = Get-AzVirtualNetwork -Name $VNET -ResourceGroupName $ResourceGroup
+
+$subnet = Get-AzVirtualNetworkSubnetConfig -Name $subnet -VirtualNetwork $vnet
+
+$nic = Get-AzNetworkInterface -Name  $NetInter `
+-ResourceGroupName  $ResourceGroup
+
+#Remove the PublicIpAddress parameter if the VM does not have a public IP.
+$nic | Set-AzNetworkInterfaceIpConfig -Name ipconfig1 `
+-PrivateIpAddress $PrivateIP `
+-Subnet $subnet `
+-PublicIpAddress $publicIP `
+-Primary
+
+$nic | Set-AzNetworkInterface
+```
+
+---
+
+
+
+
+---
+
+
+[IP flow verify overview](https://learn.microsoft.com/en-us/azure/network-watcher/ip-flow-verify-overview)   
+
+It's a quick and simple tool to diagnose connectivity issues:
+
+- to or from other Azure resources
+- the internet and on-premises environment
+
+It helps you to troubleshoot virtual machine connectivity issues by checking:
+- network security group (NSG) rules 
+- and Azure Virtual Network Manager admin rules
+
+you can use it to check if a packet is allowed or denied to or from an Azure virtual machine.
+
+**IP flow verify looks at the rules of all NSGs applied to a VM** **NIC**, whether the NSG is associated to the VM's subnet or network interface. 
+
+It **additionally**, looks at the `Azure Virtual Network Manager rules` applied to the VNet of the VM.
+
+IP flow verify uses:
+
+- traffic direction
+- protocol
+- local IP
+- remote IP
+- local port and remote port 
+
+IP flow verify returns:
+
+- **Access denied** or **Access allowed**
+- the name of the security rule that denies or allows the traffic
+- the NSG with a link to it so you can edit it if you need to
+
+> It doesn't provide a link if a default security rule is denying or allowing the traffic. 
+
+> Considerations:
+
+- IP flow verify only tests TCP and UDP rules
+- to test **ICMP traffic rules, use NSG diagnostics**
+- You must have a Network Watcher instance in the Azure subscription and region of the virtual machine
+- 
+
+---
+
+[NSG diagnostics overview](https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-network-configuration-diagnostics-overview)  
+
+This is similar to **IP flow verify** but it also covers the particular case of:
+**ICMP traffic rules**.
+
+The NSG diagnostics is an Azure Network Watcher tool that helps you understand which network traffic is allowed or denied in your Azure virtual network along with detailed information for debugging. 
+
+**NSG diagnostics can help you verify that your network security group rules are set up properly.**
+
+> How does NSG diagnostics work?
+
+The NSG diagnostics tool can simulate a given flow based on the source and destination you provide. It returns whether the flow is allowed or denied with detailed information about the security rule allowing or denying the flow.
 
 ---
 
@@ -29,15 +522,53 @@ You configure teh VNet Peering on the following VNets:
 You must determine if VMs in a specific VNet can communicate with the
 VMs in the other VNets.
 
-Azure VMs on vnet1 can conect to VMs on: OPTIONS
-Azure VMs on vnet2 can conect to VMs on: OPTIONS
-Azure VMs on vnet3 can conect to VMs on: OPTIONS
+Azure VMs on vnet1 can connect to VMs on: OPTIONS
+Azure VMs on vnet2 can connect to VMs on: OPTIONS
+Azure VMs on vnet3 can connect to VMs on: OPTIONS
 
+OPTIONS:
+vnet1 only
+vnet2 only
+vnet3 only
+vnet2 & vnet3
+vnet1 & vnet3
+vnet1 & vnet2
 ---
 
 ### Answer:
 
+Azure VMs on vnet1 can connect to VMs on: vnet2 only
+Azure VMs on vnet2 can connect to VMs on: vnet2 & vnet3 = vnet3 only
+Azure VMs on vnet3 can connect to VMs on: vnet2 & vnet3 = vnet2 only
 
+This question is about transitivity of VNet Peering
+AND
+the direction of the of VNet Peering
+
+A VNet Peering i.e. vnetX-vnetY has is composed by two sides:
+the peering in the X->Y direction
+the peering in the Y->X direction
+
+This has already been discussed in detail in a previous question.
+
+In this question it is specified that: 
+
+the peering between vnet2 and vnet3 is configured on both sides:
+- vnet2-vnet3
+- vnet3-vnet2
+
+This means that 2->3 and 3->2 are possible
+
+However,
+the peering between vnet1 and vnet2 is configured on a sinlge side:
+- vnet1-vnet2
+
+this means that ONLY 1->2 are possible.
+
+The remaining question is whether also the 1->3 is possible that is:
+1->2->3   ?
+
+The answer is NO because VNet Peering INS NOT TRANSITIVE!
 
 ---
 
