@@ -18,22 +18,59 @@
 
 ## Q146:
 
+You have a Azure VM in a VNet in your Azure subscription.
+
+<img src="./Q146-1.png">
+
+You create a NSG and assign it as shown in the exhibit.
+You must determine how the NSG rules are processed.
+Select yes/no:
+
+- NGS1 applies to the incoming traffic to VM1 before NSG2
+- NSG2 ONLY applies to traffic between VM1 & VM2
+- NSG3 applies to traffic between VM6 & VM7
 
 ---
 
 ### Answer:
 
+- NGS1 applies to the incoming traffic to VM1 before NSG2
+yes
+the rules of NSG1 applied to subnet1 are processed before 
+the rules of NSG2 applied to the VM1 NIC
+
+- NSG2 ONLY applies to traffic between VM1 & VM2
+no
+the rules of NSG2 are applied to the VM1 NIC and therefore to
+any traffic not just the traffic between VM1 & VM2
+
+- NSG3 applies to traffic between VM6 & VM7
+yes
+**IMPORTANT!**: 
+NSG rules apply to traffic **INTO OR OUT OF** the subnet
+and any VMs in the subnet!
+
+NSG1 > subnet1: VM1, VM2, VM3
+NSG2 >          VM1
+NSG3 > subnet3: VM6, VM7
+
 ---
 
 ### References:
+
+[How network security groups filter network traffic](https://learn.microsoft.com/en-us/azure/virtual-network/network-security-group-how-it-works)  
 
 
 ---
 
 ## Q145:
 
-You have an Azure VNet anemd `vnet1` with IPAS 10.2.0.0/22.
-vnet1 conyains `subnet1` with IPAS 10.2.0.0/24.
+You have an Azure VNet anemd `vnet1` with IPAS 
+10.2.0.0/22.
+
+vnet1 contains `subnet1` with IPAS 
+10.2.0.0/24.
+
 subnet1 contains an Azure Windows 10 VM `vm1`.
 The NIC of vm1 does not have a public IP.
 
@@ -43,30 +80,82 @@ RDP from the Internet.
 Which three actions do you perform in a sequence?
 
 - connect vm1 using RDP client
-- create a subnat named BastionSubnet and IPAS 10.2.0.2/28
-- create a subnat named AzureBastionVNet and IPAS 10.3.0.0/22
-- create a subnat named AzureBastionSubnet and IPAS 10.2.1.0/26
-- cerate a bastion and assign the existing relevant subnet
+- create a subnet named BastionSubnet and IPAS 10.2.0.2/28
+- create a subnet named AzureBastionVNet and IPAS 10.3.0.0/22
+- create a subnet named AzureBastionSubnet and IPAS 10.2.1.0/26
 - add a public Satndard SKU IP to vm1 
-- connect to  vm1 using the Azure Portal in web browser
+- connect to vm1 using the Azure Portal in web browser
 
 ---
 
 ### Answer:
 
+- create a subnet named AzureBastionSubnet and IPAS 10.2.1.0/26
+- cerate a bastion and assign the existing relevant subnet
+- connect to vm1 using the Azure Portal in web browser
+
+In order to deploy Azure Bastion to a VNet a specially named subnet must be 
+created `AzureBastionSubnet` with a minimum CIDR rquirement for `/26`.
+The `10.2.1.0/26` is indeed within the Vnet IPAS 10.2.0.0/22.
+
+Then from the Azure Portal you cann **deploy Azure Bastion** as a service
+to the `AzureBastionSubnet`.
+
+Azure Bastion is designed to provide secure RDP OR SSH access to a Windows VM in the 
+same VNet where the `AzureBastionSubnet` is located from the Azure Portal directly in the user's browser.
+
 ---
 
 ### References:
 
+[Tutorial: Deploy Azure Bastion by using specified settings](https://learn.microsoft.com/en-us/azure/bastion/tutorial-create-host-portal)  
+
+<img src="./Q145-1.png">
+
+[Create an RDP connection to a Windows VM using Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows)  
+
+[Azure Bastuion configuration Settings](https://learn.microsoft.com/en-us/azure/bastion/configuration-settings)  
+
+> Instances and host scaling:
+
+Each instance can support:
+20 concurrent RDP connections 
+and 
+40 concurrent SSH connections for medium workloads
+
+- Basic SKU
+using the Basic SKU, two instances are created.
+
+- Standard SKU
+you can specify the number of instances (with a minimum of two instances). 
+
+> Custom ports:
+
+You can specify the port that you want to use to connect to your VMs. 
+
+By default the inbound ports used to connect are: 
+3389 for RDP 
+22 for SSH 
+
+If you configure a custom port value, specify that value when you connect to the VM.
+Custom port values are supported for the **Standard SKU** only.
+
+> Shareable link:
+
+The Bastion Shareable Link feature lets users connect to a target resource using Azure Bastion **without accessing the Azure portal**.
+
+When a **user without Azure credentials** clicks a shareable link, a webpage opens that prompts the user to sign in to the target resource via RDP or SSH. 
+
+**Users authenticate using username and password or private key**, depending on what you have configured in the Azure portal for that target resource. Users can connect to the same resources that you can currently connect to with Azure Bastion: VMs or virtual machine scale set.
 
 ---
 
 ## Q144:
 
 You have four VMs in Azure all connected to the same `subnet1`.
-The VMNs host applications exposed to the Internet.
+The VMs host applications exposed to the Internet.
 A NSG is associated to the subnet.
-The output of the command `AzNetworkSecurityRuleConfig` is 
+The output of the command `Get-AzNetworkSecurityRuleConfig` is 
 shown in the exhibit.
 
 
@@ -80,22 +169,74 @@ You must correct this issue.
 
 What should you do?
 
-- modify rule2 of nsg1 and set the source to the approved address range
 - delete rule3 of nsg1
-- modify rule3 of nsg1 and set the source to the approved IP range
 - modify rule1 of nsg1 and set the source to the approved IP range
+- modify rule2 of nsg1 and set the source to the approved address range
+- modify rule3 of nsg1 and set the source to the approved IP range
 - disable the public IP addresses of the VMs NICs
 - create an ASG and associate the VMs with this ASG
 
 ---
 
 ### Answer:
+- modify rule1 of nsg1 and set the source to the approved IP range
+
+The output of the command `Get-AzNetworkSecurityRuleConfig` shown in the exhibit reports that there are three NSG rules applied to the subnet `subnet1` of the VMs, the question states that the NSG with this rules is applied to the subnet level.
+
+> security rule:
+- Name
+- Priority: between 100 and 4096.
+- Protocol: TCP, UDP, ICMP, ESP, AH, or Any.
+- Direction: inbound | outbound
+- Action: allow | deny
+- Port range: i.e.  80 or 10000-10005 
+- Source OR Destination: 
+10.0.0.0/24, 10.1.0.0/24 service tag, ASG.
+
+
+| Priority | Prot | Dir  | A  | Source IPs   | Destination IPs| S Ports | D Ports | Name |
+| -------- | ---- | ---- | -- |------------- | -------------- | ------- | ------- | ------- |
+| 100      | TCP  | InB  | A  | *            | *              | 3389    | 3389    | rule1 |
+| 110      | TCP  | InB  | A  | *            | *              | 80, 443 | 80, 443 | rule2 |
+| 4096     | *    | InB  | D  | *            | *              | *       | *       | rule3 |
+
+rule1 is concerned with RDP as the 3389 is used for this communication protocol.
+rule1 allows * that is any IP address range to initiate a inbound communication and this is 
+not compliant with the policy requested the security department. 
 
 ---
 
 ### References:
 
+[Get-AzNetworkSecurityRuleConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/get-aznetworksecurityruleconfig?view=azps-11.4.0)  
 
+gets a network security rule configuration for an NSG.
+
+```
+Get-AzNetworkSecurityRuleConfig
+   [-Name <String>]
+   -NetworkSecurityGroup <PSNetworkSecurityGroup>
+   [-DefaultRules]
+   [-DefaultProfile <IAzureContextContainer>]
+   [<CommonParameters>]
+```
+
+```
+-DefaultRules
+Indicates whether this cmdlet gets a user-created rule configuration or a default rule configuration.
+```
+
+```
+# 1: Retrieving a network security rule config
+# retrieves the default rule named "AllowInternetOutBound" 
+# from Azure network security group named "nsg1" in resource group "rg1"
+
+Get-AzNetworkSecurityGroup -Name nsg1 -ResourceGroupName rg1 | Get-AzNetworkSecurityRuleConfig -Name AllowInternetOutBound -DefaultRules
+
+# retrieves user defined rule named "rdp-rule"
+Get-AzNetworkSecurityGroup -Name nsg1 -ResourceGroupName rg1 | Get-AzNetworkSecurityRuleConfig -Name "rdp-rule"
+
+```
 ---
 
 ## Q143:
