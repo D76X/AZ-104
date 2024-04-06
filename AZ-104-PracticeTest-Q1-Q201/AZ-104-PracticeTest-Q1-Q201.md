@@ -15,12 +15,472 @@
 
 ---
 
-## Q150:
+## Q152:
+
+You deploy a group of new VMs to an Azure subscription.
+These VMs are the frontend layer of an application.
+You plan to configure a Satndard SKU Load Balancer for these VMs.
+You need to configure the public IP that you will assign to the LB.
+
+Select yes/no:
+
+- you can only use a Standard SKU IP eith a Standard SKU LB
+- Standard SKU public IP allow inbound communication by default
+- Standard LBs support standard SKU IP only
+- you can specify the IP address of a public IP resource
 
 
 ---
 
 ### Answer:
+
+- you can only use a Standard SKU IP with a Standard SKU LB
+Yes
+- Standard LBs support standard SKU IP only
+Yes
+
+- Standard SKU public IP allow inbound communication by default
+No
+- you can specify the IP address of a public IP resource
+No: you cannot do this.
+
+With a Standard SKU LB you must use a Standard SKU IP which contrary to a Basic SKU IP is **secure by default** that is on the Standard SKU IP all the inbound communication are blocked by default.
+
+In order to allow inblound connection to a Standard SKU IP you must use  a NSG on which there are rules to allow inbound connection as required.
+
+LB has two allocation methods:
+
+- Basic:
+Basic public IP addresses are commonly used for when there's no dependency on the IP address.
+
+> IP address assignment:
+
+- static: 
+this is the method to use to assign a public IP as the LB frontend public IP address.
+The resource is assigned an IP address at the time it's created. 
+The IP address is released when the resource is deleted.
+
+**Even when you set the allocation method to static, you cannot specify the actual IP address assigned to the public IP address resource**.
+Azure assigns the IP address from a pool of available IP addresses in the Azure location the resource is created in.
+
+> Static public IP addresses are commonly used in the following scenarios:
+
+- You use TLS/SSL certificates linked to an IP address
+- Your Azure resources communicate with other apps or services that use an IP address-based security model.
+- DNS name resolution, where a change in IP address would require updating A records
+- When you must update firewall rules to communicate with your Azure resources
+
+- dynamic:
+The IP address isn't given to the resource at the time of creation when selecting dynamic. The IP is assigned when you associate the public IP address with a resource. The IP address is released when you stop, or delete the resource.
+
+> Standard SKU Public IP Availability Zone:
+
+Public IP addresses with a standard SKU can be created as 
+
+- nonzonal:
+A "nonzonal" public IP address is placed into a zone for you by Azure and doesn't give a guarantee of redundancy.
+**All basic SKU public IP addresses are created as non-zonal**.
+
+- zonal
+- zone-redundant in regions that support availability zones.
+
+A **zone-redundant IP** is created in all zones for a region and can survive any single zone failure.
+
+---
+
+[What is Azure Load Balancer?](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview)    
+
+<img src="./Q152-1.png">
+
+---
+
+### References:
+
+[Public IP addresses](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses)   
+
+Public IP addresses allow Internet resources to communicate inbound to Azure resources. 
+
+The following resources can be associated with a public IP address:
+
+Virtual machine network interfaces
+Virtual Machine Scale Sets
+Public Load Balancers
+Virtual Network Gateways (VPN/ER)
+NAT gateways
+Application Gateways
+Azure Firewalls
+Bastion Hosts
+Route Servers
+Api Management
+
+> SKU: Standard or Basic.
+The SKU determines their 
+- functionality including allocation method
+- feature support
+- the resources they can be associated with
+
+
+
+---
+
+## Q151:
+
+You are an Azure admin for an e-commerce.
+
+Your organization wants to access over a private endpoint in your VNet:
+- Azure SQL Database services 
+- azure-hosted customer-owned resources
+
+You use **Azure Private Link** to achiev the desired outcome.
+You must select the source IP address for the APL.
+You have created the following ARM template.
+
+```
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "",
+  "contentVersion": "",
+  "apiProfile": "",
+  "definitions": { },
+  "parameters": { },
+  "variables": { },
+  "functions": [ ],
+  "resources": [ 
+    "name": "orgVNet",
+    "type": "Microsoft.Network/virtualNetwors",
+    "apiVersion": "2023-02-01",
+    "location": "EastUS",
+    "properties": {
+            "addressSpace": {
+               "addressPrefix": ["10.1.0.0/16"] 
+            },
+            "subnets": [
+              {
+                "name": "default",   
+                "properties": {
+                  "addressPrefix": "10.1.4.0/24", 
+                  "privateLinkServiceNetworkPolicies": "Disabled" 
+                },
+              },
+            ]
+        },
+  ], 
+  "outputs": { }
+}
+```
+
+Select yes/no:
+
+- the `privateLinkServiceNetworkPolicies`: `Disabled` is only applicable for the specific private IP address you select as the source IP of teh Private Link service
+
+- the `privateLinkServiceNetworkPolicies`: `Disabled` setting is configured automatically if you use teh Azure Portal to create the Private Link service
+
+- for other resources in the subnet the newtowrk traffic is filtered by the Access Control List (ACL)
+
+
+---
+
+### Answer:
+
+- the `privateLinkServiceNetworkPolicies`: `Disabled` is only applicable for the specific private IP address you select as the source IP of teh Private Link service
+Yes
+- the `privateLinkServiceNetworkPolicies`: `Disabled` setting is configured automatically if you use teh Azure Portal to create the Private Link service
+Yes
+
+- for other resources in the subnet the newtowrk traffic is filtered by the Access Control List (ACL)
+No
+
+---
+
+### References:
+
+[Disable network policies for Private Link service source IP](https://learn.microsoft.com/en-us/azure/private-link/disable-private-link-service-network-policy?tabs=private-link-network-policy-powershell)   
+
+To choose a source IP address for your Azure Private Link service, the explicit disable setting **is required on the subnet**: 
+`privateLinkServiceNetworkPolicies` 
+
+This setting only applies for the specific private IP address you chose as the source IP of the Private Link service. 
+For other resources in the subnet, access is controlled based on the network security group security rules definition.
+
+**When you use the portal to create an instance of the Private Link service, this setting is automatically disabled**. eployments using any Azure client (PowerShell, Azure CLI, or templates) require an extra step to change this property.
+
+---
+
+[What is a private endpoint?](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview)  
+
+A private endpoint is a network interface that uses a private IP address from your virtual network. 
+
+This network interface connects you privately and securely to a service that's powered by Azure Private Link. 
+
+**By enabling a private endpoint, you're bringing the service into your virtual network**.
+
+The service could be an Azure service such as:
+
+Azure Storage
+Azure Cosmos DB
+Azure SQL Database
+Your own service, using Private Link service.
+
+> Private endpoints enable connectivity between the customers from the same:
+
+Virtual network
+Regionally peered virtual networks
+Globally peered virtual networks
+On-premises environments that use VPN or Express Route
+Services that are powered by Private Link
+
+- Network connections can be initiated only by clients that are connecting to the private endpoint. 
+
+- Connections can be established in a single direction only.
+
+- A read-only network interface is automatically created for the lifecycle of the private endpoint. The interface is assigned a dynamic private IP address from the subnet that maps to the private-link resource. The value of the private IP address remains unchanged for the entire lifecycle of the private endpoint.
+
+- The private endpoint must be deployed in the same region and subscription as the virtual network.
+
+- Multiple private endpoints can be created with the same private-link resource.
+
+- Multiple private endpoints can be created on the same or different subnets within the same virtual network. 
+
+- The subscription that contains the private link resource must be registered with the Microsoft network resource provider. 
+
+- The subscription that contains the private endpoint must also be registered with the Microsoft network resource provider.
+
+> A private-link resource is the destination target of a specified private endpoint. 
+
+---
+
+[Network security of private endpoints](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview#network-security-of-private-endpoints)  
+
+When you use private endpoints, traffic is secured to a private-link resource. The platform validates network connections, allowing only those that reach the specified private-link resource. To access more subresources within the same Azure service, more private endpoints with corresponding targets are required. In the case of Azure Storage, for instance, you would need separate private endpoints to access the file and blob subresources.
+
+**Private endpoints provide a privately accessible IP address for the Azure service, but do not necessarily restrict public network access to it**.
+
+> Private endpoints support network policies:
+
+- Network Security Groups (NSG)
+- User Defined Routes (UDR)
+- Application Security Groups (ASG)
+
+---
+
+[Manage network policies for private endpoints](https://learn.microsoft.com/en-us/azure/private-link/disable-private-endpoint-network-policy?tabs=network-policy-portal)  
+
+network policies:
+
+- Network Security Groups (NSG)
+- User Defined Routes (UDR)
+- Application Security Groups (ASG)
+
+**By default, network policies are disabled for a subnet in a virtual network**. To use network policies network policy support must be enabled for the subnet. 
+
+**This setting only applies to private endpoints in the subnet and affects all private endpoints in the subnet.**
+
+To choose a source IP address for your Azure Private Link service, the explicit disable setting `privateLinkServiceNetworkPolicies` 
+is required on the subnet. This setting only applies for the specific private IP address you chose as the source IP of the Private Link service. 
+
+> What does it mean?
+
+Eaxh Private Link service deployed to a subnet takes an IP address from the IP address space of the subnet it is deployed to. If any Network Policies are applied to the subnets then these would also be applied to the IP reserved for the Private Link service in the same subnet.
+This interferes which the Private Link Service.
+
+For this reason when a Private Link service is deployed to a subnet the 
+following must be present in the ARM template that deployes it: `"privateLinkServiceNetworkPolicies": "Disabled"`
+
+If the OPrivate Link is deployed throught teh Azure Portal this happens automatically. However, this **must be explicit when the Private Link Service is deplyed by**:
+
+> ARM template, Azure CLI, PowerShell 
+
+> Example:
+
+```
+"resources": [ 
+    "name": "orgVNet",
+    "type": "Microsoft.Network/virtualNetwors",
+    "apiVersion": "2023-02-01",
+    "location": "EastUS",
+    "properties": {
+            "addressSpace": {
+               "addressPrefix": ["10.1.0.0/16"] 
+            },
+            "subnets": [
+              {
+                "name": "default",   
+                "properties": {
+                  "addressPrefix": "10.1.4.0/24", 
+                  "privateLinkServiceNetworkPolicies": "Disabled" 
+                },
+              },
+            ]
+        },
+  ],
+```
+
+> Powershell:
+
+```
+$subnet = 'default'
+
+$net = @{
+    Name = 'myVNet'
+    ResourceGroupName = 'myResourceGroup'
+}
+$vnet = Get-AzVirtualNetwork @net
+
+($vnet | Select -ExpandProperty subnets | Where-Object {$_.Name -eq $subnet}).privateLinkServiceNetworkPolicies = "Disabled"
+
+$vnet | Set-AzVirtualNetwork
+```
+> Azure CLI:
+
+```
+az network vnet subnet update \
+    --name default \
+    --vnet-name MyVnet \
+    --resource-group myResourceGroup \
+    --disable-private-link-service-network-policies yes
+```
+
+---
+
+[Configure an application security group with a private endpoint](https://learn.microsoft.com/en-us/azure/private-link/configure-asg-private-endpoint?tabs=portal)  
+
+Azure Private Link private endpoints support application security groups (ASGs) for network security. **You can associate private endpoints with an existing ASG in your current infrastructure alongside virtual machines and other network resources**.
+
+> Powershell:
+
+```
+## Place the previously created webapp into a variable. ##
+$webapp = Get-AzWebApp -ResourceGroupName myResourceGroup -Name myWebApp1979
+
+## Create the private endpoint connection. ## 
+$pec = @{
+    Name = 'myConnection'
+    PrivateLinkServiceId = $webapp.ID
+    GroupID = 'sites'
+}
+$privateEndpointConnection = New-AzPrivateLinkServiceConnection @pec
+
+## Place the virtual network you created previously into a variable. ##
+$vnet = Get-AzVirtualNetwork -ResourceGroupName 'myResourceGroup' -Name 'myVNet'
+
+## Place the application security group you created previously into a variable. ##
+$asg = Get-AzApplicationSecurityGroup -ResourceGroupName 'myResourceGroup' -Name 'myASG'
+
+## Create the private endpoint. ##
+$pe = @{
+    ResourceGroupName = 'myResourceGroup'
+    Name = 'myPrivateEndpoint'
+    Location = 'eastus'
+    Subnet = $vnet.Subnets[0]
+    PrivateLinkServiceConnection = $privateEndpointConnection
+    ApplicationSecurityGroup = $asg
+}
+New-AzPrivateEndpoint @pe
+```
+
+> Azure CLI:
+
+```
+id=$(az webapp list \
+    --resource-group myResourceGroup \
+    --query '[].[id]' \
+    --output tsv)
+
+asgid=$(az network asg show \
+    --name myASG \
+    --resource-group myResourceGroup \
+    --query id \
+    --output tsv)
+
+az network private-endpoint create \
+    --connection-name myConnection \
+    --name myPrivateEndpoint \
+    --private-connection-resource-id $id \
+    --resource-group myResourceGroup \
+    --subnet myBackendSubnet \
+    --asg id=$asgid \
+    --group-id sites \
+    --vnet-name myVNet    
+```
+
+---
+
+[What is Azure Private Link?](https://learn.microsoft.com/en-us/azure/private-link/private-link-overview)  
+
+Azure Private Link enables you to access:
+
+- Azure PaaS Services (for example, Azure Storage and SQL Database) 
+- Azure hosted customer-owned/partner services 
+
+over a private endpoint in your virtual network.
+Traffic between your virtual network and the service travels the Microsoft backbone network.
+
+**Exposing your service to the public internet is no longer necessary.**
+**You can create your own private link service in your virtual network and deliver it to your customers.** 
+
+> Key benefits:
+
+- Privately access services on the Azure platform:
+
+- On-premises and peered networks:
+Access services running in Azure from on-premises over 
+ - ExpressRoute private peering
+ - VPN tunnels 
+ -  peered virtual networks 
+
+ using private endpoints. 
+
+ There's no need to configure ExpressRoute Microsoft peering or traverse the internet to reach the service. Private Link provides a secure way to migrate workloads to Azure.
+
+- Protection against data leakage:
+A private endpoint is mapped to an instance of a PaaS resource instead of the entire service. 
+Consumers can only connect to the specific resource.
+**For example: you must have a Private Link EP for ech of the subservices of a SA thus one PLED for Blobs, one for Queues, one for Table, one for Files**
+
+- Global reach: Connect privately to services running in other regions.
+The consumer's virtual network could be in region A and it can connect to services behind Private Link in region B.
+
+- Extend to your own services: 
+Enable the same experience and functionality to render your service privately to consumers in Azure. 
+**Place your service behind a standard Azure Load Balancer**, you can enable it for Private Link. 
+**The consumer can then connect directly to your service using a private endpoint in their own virtual network**. 
+You can manage the connection requests using an `approval call flow`. **Azure Private Link works for consumers and services belonging to different Microsoft Entra tenants**.
+
+---
+
+## Q150:
+
+you work for a company that hosts its infrastructure in Azure:
+Vnets, VMs and Azure File Shares
+
+Following security policy chnages, all IT admins must use only
+Azure Bastion to connect to VMs hosted in Azure.
+
+You must provision Azure Bastion via the Azure Portal in the VNet with IPAS 10.3.2.0/23 and an existing subnet with IPAS 10.3.2.0/24.
+
+You must also create a change control document for approval.
+
+Which IPAS should you use for Azure Bastion?
+
+- 10.3.3.0/26
+- 10.3.2.0/26
+- 10.3.3.50/27
+- 10.3.5.2/27
+
+---
+
+### Answer:
+- 10.3.3.0/26
+
+The IPAS with CIDER /27 cannot be used for Azure Bastion you must use a 
+/26 at a minimum.
+
+- 10.3.2.0/26
+cannot be used because there is already an existing subnet with 
+IPAS 10.3.2.0/24. 
+
+The details abount Azure Bastion have laready been discussed in a previouis question.
+
 
 ---
 
