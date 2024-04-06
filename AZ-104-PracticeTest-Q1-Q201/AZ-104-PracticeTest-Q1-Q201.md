@@ -2,12 +2,191 @@
 
 ---
 
-## Q14X:
+## Q15X:
 
 
 ---
 
 ### Answer:
+
+---
+
+### References:
+
+---
+
+## Q150:
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q149:
+
+you work for a company that hosts its infrastructure in Azure.
+you plan to use ASGs to control access between VMs and cloud-hosted
+applications.
+
+The following ASG assignments have been completed:
+
+AGS01: NIC01 in VNET01
+AGS02: NIC02 in VNET02
+AGS03: NIC03 in VNET02
+
+The remaining NICs need to be assigned to these three ASGs:
+
+VNet01: NIC04, NIC09, NIC11, NIC12        NIC01
+VNet02: NIC05, NIC06, NIC07, NIC10,       NIC02, NIC03 
+VNet03: NIC08 
+
+Which NICs can be assigned to each ASG?
+
+OPTIONS assign to ASG01
+OPTIONS assign to ASG02
+OPTIONS assign to ASG03
+
+OPTIONS:
+all NICs
+NIC08 only
+NIC04, NIC09, NIC11, NIC12 
+NIC05, NIC06, NIC07, NIC10
+
+---
+
+### Answer:
+
+NIC04, NIC09, NIC11, NIC12 assign to ASG01
+NIC05, NIC06, NIC07, NIC10 assign to ASG02
+NIC05, NIC06, NIC07, NIC10 assign to ASG03
+
+An ASG represents a group of VMs that are used to provide 
+the same, or related, applications or services.
+**The ASG must encompass VMs from the same VNet**, although the 
+VMs can be assigned to different subnets within the same VNet.
+
+**ASG can be used as Source IPs and Destination IPs in the definition of NSG rules** and are commonly used in this context to simply the rules and reduce their number and corresponding admin effort.
+
+---
+
+### References:
+
+
+[Application security groups](https://learn.microsoft.com/en-us/azure/virtual-network/application-security-groups)   
+
+
+Application security groups enable you to configure network security as a natural extension of an application's structure, allowing you to group virtual machines and define network security policies based on those groups.
+
+**You can reuse your security policy at scale without manual maintenance of explicit IP addresses.**
+
+> Eamples:
+
+| Priority | Prot | Dir  | A  | Source IPs   | Destination IPs  | S Ports | D Ports | Name |
+| -------- | ---- | ---- | -- |------------- | ---------------- | ------- | ------- | -------   |
+| 120      | TCP  | InB  | A  | Internet     | AsgWeb           | *       | 80      | allowHttp |
+| 120      | TCP  | InB  | A  | Internet     | AsgWeb           | *       | 443     | allowHttps |
+| 120      | TCP  | InB  | A  | Internet     | AsgWeb           | *       | 80, 443 | allowHttp(s) |
+
+| 119      | Any  | InB  | A  | AsgLogic     | AsgDb            | *       | 1433    | allowBusinessLayerConnetionToDb |
+| 120      | Any  | InB  | D  | *            | AsgDb            | *       | 1433    | blockConnetionToDb |
+
+---
+
+## Q148:
+
+A global organization uses Azure for its IaaS.
+Following a security incident the organization requires a security
+policy to forbid the follwoing incoming traffic:
+- ports 22 (SSH) 
+- port 3389 (RDP)
+
+There are Linux & Windows VMs available to teh Dev Team who have
+traditionally used SSH & RDP to connect to VMs remotely.
+
+You must recommend a solution that will allow the Dev Team to 
+connect remotely to the VMs with SSH and/or RDP without circumventig
+the organization's security policy.
+
+What do you recommend?
+
+- configure Azure Bastion
+- configure a NSG with a rule that allows RDP from public IPs
+- configure a P2S VPN
+- configure a S2S VPN
+
+---
+
+### Answer:
+- configure Azure Bastion
+
+This is clearly the simplest solution and it has already been discussed in detail in one of the previous questions.
+
+---
+
+### References:
+
+
+---
+
+## Q147:
+
+Your company has an Azure subscription with a VNet named `vnet1`
+which contains the following subnets and VMs.
+
+subnet1: VM1, VM2, VM3
+subnet2: VM4, VM5
+subnet3: VM6, VM7
+
+you want to use NSGs to manage network traffic.
+You should:
+
+1. allow all connections from the Internet to VM4, VM5, VM6, VM7
+2. allow all connections between VM1, VM2, VM3
+3. block all external RDP connections to VM1
+4. any other connection should be blocked
+5. you must not block open network ports unnecessarily
+
+You must determine how many NSGs you need to meet the requirements:
+1 | 3 | 4 | 7
+
+---
+
+### Answer: 3
+
+1. allow all connections from the Internet to VM4, VM5, VM6, VM7
+these are in the subnet2 & subnet3 you need a rule like this: 
+
+| Priority | Prot | Dir  | A  | Source IPs   | Destination IPs  | S Ports | D Ports | Name |
+| -------- | ---- | ---- | -- |------------- | ---------------- | ------- | ------- | ------- |
+| 1000     | *    | InB  | A  | Internet     | subnet2, subnet3 | *       | *       | rule1 |
+
+2. allow all connections between VM1, VM2, VM3
+these 3 VMs arre all in subnet1 therefore you do not need any NSG rule to allow them to communicate 
+over any port and protocol.
+
+3. block all external RDP connections to VM1
+you need a NSG rule to be applied to VM1 NIC
+
+| Priority | Prot | Dir  | A  | Source IPs   | Destination IPs  | S Ports | D Ports | Name |
+| -------- | ---- | ---- | -- |------------- | ---------------- | ------- | ------- | ------- |
+| 1001     | TCP  | InB  | A  | Internet     | subnet1          | 3389    | 3389    | rule2 |
+
+4. any other connection should be blocked
+you need a NSG rule to be applied to all subnets: subnet1, subnet3, subnet3
+
+| Priority | Prot | Dir  | A  | Source IPs   | Destination IPs  | S Ports | D Ports | Name |
+| -------- | ---- | ---- | -- |------------- | ---------------- | ------- | ------- | ------- |
+| 1002     | *    | InB  | B  | *            | *                | *       | *       | rule3 |
+
+Each NSG can have up to 100 rules and the Priority can be set from 100 to 4096 therefore by using 1002 rule3 is processed just after rule2.
+
+Priority values below 100 are reserved by Azure for default rules.
 
 ---
 
