@@ -48,7 +48,7 @@ Which three actions do you perform in a sequence?
 - create a subnat named AzureBastionSubnet and IPAS 10.2.1.0/26
 - cerate a bastion and assign the existing relevant subnet
 - add a public Satndard SKU IP to vm1 
-- connect to  vm1 using teh Azure Portal in web browser
+- connect to  vm1 using the Azure Portal in web browser
 
 ---
 
@@ -63,7 +63,7 @@ Which three actions do you perform in a sequence?
 
 ## Q144:
 
-You have four VMs in Azure all connected to teh same `subnet1`.
+You have four VMs in Azure all connected to the same `subnet1`.
 The VMNs host applications exposed to the Internet.
 A NSG is associated to the subnet.
 The output of the command `AzNetworkSecurityRuleConfig` is 
@@ -80,7 +80,7 @@ You must correct this issue.
 
 What should you do?
 
-- modify rule2 of nsg1 and set the source to teh approved address range
+- modify rule2 of nsg1 and set the source to the approved address range
 - delete rule3 of nsg1
 - modify rule3 of nsg1 and set the source to the approved IP range
 - modify rule1 of nsg1 and set the source to the approved IP range
@@ -130,14 +130,14 @@ What should you do?
 In the exhibit you see that the DNS rule is defined with protocol
 set to TCP while the DNS-Deny is set to Any.
 
-The teams report that are delays in teh DNS resolution, that is
+The teams report that are delays in the DNS resolution, that is
 the DNS eventually resolves the URL to an IP but it takes longer 
 that it should be.
 
-This is the case due to teh fact that DNS resolution is carried out
+This is the case due to the fact that DNS resolution is carried out
 with UDP (User Datagram Protocol) as the **primary** protocol, as it is faster than TCP, thus the DNS-Deny rule will be matched for the UDP traffic instead of the DNS rule therefore blocking the primary traffic fro DNS resolution.
 
-DNS is designed to be robust therefore it tries to resolve also over TCP and this time it succeeds as this traffic matches the DNS rule on teh NSG for teh subnet of teh DNS Server.
+DNS is designed to be robust therefore it tries to resolve also over TCP and this time it succeeds as this traffic matches the DNS rule on the NSG for the subnet of the DNS Server.
 
 
 ---
@@ -263,7 +263,7 @@ subnet from the Internet:
 - HTTPS
 - HTTP
 
-Which three ports should you configure in teh NSG configuration?
+Which three ports should you configure in the NSG configuration?
 
 - 3389
 - 21
@@ -820,7 +820,7 @@ There are the following VMs accross the following VNets:
 - vnet2 with address space 10.1.0.0/16
 - vnet3 with address space 10.2.0.0/16
 
-You configure teh VNet Peering on the following VNets:
+You configure the VNet Peering on the following VNets:
 
 - vnet1-vnet2
 - vnet2-vnet3
@@ -1183,7 +1183,7 @@ VNet1-VNet2 & VNet2-VNet1
 
 The exhibit shows that the status of the peering `VNet1-VNet2` is `initiated`
 but in order to be working the status should progress to `connected`.
-This will happen when the `VNet2-VNet1` sideof teh peering is also created and
+This will happen when the `VNet2-VNet1` sideof the peering is also created and
 set up.
 
 When you create a Vnet peering from the Azure Portal this option is available
@@ -2341,7 +2341,7 @@ The references have been examined in detailed in a previous question.
 You develop a new Web app whose source code is in an Azure DevOps Git Repo.
 Before moving to production the app must be reviewed by test users.
 
-You must prepare teh target envirinment to be ready to publish the app.
+You must prepare the target envirinment to be ready to publish the app.
 
 Which four commands should you run in sequence?
 
@@ -2373,7 +2373,7 @@ The remaining options:
 this cmdlet performs the upload of the zip with the binary files to an existing App Service Slot.
 
 `Start-AzWebAppSlot`:
-Thsi cmdlet can b used to control teh state of a web app lot to initiate teh start process.
+Thsi cmdlet can b used to control the state of a web app lot to initiate the start process.
 
 ---
 
@@ -2394,9 +2394,9 @@ Deploys an Azure Web App from a ZIP, JAR, or WAR file using zipdeploy.
 You administer an Azure Web App called `wapp1`.
 The app hosts a public website for your company.
 The Marketuing department publishes over 35 GB of images, audio and video files.
-You notice that follwing this publish event the backup of teh app has stopped working.
+You notice that follwing this publish event the backup of the app has stopped working.
 
-You must resolve the issue and minimize teh effort.
+You must resolve the issue and minimize the effort.
 
 Which two actions should you perform?
 
@@ -2619,7 +2619,7 @@ For custom domains you previously configured without this verification ID, you s
 > Create the DNS records on your DNS Provider:
 Select the type of record to create and follow the instructions. 
 You can use either a CNAME record or an A record to map a custom DNS name to App Service as explained above. 
-**When your function app is hosted in a Consumption plan, only the CNAME option is supported. This implies that with teh Consumption Paln only root domain are supported.**
+**When your function app is hosted in a Consumption plan, only the CNAME option is supported. This implies that with the Consumption Paln only root domain are supported.**
 
 > Validate and complete:
 Azure Portal > App Service > Custom Domain > Back in the Add custom domain dialog in the Azure portal, select Validate.
@@ -2670,7 +2670,7 @@ It was an offer in the past but the option of Python on Windows ahs been retired
 ## Q118:
 
 
-You deploy an Azure Web App named `wapp1` to teh West US region.
+You deploy an Azure Web App named `wapp1` to the West US region.
 The app strams videos to user located globally.
 Users in North US can stram video content without interruption.
 User in Europe, Africa and Asia complain of buffering problems and inconsistent playback quality.
@@ -2725,7 +2725,7 @@ What should you do?
 ### Answer:
 - deploy one App Service Plan (ASP)
 
-This is the option that minimizes costs and the APS should be on the Standard S1 tier to support 5 instances as teh basic tier supports up to three with no autoscaling while Standard S1 up to 10 with autoscaling.
+This is the option that minimizes costs and the APS should be on the Standard S1 tier to support 5 instances as the basic tier supports up to three with no autoscaling while Standard S1 up to 10 with autoscaling.
 
 
 
@@ -2822,7 +2822,7 @@ This was discussed in detail in few of the previous questions.
 
 ## Q114:
 
-You plan to depoly a new Azure web app and teh deployment must support autoscaling to 20 instances of teh web app.
+You plan to depoly a new Azure web app and the deployment must support autoscaling to 20 instances of the web app.
 
 You need to create a App Service plan that support this deployment.
 You must minimize cost.
@@ -2843,7 +2843,7 @@ The ASP Premium tier can run up to 30 instances.
 
 This was discussed in detail in a previous question.
 
-The remaining options do not meet teh requrements:
+The remaining options do not meet the requrements:
 
 - basic: max 3 instances
 - shared: no scaling out available
@@ -2859,7 +2859,7 @@ The remaining options do not meet teh requrements:
 
 You develop an Azure web app named `app1`.
 The app runs on a **Basic App Service Plan** named `asp1`.
-You want to deploy two scripts to run **WebJobs** in teh context of `app1`.
+You want to deploy two scripts to run **WebJobs** in the context of `app1`.
 
 You must ensure that you can support the WebJobs on the `app1` instances.
 
@@ -3256,8 +3256,8 @@ Select yes/no:
 Yes, KEDA checks scaling rules every 30 secs by default.
 
 - if the queue length > 15 KEDA scales the app by adding one new istance aka replica
-Yes, teh KEDA scale-up step is ny 1 by default.
-The other options are: 1, 4, 8, 16, 32... up to teh configured max replica count.
+Yes, the KEDA scale-up step is ny 1 by default.
+The other options are: 1, 4, 8, 16, 32... up to the configured max replica count.
 
 - the code snippet uses the `TriggerAuthentication` type for the authentication object
 No. 
@@ -3871,7 +3871,7 @@ of the cmdlt: `Set-AzVMDiskEncryptionExtension`
 
 - SequenceVersion is unique per each encryption operation performed on the VM
 Yes.
-The `-SequenceVersion` of teh cmdlet `Set-AzVMDiskEncryptionExtension`
+The `-SequenceVersion` of the cmdlet `Set-AzVMDiskEncryptionExtension`
 specifies the sequence number of the encryption operation for the VM.
 It must be a GUID per each VM.
 
@@ -4267,7 +4267,7 @@ No
 Yes
 
 you are not required to stop VM1 before detaching DataD2.
-it is sufficient that nothing is actively using teh dada disk while it is being detached.
+it is sufficient that nothing is actively using the dada disk while it is being detached.
 the  data disk cannot be accessed while it is detached, ity must be reattached to a VM
 in order to access it again.
 
@@ -4413,7 +4413,7 @@ which cmdlet should you use?
 ### Answer:
 - Move-AzResource
 
-This is described in teh reference belwo and can also be accomplished manually from 
+This is described in the reference belwo and can also be accomplished manually from 
 the Azure Portal from the Overview blade of the resource. [ChaNge RG]
 
 
@@ -4624,7 +4624,7 @@ Your comopany develops a new app.
 The app must be deployed to a VMSS to provide high availability 
 and to meet changing resource requirements.
 
-You run the `New-AzResourceGrou` cmdlet to create the RG for teh VMSS.
+You run the `New-AzResourceGrou` cmdlet to create the RG for the VMSS.
 You then want to create the VMSS.
 Which cmdlet should you run next?
 
@@ -4862,7 +4862,7 @@ update domains: 4
 this guarantees that VMs will be restarted in groups of 2
 
 fault domains: 3
-This is the max number of Fault Domains available to teh region (US) Central US.
+This is the max number of Fault Domains available to the region (US) Central US.
 
 **Availability sets** place VMs in different **fault domains**.
 
@@ -5322,7 +5322,7 @@ At the moment the batch job runs on a sigle H-series VM.
 You need to design a scalable compute solution.
 The requirements are the following:
 
-- ti must use VM instance sizes smaller than teh H-series
+- ti must use VM instance sizes smaller than the H-series
 - it must support automatic scale out and scale in based on CPU metrics
 - it must minimi\ze deployment time
 - it must minimize admin overhead
@@ -5469,7 +5469,7 @@ There are also the following series:
 You are an Azure admin and deploy Azure resource with Bicep.
 You want to use Lamba functions to hadle an array.
 Yiu need to convert an array to an object with a custom key function
-and optional custom value function to produce teh follwoing output.
+and optional custom value function to produce the follwoing output.
 
 `{"MrFunny":{"name":"MrFunny","age":2},"MrNaughty":{"name":"MrNaughty","age":3},}`
 
@@ -5550,8 +5550,8 @@ For each statement select Yes/No
 ## Q88 :
 
 Your organization uses Azure Advisor to optimize the Azure deployments.
-You want to set up an alert for new recommendation from teh Azure Advisor using Bicep.
-You need to define teh Azure resources in teh Bicep file named `main.bicep`
+You want to set up an alert for new recommendation from the Azure Advisor using Bicep.
+You need to define the Azure resources in the Bicep file named `main.bicep`
 
 Which two resources should you use?
 
@@ -5583,7 +5583,7 @@ Which two resources should you use?
 An RG was deplyed from an ARM template.
 Resouirces have since been added to the RG and some also modified through the Azure Portal.
 
-You need to create a new ARM template based on the curremnt state of teh RG.
+You need to create a new ARM template based on the curremnt state of the RG.
 
 Which PowerShell cmflet should you use?
 
@@ -5603,7 +5603,7 @@ ARM templatethat replicates the resources as they are presently ion the RG.
 The remaining options do not apply:
 
 `Save-AzResourceGroupDeploymentTemplate`
-This saves the RG deployment and not teh current RG.
+This saves the RG deployment and not the current RG.
 
 ---
 
@@ -5742,7 +5742,7 @@ obvious answer.
 You download  an ARM template created from an existing VM.
 You plan to use this template to deploy 50 new VMs.
 
-You need to modify teh template to reference an admin password.
+You need to modify the template to reference an admin password.
 The psw must not be stored in clear text.
 
 What should you do first?
@@ -5750,7 +5750,7 @@ What should you do first?
 - create and store the psw in the resource template
 - create and store the psw in an Axure KV and create an access policy
 - create and store the psw in a Recovery Services vault and create a Backup Policy
-- create and store the psw in a separate template and create a link from teh source template
+- create and store the psw in a separate template and create a link from the source template
 
 
 ---
@@ -5844,7 +5844,7 @@ OPTIONS-2:
 [New-AzResourceGroupDeployment](https://learn.microsoft.com/en-us/powershell/module/az.resources/new-azresourcegroupdeployment?view=azps-11.4.0&viewFallbackFrom=azps-3.6.1)  
 
 
-> the meaning of teh param: TemplateObject 
+> the meaning of the param: TemplateObject 
 > Example 2: Use a custom template object and parameter file to create a deployment
 
 This command creates a new deployment by using a custom and a template file on disk that has been converted to an in-memory hashtable. 
@@ -5864,7 +5864,7 @@ New-AzResourceGroupDeployment -ResourceGroupName "ContosoEngineering" -TemplateO
 You want to create multiple VMs.
 You download an ARM template from the portal.
 You need to modify the parameter file shown in the exhibit.
-You must ensure it has a reference to teh password.
+You must ensure it has a reference to the password.
 The psw must be encrypted while it is stored.
 
 <img src="./Q81-exhibit.png">
@@ -6077,7 +6077,7 @@ In your parent template, you add the nested template and pass in a parameter tha
 ## Q80:
 
 You deploy several new VMs to your Azure SUB.
-All VM are in teh same RG named RG1.
+All VM are in the same RG named RG1.
 The VMs are based on a common ARM template stored in GitHub.
 
 You need to automate this operation.
@@ -6119,7 +6119,7 @@ You decide to use an ARM template to deploy the SA and the cmdlet `AzResourceGro
 
 The ARM template does not contain any linked or nested templates.
 
-After the successful deployment, you find that all resource but teh new SA 
+After the successful deployment, you find that all resource but the new SA 
 have been removed from the RG.
 
 What happened?
@@ -6250,7 +6250,7 @@ Your company has a LOB app that uses several Azure resources.
 These resources are all in the same RG.
 After the first deplyment more resources for are added to the same RG via the deployments.
 
-You need to create a template to redeploy the resources required by teh LOB app.
+You need to create a template to redeploy the resources required by the LOB app.
 
 What should you do?
 
@@ -6391,8 +6391,8 @@ so **there's no external administrative overhead for your organization**.
 You deploy a LOB app and all the resources for the app are deployed to a single RG.
 The resources where added in different phases.
 
-You need to export teh current configuration of the LOB app resources to an ARM template.
-The ARM template will be used to teh deploy the LOB app infrastructure in a different
+You need to export the current configuration of the LOB app resources to an ARM template.
+The ARM template will be used to the deploy the LOB app infrastructure in a different
 testing enviroment.
 
 The ARM template uses the `complete` deployment mode.
@@ -6401,7 +6401,7 @@ Select Ye/No for each statement.
 
 - you need to export the ARM template from the latest deployment
 - each deployment contains only the resources that have been added in that deployment
-- that parameters file contains teh values used during that deployment
+- that parameters file contains the values used during that deployment
 - the template contains thet scripts needed to deply the template
 
 
@@ -6419,7 +6419,7 @@ the ARM template from the RG.
 - each deployment contains only the resources that have been added in that deployment
 Yes
 
-- that parameters file contains teh values used during that deployment
+- that parameters file contains the values used during that deployment
 Yes
 
 - the template contains thet scripts needed to deply the template
@@ -6499,7 +6499,7 @@ this copies a whole blob to a target SA
 metadata as a list of name-value pairs can be attached to a blob and it is 
 part of a version of the blob
 
-These ops do not create a new version of teh blob:
+These ops do not create a new version of the blob:
 - Put Page
 - Put Block From URL
 - Append Block
@@ -6528,7 +6528,7 @@ Which statement is correct reagrding this command?
 - the PS command undeletes the file share
 - the PS command only disables soft delete on the SA
 - the PS command does not disable soft delete on the SA
-- the PS command disables soft delete on teh SA and permanently deletes an AFS that has been soft deleted
+- the PS command disables soft delete on the SA and permanently deletes an AFS that has been soft deleted
 
 ---
 
@@ -6666,7 +6666,7 @@ You currently have three Azure SAs as shown below.
 | storage3  | GPv2    | 
 
 
-Currently, none of teh existing SAa allows you to provision a premium file share,
+Currently, none of the existing SAa allows you to provision a premium file share,
 but your manager has asked you to provision one in the most cost-effective way possible.
 
 Select Yes/No.
@@ -6709,7 +6709,7 @@ Your users have only local profiles, but you need to implement `FSLogix` to allo
 have netwoek profiles.
 
 You create an Azure File Share that stores user profiles and you configure the relevant
-file path onto each Windows 10 session host in teh AVD pool.
+file path onto each Windows 10 session host in the AVD pool.
 
 During testing of this solution you find that users log in via `FSLogix` temporary 
 profile instead of a network profile. However, admins can successfully mount the file
@@ -6718,26 +6718,26 @@ share on the same session host.
 What is the source of this problem?
 
 - Azure File Share netwrork settings are too restrictive
-- users do not have teh permission to access the Azure File Share
-- teh session host firewall blocks the user profiles from loading
+- users do not have the permission to access the Azure File Share
+- the session host firewall blocks the user profiles from loading
 - local profiles already exist for the users
 
 ---
 
 ### Answer:
-- users do not have teh permission to access the Azure File Share
+- users do not have the permission to access the Azure File Share
 
-Users taht log into the session host need R/W permissions to teh Azure File Share.
+Users taht log into the session host need R/W permissions to the Azure File Share.
 This is to allow a profile to be created and updated very time they log off.
 If a user does nto have the R/W permission thne theyr are logged in with a local profile
 on the Windows 10 session host and this does not save any changes made on the session.
 
-This is also why teh admin can instead log on the session hist via the File Share.
-It also proves that it is not teh firewall tha blocks the communication to teh Azure File Share
-and the loading of teh profiles.
+This is also why the admin can instead log on the session hist via the File Share.
+It also proves that it is not the firewall tha blocks the communication to the Azure File Share
+and the loading of the profiles.
 
 - local profiles already exist for the users
-this cannot be teh case as the users have logged on for the first time and therefore there
+this cannot be the case as the users have logged on for the first time and therefore there
 could not be already profiles for them on the Windows host.
 
 ---
@@ -6903,7 +6903,7 @@ You plan to migrate the erachice data to Azure Blob Storage and you have used
 Azure Storage Explorer to complete an initial bulk upload.
 
 You need to creat a lifecycle management policy using Powershell to move data
-that has not been modified for teh last 30 days to teh hot tier to the cool tier.
+that has not been modified for the last 30 days to the hot tier to the cool tier.
 
 Complete the Powershell script.
 
@@ -6974,7 +6974,7 @@ set this policy action on the storage account
 
 Your company hosts resources in Azure, including data in Azure Blob Storage.
 In the hot tier there is 20 TB of data.
-This data is rarely accessed and teh Finance Director has expressed concern about its 
+This data is rarely accessed and the Finance Director has expressed concern about its 
 monthly cost.
 
 You must move the data that has not been modified over the previous month to the 
@@ -7013,7 +7013,7 @@ but it is occasionally required.
 Storage costs should be kept to a minimum.
 
 You propose the following rule to move the data directly to the archive immediately after 
-being written to teh storage:
+being written to the storage:
 
 ```
 {
@@ -7053,7 +7053,7 @@ for access should the case be.
 ### Answer:
 - up to 15 h
 
-This detail was mentioned in one of teh previous answer to a question that 
+This detail was mentioned in one of the previous answer to a question that 
 had archiving to a SA as its theme.
 
 [Blob rehydration from the archive tier](https://learn.microsoft.com/en-us/azure/storage/blobs/archive-rehydrate-overview?tabs=azure-portal)    
@@ -7139,11 +7139,11 @@ Yes
 ```
 
 - rehydrating a blob from archive with Copy Blob operation resets that day after modification counter to zero
-No: the Copy Blob operation creates a separate copy of teh blob and does not reset the 
+No: the Copy Blob operation creates a separate copy of the blob and does not reset the 
 mofification counter on the original blob.
 
 - you should transition blobs from cool to hot tier to optimize performance
-yes: this ALSO reset the day after modification counter to zero if any changes are made to teh blob contents.
+yes: this ALSO reset the day after modification counter to zero if any changes are made to the blob contents.
 
 
 ---
@@ -7161,7 +7161,7 @@ yes: this ALSO reset the day after modification counter to zero if any changes a
 You create a FileStorage Premium Account and a Premium tier Azure Fiel Share.
 You plan to mount the file share directly on-prem using `SMB 3.0` protocol.
 
-You must ensure that teh network is configured to support mounting an Azure File Share
+You must ensure that the network is configured to support mounting an Azure File Share
 on-prem.
 Minimize the admin effort.
 
@@ -7617,7 +7617,7 @@ The user has Contributor Access to the SA.
 You must provide them the necessary access to the subscription in order 
 to resove this error and apply the principle of least privilege.
 
-What role should you assign to teh user at the subscription level?
+What role should you assign to the user at the subscription level?
 
 - Owner
 - Reader
@@ -7633,7 +7633,7 @@ What role should you assign to teh user at the subscription level?
 **The user has Contributor Access to the SA**.
 This arror is caused because this user lack sufficient permissions at the
 subscription level.
-The need to be able to **list all the storage accounts in teh subscription**.
+The need to be able to **list all the storage accounts in the subscription**.
 
 ---
 
@@ -7645,7 +7645,7 @@ The need to be able to **list all the storage accounts in teh subscription**.
 
 ## Q57:
 
-A company is in teh process of migrating its resources from on-prem to Azure.
+A company is in the process of migrating its resources from on-prem to Azure.
 
 The Marketing team needs to migrate 15 GB of data 
 from a file server to premium file storage.
@@ -7654,7 +7654,7 @@ They need to use a tool with a friendly GUI.
 
 You must deploy a tool that support both: 
 - the types of migration
-- the requirements from teh Marketing team
+- the requirements from the Marketing team
 
 Which tool do you choose?
 
@@ -7721,7 +7721,7 @@ Your aorganization hosts resources as IaaS Azure and on-premise.
 You have an existig **Azure File Network File System v4.1 (NFSv4.1)** share.
 This uses LRS.
 
-The company wants to inprove redundancy of teh file share and has asked
+The company wants to inprove redundancy of the file share and has asked
 you to migrate the existing files from LRS to ZRS.
 
 What should you do?
@@ -7789,7 +7789,7 @@ to accomplish the migration of blobs to Blob Storage.
 ### Answer:
 - Microsoft Entra ID
 
-In one of teh previous questions it iis discussed that the following
+In one of the previous questions it iis discussed that the following
 are the authorization method that are supported with AzCopy to copy
 blobs to a Blob Storage:
 - Microsoft Entra ID
@@ -8254,7 +8254,7 @@ Which redundancy option should you configure?
 Any Azure Region such as UK South can have 2 or more Availability Zones 
 which can be used for redundancy of some services such as SA.
 The ZRS options for SA makes three copies accross the available Zones
-for teh region.
+for the region.
 
 The remaining options:
 
@@ -8938,7 +8938,7 @@ This app will be installed on end users' computers.
 You need to ensure that he information stored in the SA is accessed in a secure way.
 You ask the developers to use SAS when accessing info on te SA.
 Yo must make the required configurations on the SA to follow security best 
-practices and enable access to teh SA with immediate effect.
+practices and enable access to the SA with immediate effect.
 
 Select Yes / No.
 
@@ -9416,7 +9416,7 @@ already has a MG.
  this simply deletes a MG
 
 - Update-AzManagementGroup
-this is used to update supported params for teh MG.
+this is used to update supported params for the MG.
 
 ---
 
@@ -9451,7 +9451,7 @@ and have ownership of all these subscriptions.
 Yuo have been asked to use PowerShell to migrate the resorces from 
 `sub01` to `sub02`.
 
-After the migration you find that all teh Azure Role Assignments for 
+After the migration you find that all the Azure Role Assignments for 
 individual rosources have been orphaned on VMs but are still in place
 for RGs.
 
@@ -9476,7 +9476,7 @@ any **roles assigned directly to the resources arne not moved**.
 All the role assignments must be recreated and the orhaned  assignments will be **automatically** removed.
 
 This does not depend on whether PowerShell or the Azure Portal 
-is used to perform teh migration.
+is used to perform the migration.
 
 The **Owner** role on source and target subscriptions is assigned 
 to the user account and that was used to run the migration script 
@@ -9532,7 +9532,7 @@ subscription.
 
 What is the cause of the problem?
  
-- you lack teh relevant role assignment to manage Azure Policy
+- you lack the relevant role assignment to manage Azure Policy
 - the version of tht Azure CLI: it must be updated
 - you do niot have relevant access to the subscription
 - you have not resistered the Azure Policy Insights Resource Provider
@@ -9578,7 +9578,7 @@ You have taken over the management of the IaaS in Azure from
 another IT technitian, who was responsible for creating and 
 managing all resources within the tenant.
 
-The owner of teh development subscription within the tenant
+The owner of the development subscription within the tenant
 wants to block anyone from deleting ther `devtest-rg` an any 
 of its resources,**without having to add any type of resource lock**
 **at subscriotion level**.
@@ -9599,7 +9599,7 @@ What should you recommend?
 - add a delete lock on the RG
 This is obviously the right answer.
 
-Refer to previous questions and answers for teh details.
+Refer to previous questions and answers for the details.
 
 ---
 
@@ -9742,7 +9742,7 @@ Windows Server 2016 DataCenter has active Software Assurance.
 
 You plan to move three VMs to Azure VMs and the fourth to a VM on a different on-prem host.
 
-You need to minimize costs related to teh three Azure VMs.
+You need to minimize costs related to the three Azure VMs.
 
 What should you do?
 
@@ -9855,13 +9855,13 @@ Obvuously, this is not maintanable!
 
 ## Q31:
 
-You develop a policy that will deny teh creation of any resource that 
+You develop a policy that will deny the creation of any resource that 
 does not have an environment tag with a value of either dev, qa, prod.
 
 You must ensure that only resources that support tagging are subject 
 to thsi policy.
 
-Complete teh JSON policy template.
+Complete the JSON policy template.
 
 ```
 {
@@ -9988,7 +9988,7 @@ Some users access these SAs by using the **Microsoft Storage Explorer Desktop Ap
 They report that they get the error message in the exhibit whn they try to browse
 the contents of the SA.
 
-You must resolve teh issue.
+You must resolve the issue.
 Which are two possible reasons for this error?
 
 - there is a CanNotDelete lock 
@@ -10020,11 +10020,11 @@ the lock on the storage account doesn't protect blob, queue, table, or file data
 The user oprocess for the the **Microsoft Storage Explorer Desktop App** needs to read 
 the access keys of the SA before listing the contents of the containers in it. 
 The access keys of the SA provide write access to all data in the SA and there is no 
-read only access key in the SA and in order to perform teh listing of the contents of
+read only access key in the SA and in order to perform the listing of the contents of
 the SA the user needs **read-write** permission.
 
 A ReadOnly lock as well as only the Read role assigned to users in the SAs would prevent
-the enforcement of teh required **read-write** permission.
+the enforcement of the required **read-write** permission.
 
 The rmaing optins do not apply:
 
@@ -10064,12 +10064,12 @@ TST02-rg had a **App Service** named APP01.
 **You recover the affected resource from backups**.
 
 You then decide to implement resource lock to prevent this from happening again.
-Your manager would like teh following points implemented in order to prevent this
+Your manager would like the following points implemented in order to prevent this
 type of incident in the future.
 
 - no resources can be deleted by accident
 - all resource types should work correctly after implementing the resource lock
-- any new resource that is added to teh subscription should be protected against deletion
+- any new resource that is added to the subscription should be protected against deletion
 - the solution should require the least admin affort
 
 What should you do?
@@ -10097,7 +10097,7 @@ The remainign options do not apply:
 
 The **read-only** would not be suitable in this case i.e. the RGs could not be modified
 and also any resource in them.
-Depending on teh resource **read-only** locks **may lead to uunpredictable outcomes**.
+Depending on the resource **read-only** locks **may lead to uunpredictable outcomes**.
 This is explained in details in one of the answer to a a previopus question and in the 
 following reference:
 
@@ -10118,7 +10118,7 @@ lock will prevent the operation.
 You create a Windows Server VM in an Azure RG named `iaas-rg`.
 You plan to **generalize the OS and caputure an image** for future deployments.
 
-You must ensure that other administrators make no changes to teh VM
+You must ensure that other administrators make no changes to the VM
 configuration until you complete the image capture process.
 You need to enact the solution as quickly as possible.
 
@@ -10140,7 +10140,7 @@ The **delete** lock would only protect from deletion of the VM and not
 modificatuions to its configuration while the **read-only** lock prevents
 these.
 
-The soltions based on RBAC require more admin effort before and after teh capture
+The soltions based on RBAC require more admin effort before and after the capture
 process.
 
 
@@ -10763,14 +10763,14 @@ The ALB must be recreated and re-configured.
 
 - you need to disable the peer before movinng the VNet
 Yes
-The peering **must be disabled before THE vnET moving to teh destination RG**.
+The peering **must be disabled before THE vnET moving to the destination RG**.
 Whe a VNet is moved to a new RG then all its contanied VMs and other resources
 must be moved as well.
 
 
 - you can move the VNet within the same subscription
 Yes
-You **can move a VNet within teh same subscription**.
+You **can move a VNet within the same subscription**.
 In this case you will also need to move the Redis cache that is a resource within the VNet.
 A **Redis cache can only be moved within the same subscription**.
 In this case the RG source and destination are in the same subscription therefore 
@@ -11083,7 +11083,7 @@ Mutate
 You have been tasked with assigning RBAC roles to users in your company.
 
 You try to interpret access assignments for UserA.
-You want to validate teh role assignments for UserA scoped to 
+You want to validate the role assignments for UserA scoped to 
 the groups of which UserA is a member.
 
 Complete the Azure CLI command below:
@@ -11549,7 +11549,7 @@ Wht is the underlying cause for this issue?
 
 2. One of the products specified in the group contains a service plan that conflicts with another service plan that is already assigned to the user via a different product.
 
-3. One of the products specified in teh group is not available in all locations because of local laws and regulations.
+3. One of the products specified in the group is not available in all locations because of local laws and regulations.
 
 4. One of the products specified in the goup contains a service plan that must be enabled for another service plan, in another product, to function.
 
@@ -11587,7 +11587,7 @@ the **Microsoft Entra ID P1 licence**.
 
 A report from the support team shows that a large number fo tickets have been raised concerning uisers who ask for their apssowrds to be changed. The organization decides to enable **self-service password reset (SSPR)** in order to reduce the number of support tickets.
 
-You enable **SSPR** via teh Azure Portal and assign it to teh **All Users security group**. However, tickets are still being raised by users located 
+You enable **SSPR** via the Azure Portal and assign it to the **All Users security group**. However, tickets are still being raised by users located 
 in the London office.
 
 You need to find out what causes SSPR not ot work for users located 
@@ -11624,7 +11624,7 @@ The **All Users group** contains:
 - guest users
 
 Thsi group is automaticall created in MEID and it is ine of the 
-default groups to which users within teh tenant are added when they are created.
+default groups to which users within the tenant are added when they are created.
 
 **SSPR supports hybrid users that are synchronized from an on-prem AD**.
 You must ensure that password writeback is enabled and configured in MEID.
@@ -11949,7 +11949,7 @@ The **SLA of VMs deployed to the same availability set is of 99.95%**.
 By **deploying VMs to different availability zones in the same region** 
 The SLA will be of 99.99% which is **the highest possible value in Azure** 
 
-Importantly, when the VMs are deployed to teh same **availability set** 
+Importantly, when the VMs are deployed to the same **availability set** 
 they **are not** deployed to different datacenter of the same region.
 This is a requirement of this case study.
 
@@ -11972,11 +11972,11 @@ This solution does not meet the goal.
 
 **Azure Front Door** can perform load balancing **only at the global level**.
 
-In this scenario, teh traffic must be balanced over the VMs in the same VNet
+In this scenario, the traffic must be balanced over the VMs in the same VNet
 which can only span a single region, therefore **Azure Front Door** would be 
 useless in this scenario.
 
-In order to load balance over teh VMs located in the same VNet the following
+In order to load balance over the VMs located in the same VNet the following
 would be suitable:
 - an ALB
 - an application GateWay
@@ -12133,7 +12133,7 @@ Does this solution meet the goal?
 This solution does not meet the goal.
 
 Every deployment in Azure is described by a template in JSON format.
-You can access the underlying template from teh Export Template settings blade of the VM resource
+You can access the underlying template from the Export Template settings blade of the VM resource
 and can deploy a **single** new instance of a resource by modifying the template parameters.
 However, in this case you need to deploy other 20 VMs by means of an aoutomated process and 
 therefore this solution would not meet this requirement.
