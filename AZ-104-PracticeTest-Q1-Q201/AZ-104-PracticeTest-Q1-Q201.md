@@ -15,6 +15,128 @@
 
 ---
 
+## Q157:
+
+a client asks to assist in moving a public website and DNS domain form the 
+current host into Azure.
+
+You help the client migrate the website to an Azure App Service web app.
+You also create a zone in Azure DNS for the client's `company1.com` and
+create a type A record to map it to the App Service.
+
+You must configure the DNS so that user requests to `company1.com` resolve
+to the App Service app.
+
+What should you do next?
+
+- create an alias CNAME record for `company1.com` in Azure DNS
+- configure Azure DNS as a secondary name server 
+- set the TTL to 10 seconds
+- delegate the `company1.com` zone to Azure DNS
+
+---
+
+### Answer:
+- delegate the `company1.com` zone to Azure DNS
+
+These what you have already done on the Azure side :
+
+1. create a zone in Azure DNS for the client's `company1.com` 
+2. create a type A record to map it to the App Service.
+
+These are necessary steps according to what is described at the following reference:
+
+[Tutorial: Create DNS records in a custom domain for a web app](https://learn.microsoft.com/en-us/azure/dns/dns-web-sites-custom-domain)   
+
+
+However, the missing step is now:
+- delegate the `company1.com` zone to Azure DNS
+
+That is done on the **client's registar** by the client as they have access to their registar. They must tell the registar that they want the `company1.com`  they own to
+point to the **private Azure DNS zone** that you have created for them in Azure.
+
+Once this is in place the the DNS infrastructure will resolve to the private Azure DNS
+zone and that then resolves to the App Service app.
+
+---
+
+### References:
+
+
+---
+
+## Q156:
+
+You ned to connect a VNet to a private DNS Zone to support new application 
+namespaces in the private zone. The VNet already has VMs assigned to it and
+has existing private DNS zones assigned to it.
+
+What should you do first?
+
+- set up a new VNet and ssign the private DNS to this VNet and move the existing VMs to it
+
+- remove the existing VMs from the VNet
+
+- set the existing VMs to support the new DNS zone via the Windows Server IP Configuration DNS settings app
+
+- add the new private DNS zone to the existing VNet
+
+---
+
+### Answer:
+- add the new private DNS zone to the existing VNet
+
+To complete this task this is the easist option, you can indeed add 
+a private DNS zone to a VNet even if this has already other private DNS Zones 
+assigned to it.
+
+The remaining options do not apply:
+
+- remove the existing VMs from the VNet:
+
+**In this case this is not required**. However, this **would be required**
+if the VNet did not already have private DNS zones assigned to it!
+
+- set up a new VNet and ssign the private DNS to this VNet and move the existing VMs to it
+This would work for the new private zone but it would remove the old private zone
+to the same VNet.
+
+
+---
+
+### References:
+
+[Tutorial: Host your domain in Azure DNS](https://learn.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns)  
+
+> Advantages of using Azure DNS:
+
+By hosting your domains in Azure [Azure DNS], you can manage your DNS records by using the same credentials, APIs, tools, and billing as your other Azure services.
+
+> Example:
+
+Suppose you buy the domain `contoso.com` from a domain name registrar and 
+then create a **DNS zone** with the name `contoso.com` in Azure DNS. 
+
+Since you're the owner of the domain, your registrar offers you the option to configure the name server (NS) records for your domain. 
+The registrar stores the NS records in the `.com` parent zone. 
+Internet users around the world are then directed to your domain in your Azure DNS zone when they try to resolve DNS records in `contoso.com`.
+
+This is the same as the reference below that illustrate the case for the 
+specific case of an app in Azure App Server:
+
+[Tutorial: Create DNS records in a custom domain for a web app](https://learn.microsoft.com/en-us/azure/dns/dns-web-sites-custom-domain)   
+
+---
+
+The following reference has already been discussed in detail:
+
+[What is Azure Private DNS?](https://learn.microsoft.com/en-us/azure/dns/private-dns-overview)   
+
+Azure Private DNS provides a reliable and secure DNS service for your virtual networks.
+Azure Private DNS manages and resolves domain names in the virtual network without the need to configure a custom DNS solution. 
+
+---
+
 ## Q155:
 
 Your company plans to release a new web app  called `applicationx`.
@@ -231,13 +353,15 @@ New-AzDnsRecordSet -Name "www" -ZoneName "company1.com" `
 
 > Ttl is expressed in seconds: 3600 s = 1 h
 
+TTL (time to live) is the amount of time in seconds a **record should be chached**
+**by the clients** before a new client DNS query is requested to teh DNS Server.
+
 Notice that there are now the following records:
 
 company1.com -> 1.2.3.4
 www.company1.com -> 2.3.4.5
 www.company1.com -> 3.4.5.6
-
-when 
+ 
 
 ---
 
