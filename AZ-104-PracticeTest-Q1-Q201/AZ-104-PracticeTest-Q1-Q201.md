@@ -15,6 +15,492 @@
 
 ---
 
+## Q155:
+
+Your company plans to release a new web app  called `applicationx`.
+This application is deployed by using App Service in Azure and will
+be available to users of the `company1.com` domain name that has 
+already been purchased.
+
+You configure `company1.com` Azure DNS zone and delegate it to 
+Azure DNS.
+
+You must ensure that web apps can be accessed by using the 
+`company1.com` domain name.
+
+You decide to use PS to accomplish this task.
+Complte the command.
+
+```
+New-AzDnsRecordSet -Name OPTIONS-1 `
+-RecordType OPTIONS-2 `
+-ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 600 `
+-DnsRecords "<the ip address of the Azure App Service>"
+
+
+New-AzDnsRecordSet -Name OPTIONS-3 `
+-RecordType OPTIONS-4 `
+-ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 600 `
+-DnsRecords (New-AzDnsRecordConfig -Value "applicationx.azurewebsites.net")
+```
+
+OPTIONS-1/3:
+"@"
+"company1.com"
+"www.company1.com"
+"applicationx.azurewebsites.net"
+
+OPTIONS-2/4:
+"A"
+"AAAA"
+"TXT"
+"CNAME"
+
+---
+
+### Answer:
+
+```
+New-AzDnsRecordSet -Name "@" `
+-RecordType "A" `
+-ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 600 `
+-DnsRecords "<the ip address of the Azure App Service>"
+
+
+New-AzDnsRecordSet -Name "@" `
+-RecordType "TXT" `
+-ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 600 `
+-DnsRecords (New-AzDnsRecordConfig -Value "applicationx.azurewebsites.net")
+```
+
+---
+
+### References:
+
+[Tutorial: Create DNS records in a custom domain for a web app](https://learn.microsoft.com/en-us/azure/dns/dns-web-sites-custom-domain)   
+
+You can configure Azure DNS to host a custom domain for your web apps.
+
+> To do this, you have to create three records:
+
+1. A root "A" record pointing to contoso.com
+2. A root "TXT" record for verification
+3. A "CNAME" record for the www name that points to the A record
+
+> A root "A" record pointing to contoso.com: apex record
+
+```
+New-AzDnsRecordSet -Name "@" -RecordType "A" -ZoneName "contoso.com" -ResourceGroupName "MyAzureResourceGroup" -Ttl 600 -DnsRecords (New-AzDnsRecordConfig -IPv4Address "<ip of web app service>")
+```
+
+> Create the TXT record: domain ownership verification record
+
+```
+New-AzDnsRecordSet -ZoneName contoso.com -ResourceGroupName MyAzureResourceGroup -Name "@" -RecordType "txt" -Ttl 600 -DnsRecords (New-AzDnsRecordConfig -Value  "contoso.azurewebsites.net")
+```
+
+> Create the CNAME record:
+
+CNAME means **canonical name** tha tis another name for your website.
+
+In this case the other nam is `contoso.azurewebsites.net` and we want the 
+Azure DNS to translate it to `www.contoso.com`.
+
+
+```
+New-AzDnsRecordSet -ZoneName contoso.com -ResourceGroupName "MyAzureResourceGroup" -Name "www" -RecordType "CNAME" -Ttl 600 -DnsRecords (New-AzDnsRecordConfig -cname "contoso.azurewebsites.net")
+```
+
+> Test the new records:
+
+You can validate the records were created correctly by querying the "www.contoso.com" and "contoso.com" using nslookup, as shown below:
+
+```
+nslookup
+Default Server:  Default
+Address:  192.168.0.1
+...
+
+```
+
+> Add custom host names:
+
+After the names have been registered with the Azure DNS as shown above 
+you can add the custom host names to your web app:
+
+```
+set-AzWebApp -Name contoso -ResourceGroupName <your web app resource group> -HostNames @("contoso.com","www.contoso.com","contoso.azurewebsites.net")
+```
+
+---
+
+[Set-AzWebApp](https://learn.microsoft.com/en-us/powershell/module/az.websites/set-azwebapp?view=azps-11.5.0)  
+
+
+---
+
+## Q154:
+
+you are asked to configure Azure DNS records for the root domain
+`company1.com` and add two records to that zone for independently
+hosted websites on different servers but using the same alias `www`.
+
+These servers will **round-robin** the DNS requets to provide high
+availability of the service.
+
+The TTL for the records must be set to 1h.
+
+How should you complete the script?
+
+```
+OPTIONS-1 -Name "@" -RecordType A -ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl OPTIONS-2 `
+-DnsRecords (OPTIONS-3 -IPv4Address "1.2.3.4")
+
+$aRecord = @()
+$aRecord += OPTIONS-4 -IPv4Address "2.3.4.5"
+$aRecord += OPTIONS-4 -IPv4Address "3.4.5.6"
+
+OPTIONS-5 -Name "www" -ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl OPTIONS-2 `
+-DnsRecords $aRecord
+```
+
+OPTIONS-1/3/5/4:
+New-AzDnsRecordConfig
+Set-AzDnsRecordConfig
+New-AzDnsRecordSet
+New-AzDnsZone
+
+OPTIONS-2:
+1
+60
+3600
+
+---
+
+### Answer:
+
+```
+
+# New-AzDnsRecordConfig: to create a record in a recordset
+# New-AzDnsRecordSet: to map recordsets to a zone name
+
+# create a record set that holds a single A type record 
+# this A record is for the IP address 1.2.3.4 and 
+# it points the zone name company1.com to it.
+# the thing to notice here that the -DnsRecords embeds the 
+# call to New-AzDnsRecordConfig.
+# This is the cose anly when there is a sigle record in the set.
+
+# ------------------------------------------------------------------
+# another important fact here is that teh name fo the record is: @
+# this is a special name that identifies the ROOT domain!
+# ------------------------------------------------------------------
+
+New-AzDnsRecordSet -Name "@" -RecordType A -ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 3600 `
+-DnsRecords (New-AzDnsRecordConfig -IPv4Address "1.2.3.4")
+
+# in this case instead there are multiple records in the set 
+# therefore an aobject must be used to hold them before passing it 
+# to New-AzDnsRecordSet.
+
+$aRecord = @()
+$aRecord += New-AzDnsRecordConfig -IPv4Address "2.3.4.5"
+$aRecord += New-AzDnsRecordConfig -IPv4Address "3.4.5.6"
+
+# this time -Name "www" and NOT @ that is this is an ALIAS
+
+New-AzDnsRecordSet -Name "www" -ZoneName "company1.com" `
+--ResourceGroupName "rg1"  `
+-Ttl 3600 `
+-DnsRecords $aRecord
+```
+
+> Ttl is expressed in seconds: 3600 s = 1 h
+
+Notice that there are now the following records:
+
+company1.com -> 1.2.3.4
+www.company1.com -> 2.3.4.5
+www.company1.com -> 3.4.5.6
+
+when 
+
+---
+
+### References:
+
+[New-AzDnsRecordSet](https://learn.microsoft.com/en-us/powershell/module/az.dns/new-azdnsrecordset?view=azps-11.5.0&viewFallbackFrom=azps-2.6.0)  
+
+creates a new Domain Name System (DNS) record set with the specified name and type in the specified zone. 
+
+[New-AzDnsRecordConfig](https://learn.microsoft.com/en-us/powershell/module/az.dns/new-azdnsrecordconfig?view=azps-11.4.0)   
+creates a local DnsRecord object.
+An array of these objects is passed to the New-AzDnsRecordSet cmdlet using the DnsRecords parameter to specify the records to create in the record set.
+
+> Example 1: Create a RecordSet of type A
+```
+
+$Records = @()
+$Records += New-AzDnsRecordConfig -IPv4Address 1.2.3.4
+$Records += New-AzDnsRecordConfig -IPv4Address 2.3.4.5
+# add more records to the same record set object..
+
+$RecordSet = New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ResourceGroupName "MyResourceGroup" `
+-TTL 3600 `
+-ZoneName "myzone.com" `
+-DnsRecords $Records
+
+# When creating a RecordSet containing a single record, 
+# the above sequence can also be condensed into a single line:
+
+$RecordSet = New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ResourceGroupName "MyResourceGroup" `
+-TTL 3600 -ZoneName "myzone.com" `
+-DnsRecords (New-AzDnsRecordConfig -IPv4Address 1.2.3.4)
+
+# To create a record set containing multiple records, 
+# use New-AzDnsRecordConfig to add each record to the $Records array,
+# then call New-AzDnsRecordSet, as follows:
+
+$Records = @()
+$Records += New-AzDnsRecordConfig -IPv4Address 1.2.3.4
+$Records += New-AzDnsRecordConfig -IPv4Address 5.6.7.8
+
+$RecordSet = New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ResourceGroupName "MyResourceGroup" `
+-TTL 3600 `
+-ZoneName "myzone.com" `
+-DnsRecords $Records
+```
+
+[Set-AzDnsRecordSet](https://learn.microsoft.com/en-us/powershell/module/az.dns/set-azdnsrecordset?view=azps-11.5.0&viewFallbackFrom=azps-2.6.0)  
+
+updates a record set in the Azure DNS service from a local RecordSet object.
+The record set is not updated if it has been changed in Azure DNS since the local RecordSet object was retrieved. 
+**This provides protection for concurrent changes**. 
+
+```
+$RecordSet = Get-AzDnsRecordSet -ResourceGroupName MyResourceGroup -ZoneName myzone.com -Name www -RecordType A
+Add-AzDnsRecordConfig -RecordSet $RecordSet -Ipv4Address 172.16.0.0
+Add-AzDnsRecordConfig -RecordSet $RecordSet -Ipv4Address 172.31.255.255
+Set-AzDnsRecordSet -RecordSet $RecordSet
+
+# These cmdlets can also be piped:
+
+Get-AzDnsRecordSet -ResourceGroupName MyResourceGroup -ZoneName myzone.com -Name www -RecordType A | Add-AzDnsRecordConfig -Ipv4Address 172.16.0.0 | Add-AzDnsRecordConfig -Ipv4Address 172.31.255.255 | Set-AzDnsRecordSet
+```
+---
+
+[Manage DNS records and recordsets in Azure DNS using Azure PowerShell](https://learn.microsoft.com/en-us/azure/dns/dns-operations-recordsets)   
+
+> How Azure DNS organizes DNS records into DNS record sets?
+
+In Azure DNS, records are specified by using relative names. 
+
+- what is the difference between FQDN and relative names?
+A fully qualified domain name (FQDN) includes the zone name, 
+whereas a relative name does not. 
+
+For example, the **relative record name** `www` in the zone `contoso.com` 
+gives the fully qualified record name `www.contoso.com`.
+
+> apex record (@) aka root record
+
+An apex record is a DNS record at the root (or apex) of a DNS zone.
+
+For example, in the DNS zone `contoso.com` an **apex record** also has the fully qualified name `contoso.com` (this is sometimes called a **naked domain**). 
+**By convention, the relative name '@'** is used to represent apex records.
+
+> Record types:
+
+Each DNS record has a **name and a type**. 
+Records are organized into various types according to the data they contain.
+The most common type is an **'A' record, which maps a name to an IPv4 address**. 
+Another common type is an **'MX' record, which maps a name to a mail server**.
+
+Azure DNS supports all common DNS record types: 
+A, AAAA, CAA, CNAME, MX, NS, PTR, SOA, SRV, and TXT = SPF. 
+
+> Record sets:
+
+Azure DNS manages all DNS records using record sets. 
+An Azure record set is the collection of DNS records in a zone 
+that **have the same name and are of the same type**. 
+
+
+Sometimes you need to create more than one DNS record with a given name and type.
+
+- Example:
+For example, suppose the `www.contoso.com` web site is hosted on 
+two different IP addresses. 
+
+The website requires two different A records, one for each IP address
+and together they give the Azure DNS record set: 
+
+```
+www.contoso.com.        3600    IN    A    134.170.185.46
+www.contoso.com.        3600    IN    A    134.170.188.221
+```
+
+> SOA & CNAME record types are exceptions!
+
+**The SOA and CNAME record types are exceptions.**
+The DNS standards don't permit multiple records with the same name for these types.
+therefore these record sets can only contain a single record.
+
+> Create a new DNS record
+
+To create a new record set, it has to have a different name and type than any existing records. If the new record has the same name and type as an existing record, you'll need to add it to the existing record set.
+
+> Create 'A' record for the apex in a new record set: New-AzDnsRecordSet
+
+To create a record set at the 'apex' of a zone (in this case, 'contoso.com'), 
+use the record set name '@' (excluding quotation marks):
+
+```
+New-AzDnsRecordSet -Name "@"  `
+-RecordType A `
+-ZoneName "contoso.com" `
+-ResourceGroupName "MyResourceGroup" `
+-Ttl 3600 `
+-DnsRecords (New-AzDnsRecordConfig -IPv4Address "1.2.3.4")
+```
+
+> Create 'A' record as ALIAS in a new record set: New-AzDnsRecordSet
+
+The following example creates a record set with the **relative name** 
+`www` in the DNS Zone `contoso.com`
+
+```
+New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ZoneName "contoso.com" `
+-ResourceGroupName "MyResourceGroup" `
+-Ttl 3600 `
+-DnsRecords (New-AzDnsRecordConfig -IPv4Address "1.2.3.4")
+```
+
+> Create multiple A records in a recordset:
+
+This is the case when the same DNS name points to several physical IPv4.
+
+```
+$aRecords = @()
+$aRecords += New-AzDnsRecordConfig -IPv4Address "1.2.3.4"
+$aRecords += New-AzDnsRecordConfig -IPv4Address "2.3.4.5"
+New-AzDnsRecordSet -Name www –ZoneName "contoso.com" `
+-ResourceGroupName MyResourceGroup `
+-Ttl 3600 `
+-RecordType A `
+-DnsRecords $aRecords
+```
+
+> record set metadata:
+
+You can associate **application-specific data** with each record set, 
+as key-value pairs. 
+
+```
+New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ZoneName "contoso.com" `
+-ResourceGroupName "MyResourceGroup" `
+-Ttl 3600 `
+-DnsRecords (New-AzDnsRecordConfig -IPv4Address "1.2.3.4") `
+-Metadata @{ dept="finance"; environment="production" }
+```
+
+> empty records:
+
+Empty records in Azure DNS can act as a **placeholder** to 
+**reserve a DNS name before creating DNS records**. 
+
+```
+New-AzDnsRecordSet -Name "www" `
+-RecordType A `
+-ZoneName "contoso.com" `
+-ResourceGroupName "MyResourceGroup" `
+-Ttl 3600 -DnsRecords @()
+```
+
+> Create records of other types (other than A type records)
+
+This is a "AAAA" for an IPv6.
+
+```
+New-AzDnsRecordSet -Name "test-aaaa" -RecordType AAAA -ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" -Ttl 3600 -DnsRecords (New-AzDnsRecordConfig -Ipv6Address "2607:f8b0:4009:1803::1005")
+```
+
+Azure DNS supports all common DNS record types: 
+A, AAAA, CAA, CNAME, MX, NS, PTR, SOA, SRV, and TXT = SPF. 
+There are examples for each of these types.
+
+> List record sets:
+```
+$recordsets = Get-AzDnsRecordSet -ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" 
+# -RecordType A
+# | where {$_.Name.Equals("www")}
+```
+
+---
+
+## Q153:
+
+you must configure public IP addressing for four identicallty configured backend VMs all located in the same Azure VNet.
+
+Your solutiomn must meet the requirements:
+
+- minimize the VMs attack surface
+- minimize administrative complecity
+- minimize maintenance complecity
+- minimize costs
+
+What should you do?
+
+- assign a public IP address to a public LB and use NAT
+- assign a public IP address to an Azure VPN Gateway and use a public  LB 
+- assign a public IP to each VM and use NSG 
+- assign a public IP to each VM NIC and use JIT VM access
+
+---
+
+### Answer:
+- assign a public IP address to a public LB and use NAT
+This configuration meets all the requirements
+
+The following do not apply:
+
+this are much more complex and costly
+- assign a public IP address to an Azure VPN Gateway and use a public  LB 
+- assign a public IP to each VM and use NSG 
+
+the following does not even address the requiremtes as JIT is a authentication & authorization mechanism part of Microsoft Defender
+- assign a public IP to each VM NIC and use JIT VM access
+
+---
+
+### References:
+
+---
+
 ## Q152:
 
 You deploy a group of new VMs to an Azure subscription.
