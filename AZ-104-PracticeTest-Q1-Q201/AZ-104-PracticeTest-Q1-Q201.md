@@ -15,6 +15,274 @@
 
 ---
 
+## Q163:
+
+Your company plans to release a new web app.
+The app si deployed using several resources in Azure and will be available to users
+on the domain `company1.com` that has already been purchased.
+
+You must ensure that `company1.com` can be resolved on the Internet.
+You must follw best practice guidlines.
+
+Which three actions should you perform?
+
+- create a NS record in your Azure DNS zone that points to azure-dns servers
+- configure a reverse DNS zone in Azure 
+- purchase `company1.com` domain by using a registrar
+- purchase `company1.com` domain by using Azure DNS
+- create a NS record in your registrar that points to azure-dns servers
+- create a SOA record in your registrar that pints to azure-dns servrs
+- create a SOA record in your DNS Zone that points to azure-dns servers
+- configure a DNS Forwarder in Azure 
+
+
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+
+---
+
+
+## Q162:
+
+You plan to deploy a LOB app in Azure.
+
+The app must be distributed in three different layers: 
+frontend, backend and data persistence layer.
+
+To ensure high availability for each layer, you deploy two VMs per layer with an availability set.
+
+You also plan to configure an internal LB for the backend and persistence layers.
+
+The LOB application must have the following minimum required services running on each layer:
+
+- FE: IIS listening on TCP:80  + internal health point on TCP:80 
+- BE: IIS listening on TCP:443 + internal health point on TCP:80 
+- DL: SQL Server on TCP:1433
+
+You must configure the VMs for the backend layer.
+You must configure the internal LB for the BE.
+You must ensure that your solution is resilient ot hardware and software failures.
+Your solution must be cost effective.
+
+Which four action should you you perform?
+
+- create a BE pool using the availability set
+- create a BE pool using the VMs
+- create a LB rule using port 80
+- create a LB rule using port 443
+- create an HTTP health probe using port 80
+- create a LB Basic SKU
+- create a LB Standard SKU
+
+---
+
+### Answer:
+
+- create a LB Standard SKU
+- create a BE pool using the availability set
+- create an HTTP health probe using port 80
+- create a LB rule using port 443
+
+You must use a STD SKU LB to meet all the requirements.
+
+The VMs deployed to an availabiltity set AS that you have created are deployed ot the 
+same datacenter. However, they a located on different Failure Domains and therefore 
+are independent of hardware failures in each other domain.
+
+The health bprdes are necessary in order for teh LB to balance the 
+traffic to the BE and the DL.
+
+the requireMENT **create a LB rule using port 443** is a **HTTPS** rule and the 
+**Basic SKU LB does not support HTTPS rules** a **STD SKU LB** must be used. 
+
+The remaining options do not apply:
+
+- create a BE pool using the VMs
+- create a LB rule using port 80
+- create a LB Basic SKU
+
+
+---
+
+### References:
+
+---
+
+
+## Q161:
+
+your company has an Azure DNS zone named `company.com`.
+You create a subdomain `development.company.com`.
+The new domain should delegate to a different DNS server in Azure than `company.com`.
+
+You must configure delegation for the domain.
+
+What should you do?
+
+- create a DNS Start of Authority (SOA) record for `development.company.com`
+- modify the DNS Start of Authority (SOA) record for `company.com`
+- create a DNS name server (NS) reord set named `development` in the  `company.com` zone
+- create a DNS name server (NS) reord set named `development` in the  `dvelopment.company.com` zone
+
+
+---
+
+### Answer:
+
+- create a DNS name server (NS) reord set named `development` in the  `company.com` zone
+
+The concept of NS (Name Server) was examined in detail in one of the previous questions.
+
+Here you want to create a NS record `development`set in the **apex** 
+domain name zone `company.com`.
+**The NS record identifies the Azure DNS name server assigned to the zone**.
+You **can create, modify and delete NS record sets for delegated zones**.
+You **cannot** delete top-level NS records.
+
+The other options do not apply:
+
+The **Start of Authority (SOA) record** for `company.com` is created automatically
+and it is automatically deleted when the zone is deleted.
+A SOA record is never for a delegated zone.
+
+
+---
+
+### References:
+
+[Delegate an Azure DNS subdomain](https://learn.microsoft.com/en-us/azure/dns/delegate-subdomain)  
+
+For example, if you own the `adatum.com domain`, you can delegate a subdomain called `engineering.adatum.com` to another separate zone that you can administer separately 
+from the `adatum.com` zone.
+
+To delegate an Azure DNS subdomain, the parent public domain must first be delegated 
+to Azure DNS.
+This means that `adatum.com` must first be delegated to Azure DNS.
+
+
+---
+
+[Overview of DNS zones and records](https://learn.microsoft.com/en-us/azure/dns/dns-zones-records)
+
+---
+
+## Q160:
+
+you deploy three Azure Windows VMs: VM1, VM2, VM3.
+These VMs host the front-end layer of a web-app.
+You configure a Standard LB LB1 and its back-end pool is VM1, VM2, VM3.
+You configure a balancing rule for TCP traffic only.
+
+You also configure three public static IPs that are assigned as follows: 
+
+IP1 -> VM1
+IP2 -> LB1
+IP3 -> LB1
+
+Select yes/no:
+
+- outbound flow on VM1 will always use IP2
+- outbound flow on LB1 will use IP2 & IP3 at the same time
+- outbound flow on VM3 will use IP2 & IP3 for UDP traffic
+
+---
+
+### Answer:
+
+- outbound flow on VM1 will always use IP2
+No
+
+- outbound flow on LB1 will use IP2 & IP3 at the same time
+Yes
+
+- outbound flow on VM3 will use IP2 & IP3 for UDP traffic
+No
+
+- The outbound flow from VM1 will NOT use IP2:
+
+VM01 is in the back-end of LB01
+VM01 has also its own IP1
+->
+in this case IP1 takes precedence over IP2 & IP3
+
+- The outbound flow on LB1 will use IP2 & IP3 at the same time:
+
+LB1 is a **Standard SKU LB** this means that Azure  will **use** all assigned static IPs
+**at the same time** for the outbound traffic.
+**Basic SKU LB** do not have this feature, although all its static IPs are considered 
+when deciding which one to use for the outbound traffic only one will be used.
+
+- outbound flow on VM3 will NOT use IP2 & IP3 for UDP traffic:
+
+The LB1 is configured with a TCP rule not a UDP rule!
+There will be no balancing at all for UDP traffic inbound or outbound.
+
+---
+
+### References:
+
+[Multiple frontends for Azure Load Balancer](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-multivip-overview)    
+
+Azure Load Balancer allows you to load balance services on: 
+
+- multiple ports
+- multiple IP addresses
+- or both
+
+When you define an Azure Load Balancer, a **frontend and a backend pool configuration** 
+are connected with a **load balancing rule**. 
+The **health probe** referenced by the load balancing rule is used to determine the health 
+of a VM on a certain port and protocol.
+Based on the health probe results, new flows are sent to VMs in the backend pool.
+
+The frontend is defined using a **three-tuple** comprised of: 
+
+- an IP address (public or internal)
+- a transport protocol (UDP or TCP)
+- and a port number
+
+| Frontend	| IP address |	protocol	| port |
+| --------- | ---------- | ---------- | ---- |
+| 1	        | 65.52.0.1	 | TCP        | 80   |
+| 4	        | 65.52.0.2	 | TCP	      | 80   |
+2	65.52.0.1	TCP	8080
+3	65.52.0.1	UDP	80
+
+#1 and #4 are an example of **multiple frontends**, where the same frontend protocol and port are reused across multiple frontend IPs.
+
+There are two types of rules:
+
+1. The default rule with no backend port reuse.
+2. The Floating IP rule where backend ports are reused.
+
+Azure Load Balancer allows you to mix both rule types on the same load balancer configuration. 
+
+> Rule type #1: No backend port reuse:
+
+green  frontend 1	65.52.0.1	TCP	80
+purple frontend 2	65.52.0.2	TCP	80
+
+in this case **each VM exposes the desired service on a unique port** 
+on the backend instance IP. This service is associated with the 
+frontend IP (FIP) through a rule definition.
+
+> Rule type #2: backend port reuse by using Floating IP:
+
+
+---
+
+[Use Source Network Address Translation (SNAT) for outbound connections](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-outbound-connections)   
+
+---
+
 ## Q159:
 
 You configure the `companycs.com` zone in Azure DNS.
