@@ -2,7 +2,7 @@
 
 ---
 
-## Q15X:
+## Q16X:
 
 
 ---
@@ -12,6 +12,123 @@
 ---
 
 ### References:
+
+---
+
+## Q159:
+
+You configure the `companycs.com` zone in Azure DNS.
+You have an **A record set** named `app` that points to an App Service.
+You must make this application available by using the `webapp.companycs.com`domain name.
+This new domain name must point to the public IP address of the App Service.
+You must ensure that the DNS record for this new domain name is updated
+or deleted automatically in case the `app.companycs.com` DNS record is 
+modified or deleted.
+
+Which type of record set should you create?
+
+- an A alias record set
+- a CNAME alias record set
+- a CNAME record set
+- a A record set
+
+---
+
+### Answer:
+- an A alias record set
+
+An **A alias record set** is aka **Address Mapping Record Set**.
+It allows you to create an alternative name for a record set in your domain zone or for resources in your subscription. 
+
+**This is different from a CNAME (canonical name) record type!**
+
+The A alias record set will be updated or delete when the target record set is 
+updated or deleted respectively. 
+The CNAME record set does not have this proerty.
+
+**The A alias record set must be for any off the following tepes in an Azre DNS Zone:** 
+
+- a A type  record set
+- an AAAA type record set
+- a CNAME type record set
+
+---
+
+### References:
+
+[Azure DNS alias records overview](https://learn.microsoft.com/en-us/azure/dns/dns-alias)  
+
+Azure DNS alias records are **qualifications on** a DNS record set. 
+They can reference other Azure resources from within your DNS zone.
+For example, you can create an alias record set that references an Azure public IP address instead of an A record. 
+As a result, the alias record set seamlessly updates itself during DNS resolution.
+
+An alias record set is supported for the following record types in an Azure DNS zone:
+
+- A
+- AAAA
+- CNAME
+
+> Capabilities:
+
+- Point to a public IP resource from a DNS A/AAAA record set:
+
+You can create an A/AAAA record set and make it an alias record set to point to a public IP resource (standard or basic). The DNS record set changes automatically if the public IP address changes or is deleted. 
+**Dangling DNS records that point to incorrect IP addresses are avoided**.
+
+- Point to a **Traffic Manager profile** from a DNS A/AAAA/CNAME record set:
+
+You can create an A/AAAA or CNAME record set and use alias records to point it to a Traffic Manager profile. 
+
+It's especially useful when you need to route traffic at a zone apex, as traditional CNAME records aren't supported for a zone apex. For example, say your Traffic Manager profile is `myprofile.trafficmanager.net` and your business DNS zone is `contoso.com`. 
+You can create an alias record set of type A/AAAA for `contoso.com` (the zone apex) and point to `myprofile.trafficmanager.net`.
+
+- Point to an Azure Content Delivery Network (CDN) endpoint:
+
+This alias type is useful when you create static websites using Azure storage and Azure CDN.
+
+- Point to another DNS record set within the same zone :
+
+Alias records can reference other record sets of the same type. 
+For example, a DNS CNAME record set can be an alias to another CNAME record set. 
+This arrangement is useful if you want some but not all record sets to be aliases.
+
+> Common Scenarios:
+
+- Prevent dangling DNS records:
+
+A common problem with traditional DNS records is dangling records i.e. when a resource in Azure such as an App Service is deleted or its IP is changed.
+
+For example, DNS records that haven't been updated to reflect changes to IP addresses. 
+The issue occurs especially with A/AAAA or CNAME record types.
+With a traditional DNS zone record, when the target IP or CNAME no longer exists, 
+the DNS record associated with it has been updated manually.
+**A delay in updating the DNS record can potentially cause an extended outage for the users**.
+
+- Update DNS record-set automatically when application IP addresses change
+Similar to the previous scenario.
+
+- Host load-balanced applications at the zone apex:
+
+**The DNS protocol prevents the assignment of CNAME (canonical name) records at the zone apex**.
+
+ You can create CNAME records for `somelabel.contoso.com` 
+ but you can't create a CNAME for `contoso.com` itself.
+
+**This restriction presents a problem for application owners who have load-balanced applications behind Azure Traffic Manager**. Since using a Traffic Manager profile requires creation of a CNAME record, it's not possible to point to Traffic Manager profile from the zone apex.
+
+**To resolve this issue, you can use alias records.**
+Unlike CNAME records, alias records are created at the zone apex.
+Application owners can use it to point their zone apex record to a Traffic Manager profile that has external endpoints.
+For example, `contoso.com` and `www.contoso.com` can point to the same Traffic Manager profile. 
+
+- Point zone apex to Azure CDN endpoints:
+
+Just like a Traffic Manager profile, you can also use alias records to point your DNS zone apex to Azure CDN endpoints. 
+
+---
+
+[Tutorial: Create an alias record to support apex domain names with Traffic Manager](https://learn.microsoft.com/en-us/azure/dns/tutorial-alias-tm)  
 
 ---
 
