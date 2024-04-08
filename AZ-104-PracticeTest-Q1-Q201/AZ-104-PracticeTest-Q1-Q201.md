@@ -15,6 +15,117 @@
 
 ---
 
+## Q158:
+
+You have an Azure RG `rg1` that contains two VMs.
+
+VNet1: East US, 4 Windows Server VMs
+VNet2: West US, 8 Linux VMs
+
+You must configure hostname resolution for all VMs within `rg1`.
+
+Requiremnts:
+
+- You must minimize costs
+- You must minimize complexity
+- VMs within each VNet must be able to resolve each other's FQDNs
+- VMs in VNet1 must be able to resolve hostnames fo VMs in VNet2
+- VMs in VNet2 must be able to resolve hostnames fo VMs in VNet1
+
+What should you do?
+
+- enable Azure-provided resolution
+- define vnet1-vnet2 peering 
+- create a Private Zone in Azure DNS
+- deploy a VNet-to-VNet private VPN
+
+---
+
+### Answer:
+- create a Private Zone in Azure DNS
+This is the obvious answer, refer to the references below.
+
+The remaining options do not apply:
+
+- define vnet1-vnet2 peering 
+- deploy a VNet-to-VNet private VPN
+
+These are definitely more expensive and complex.
+
+- enable Azure-provided resolution
+This does not work because it does not allow name resolution between VNtes
+without any additional configuration. 
+**VNets in Azure are by default isolated communication boundaries**, you must
+do something i.e. peering or use Azure Private DNS Zones to connect them.
+
+---
+
+### References:
+
+This was discussed in details in a previous question:
+
+[Name resolution for resources in Azure virtual networks](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-name-resolution-for-vms-and-role-instances?tabs=redhat)  
+
+There are basically 4 methods that can be use to resolve DNS names in Azure:
+
+1. Azure DNS private zones
+2. Azure-provided name resolution
+3. Name resolution that uses your own DNS server (which might forward queries to the Azure-provided DNS servers)
+4. Azure DNS Private Resolver
+
+---
+
+[What is Azure Private DNS?](https://learn.microsoft.com/en-us/azure/dns/private-dns-overview)
+
+Azure Private DNS provides a reliable and secure DNS service for your virtual networks.
+Azure Private DNS manages and resolves domain names in the virtual network without the need
+to configure a custom DNS solution. 
+By using private DNS zones, you can use your own custom domain name instead of the 
+Azure-provided names during deployment.
+Using a custom domain name helps you tailor your virtual network architecture to best suit 
+your organization's needs. 
+It provides a naming resolution for virtual machines (VMs) within a virtual network and
+connected virtual networks.
+
+> split-horizon:
+
+Additionally, you can configure zones names with a split-horizon view, which allows a 
+private and a public DNS zone to share the name.
+This is the case of old/new version of na app pointed to by the same domain name.
+
+> Link VNet to PZ:
+
+To resolve the records of a private DNS zone from your virtual network, 
+you must link the virtual network with the zone.
+Linked virtual networks have full access and can resolve all DNS records published in 
+the private zone. 
+
+> Autoregistration:
+
+When you enable autoregistration on a virtual network link, the DNS records for the 
+virtual machines in that virtual network are registered in the private zone. 
+When autoregistration gets enabled, Azure DNS will update the zone record whenever a
+virtual machine gets created, changes its' IP address, or gets deleted.
+
+---
+
+[Configure a VNet-to-VNet VPN gateway connection - Azure portal](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-vnet-vnet-resource-manager-portal)   
+
+**This type of configuration creates a connection between two virtual network gateways**.
+
+The virtual networks can be in different regions and from different subscriptions.
+When you connect VNets from different subscriptions, the subscriptions don't need 
+to be associated with the same tenant.
+It's similar to creating a Site-to-Site IPsec connection to an on-premises location.
+Both connection types use a VPN gateway to provide a secure tunnel with **IPsec/IKE** 
+and function the same way when communicating. 
+However, they differ in the way the local network gateway is configured.
+
+
+<img src="./Q158-1.png">
+
+---
+
 ## Q157:
 
 a client asks to assist in moving a public website and DNS domain form the 
@@ -62,6 +173,87 @@ zone and that then resolves to the App Service app.
 
 ### References:
 
+[Delegation of DNS zones with Azure DNS](https://learn.microsoft.com/en-us/azure/dns/dns-domain-delegation)  
+
+Azure DNS allows you to host a DNS zone and manage the DNS records for a domain in Azure. 
+
+**In order for DNS queries for a domain to reach Azure DNS, the domain has to be delegated to Azure DNS from the parent domain**. 
+**Keep in mind Azure DNS isn't the domain registrar**. 
+This article explains how domain delegation works and how to delegate domains to Azure DNS.
+
+> How DNS delegation works:
+
+> top-level domains, such as com, net, org, uk or jp
+> second-level domains, such as org.uk or co.jp
+
+The domains in the DNS hierarchy are hosted using separate DNS zones.
+These zones are globally distributed, hosted by DNS name servers around the world.
+
+> DNS zone:
+
+A domain is a unique name in the Domain Name System, for example `contoso.com`.
+**A DNS zone is used to host the DNS records for a particular domain**.
+
+For example, the domain `contoso.com` may contain several DNS records such as:
+`mail.contoso.com` (for a mail server) 
+`www.contoso.com` (for a website).
+
+> Domain registrar:
+A domain registrar is a company who can provide Internet domain names.
+They verify if the Internet domain you want to use is available and allow you to purchase it. 
+
+> Resolution and delegation:
+
+There are two types of DNS servers:
+
+1. authoritative DNS server:
+hosts DNS zones. 
+It answers DNS queries for records in those zones only.
+**Azure DNS provides an authoritative DNS service**.
+
+2. recursive DNS server:
+doesn't host DNS zones. 
+It answers all DNS queries by calling authoritative DNS servers 
+to gather the data it needs.
+
+**Cloud Services and VMs in Azure are automatically configured to use a recursive DNS service that is provided separately as part of Azure's infrastructure**.
+DNS clients in PCs or mobile devices typically call a recursive DNS server to do any DNS queries the client applications need.
+
+> The DNS query and resoulution process:
+
+When a **recursive DNS server receives a query for a DNS record** such as 
+`www.contoso.com`. 
+
+it **first needs to find the name server hosting the zone for** the `contoso.com` domain. To find the name server, it starts at the root name servers, and from there finds the name servers hosting the `com` zone. It then queries the com name servers to find the name servers hosting the `contoso.com` zone. 
+
+Finally, it's able to query these name servers for `www.contoso.com`.
+This procedure is called resolving the DNS name.
+Strictly speaking, DNS resolution includes more steps such as following CNAMEs, but that's not important to understanding how DNS delegation works.
+
+> NS record: How does a parent zone point to the name servers for a child zone?
+
+It does this using a special type of DNS record called an NS record (Name Server).
+For example, the root zone contains NS records for com and shows the name servers 
+for the com zone.
+In turn, the `com` zone contains NS records for `contoso.com`, which shows the name servers for the `contoso.com` zone. 
+
+> Delegation:
+
+Setting up the NS records for a child zone in a parent zone is called delegating the domain.
+Each delegation actually has two copies of the NS records; one in the parent zone pointing to 
+the child, and another in the child zone itself.
+The `contoso.net` zone contains the NS records for `contoso.net` 
+(in addition to the NS records in net). 
+These records are called **authoritative NS records** and they sit at the **apex** of the child zone.
+
+
+<img src="./Q157-1.png">
+
+---
+
+[Azure DNS FAQ](https://learn.microsoft.com/en-us/azure/dns/dns-faq)    
+
+[Overview of DNS zones and records](https://learn.microsoft.com/en-us/azure/dns/dns-zones-records)  
 
 ---
 
