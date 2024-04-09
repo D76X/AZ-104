@@ -15,6 +15,238 @@
 
 ---
 
+## Q167:
+
+you have an Azure subscription with a Windows Server 2019 VM named VM1.
+You must enable **guest OS diagnostics** on VM1 with Azure Cloud Shell.
+
+Complete the command:
+
+```
+$vmrg = "prod"
+$vm = "vm1"
+$path = "config.xml"
+OPTIONS-1 -ResourceGroupName $vmrg -VMName $vm OPTIONS-2 $path
+```
+
+OPTIONS-1:
+Set-AzDiagnosticSetting
+Set-AzDiagnosticExtension
+Set-AzVMBootdiagnostic
+
+OPTIONS-2:
+-DiagnosticsConfigurationPath
+-DefaultProfile
+-StorageContext
+
+---
+
+### Answer:
+
+```
+$vmrg = "prod"
+$vm = "vm1"
+$path = "config.xml"
+Set-AzDiagnosticExtension -ResourceGroupName $vmrg -VMName $vm -DiagnosticsConfigurationPath $path
+```
+
+`Set-AzDiagnosticExtension` is used to  enable **guest OS diagnostics** on VMs.
+This command enables Azure to retrieve **diagnostic telemetry data** from 
+**Performance Monitor and Event Logs** of a VM.
+
+This data is then sent to a **Log Analytics Workspace**.
+
+`-DiagnosticsConfigurationPath $path` specifies a XML file that specifies which
+guest OS diagnostics are to be collected and sent over.
+
+---
+
+### References:
+
+[Use PowerShell to enable Azure Diagnostics in a virtual machine running Windows](https://learn.microsoft.com/en-us/azure/virtual-machines/extensions/diagnostics-windows)  
+
+Azure Diagnostics is the capability within Azure that enables the collection of diagnostic data on a deployed application. You can use the diagnostics extension to collect diagnostic data like application logs or performance counters from an Azure virtual machine (VM) that is running Windows.
+
+```
+$vm_resourcegroup = "myvmresourcegroup"
+$vm_name = "myvm"
+$diagnosticsconfig_path = "DiagnosticsPubConfig.xml"
+
+Set-AzVMDiagnosticsExtension -ResourceGroupName $vm_resourcegroup -VMName $vm_name -DiagnosticsConfigurationPath $diagnosticsconfig_path
+```
+> send Diagnostics data to a Storage Account:
+
+If the diagnostics configuration file specifies a StorageAccount element (of teh XML file)with a storage account name, then the `Set-AzVMDiagnosticsExtension` script will automatically set the diagnostics extension to send diagnostic data to that storage account. 
+**For this to work, the storage account needs to be in the same subscription as the VM**.
+
+If no StorageAccount was specified in the diagnostics configuration, 
+then you need to pass in the `StorageAccountName` parameter to the cmdlet. 
+
+If the StorageAccountName parameter is specified, then the cmdlet will always use the storage account that is specified in the parameter and not the one that is specified in the diagnostics configuration file.
+
+> If the diagnostics storage account is in a different subscription from the VM:
+
+you need to explicitly pass in both of the parameters to the cmdlet: 
+`StorageAccountName` 
+`StorageAccountKey`
+
+```
+Set-AzVMDiagnosticsExtension -ResourceGroupName $vm_resourcegroup -VMName $vm_name -DiagnosticsConfigurationPath $diagnosticsconfig_path -StorageAccountName $diagnosticsstorage_name -StorageAccountKey $diagnosticsstorage_key
+```
+
+---
+
+[Set-AzVMDiagnosticsExtension](https://learn.microsoft.com/en-us/powershell/module/az.compute/set-azvmdiagnosticsextension?view=azps-11.5.0&viewFallbackFrom=azps-2.6.0)  
+
+---
+
+[Set-AzDiagnosticSetting](https://learn.microsoft.com/en-us/powershell/module/az.monitor/set-azdiagnosticsetting?view=azps-0.10.0&viewFallbackFrom=azps-2.6.0)   
+
+enables or disables each time grain and log category for the particular resource.
+The logs and metrics are stored in the specified storage account.
+
+```
+Set-AzDiagnosticSetting -ResourceId "Resource01" -Enabled $True
+```
+
+> Example 3: Enable/disable multiple metrics categories:
+
+```
+Set-AzDiagnosticSetting -ResourceId "Resource01" -Enabled $False `
+-MetricCategory MetricCategory1,MetricCategory2
+```
+
+> Example 4: Enable/disable multiple log categories:
+
+```
+Set-AzDiagnosticSetting -ResourceId "Resource01" -Enabled $True `
+-Category Category1,Category2
+StorageAccountId   : <storageAccountId>
+StorageAccountName : <storageAccountName>
+```
+
+> Example 4: Enable a time grain and multiple categories
+
+time grain examples:
+PT1M  > means that the metrics should be aggregated every 1 minute
+PT10M > means that every time autoscale runs, it queries metrics for the past 10
+
+```
+Set-AzDiagnosticSetting -ResourceId "Resource01" -Enabled $True `
+-Category Category1,Category2 -Timegrain PT1M
+```
+
+---
+
+[Set-AzVMBootDiagnostic](https://learn.microsoft.com/en-us/powershell/module/az.compute/set-azvmbootdiagnostic?view=azps-11.5.0&viewFallbackFrom=azps-2.6.0)   
+
+cmdlet modifies boot diagnostics properties of a virtual machine.
+
+> Example 1: Enable boot diagnostics:
+
+```
+$VM = Get-AzVM -ResourceGroupName "ResourceGroup11" -Name "ContosoVM07"
+Set-AzVMBootDiagnostic -VM $VM -Enable -ResourceGroupName "ResourceGroup11" -StorageAccountName "DiagnosticStorage"
+Update-AzVM -VM $VM -ResourceGroupName "ResourceGroup11"
+```
+
+`-StorageAccountName`
+Specifies the name of the storage account in which to save boot diagnostics data. If not provided, it will look for a StorageUri in the BootDiagnostic Profile in the PSVirtualMachine object provided in the '-VM' parameter. If StorageUri is null, it will default to used a managed storage account.
+
+---
+
+## Q166:
+
+Your organization, in which your are an Azure admin, uses an Azure LB.
+You must retrieve the LB info using the **Azure Instance Metadata Service (IMDS)**.
+
+You see the following error:
+`Error code: 404; no load balancer metadata is found.`
+
+You must troubleshoot teh issue: which two things can you infer from teh question?
+
+- the load balancer is Basic SKU and not Standard SKU
+- the VM is not assciated with the LB
+- there is a rate limit
+- the path is misconfigured
+
+---
+
+### Answer:
+
+- the load balancer is Basic SKU and not Standard SKU
+- the VM is not assciated with the LB
+
+**IMDS** provides info about currently running VMs instances behind a LB.
+
+
+---
+
+### References:
+
+[Common error codes when using IMDS to retrieve load balancer information](https://learn.microsoft.com/en-us/azure/load-balancer/troubleshoot-load-balancer-imds)  
+
+- 404	No load balancer metadata is found. 
+
+Please check if your VM is using any nonbasic SKU load balancer and retry later.	
+The error code indicates that your virtual machine isn't associated with a load balancer 
+or the load balancer is basic SKU instead of standard.
+For more information, see Quickstart: Create a public load balancer to load balance VMs using the Azure portal to deploy a standard load balancer.
+
+- 404	API is not found: Path = "<UrlPath>", Method = "<Method>"	
+
+The error code indicates a misconfiguration of the path.
+Learn How to retrieve load balancer metadata using the Azure Instance Metadata Service (IMDS) to fix the request body and issue a retry.
+
+- 429	Too many requests	
+The error code indicates a rate limit.
+For more information on rate limiting, see Azure Instance Metadata Service (IMDS).
+
+[Retrieve load balancer metadata using Azure Instance Metadata Service (IMDS)](https://learn.microsoft.com/en-us/azure/load-balancer/howto-load-balancer-imds?tabs=windows)  
+
+`Invoke-RestMethod -Headers @{"Metadata"="true"} -Method GET -NoProxy -Uri "http://169.254.169.254:80/metadata/loadbalancer?api-version=2020-10-01" | ConvertTo-Json`
+
+```
+{
+   "loadbalancer": {
+    "publicIpAddresses":[
+      {
+         "frontendIpAddress":"51.0.0.1",
+         "privateIpAddress":"10.1.0.4"
+      }
+   ],
+   "inboundRules":[
+      {
+         "frontendIpAddress":"50.0.0.1",
+         "protocol":"tcp",
+         "frontendPort":80,
+         "backendPort":443,
+         "privateIpAddress":"10.1.0.4"
+      },
+      {
+         "frontendIpAddress":"2603:10e1:100:2::1:1",
+         "protocol":"tcp",
+         "frontendPort":80,
+         "backendPort":443,
+         "privateIpAddress":"ace:cab:deca:deed::1"
+      }
+   ],
+   "outboundRules":[
+      {
+         "frontendIpAddress":"50.0.0.1",
+         "privateIpAddress":"10.1.0.4"
+      },
+      {
+         "frotendIpAddress":"2603:10e1:100:2::1:1",
+         "privateIpAddress":"ace:cab:deca:deed::1"
+      }
+    ]
+   }
+}
+```
+
+---
+
 ## Q165:
 
 you are an Azure admin at an independent software vendor.
