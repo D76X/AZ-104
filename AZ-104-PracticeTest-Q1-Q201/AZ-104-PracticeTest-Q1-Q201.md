@@ -15,6 +15,185 @@
 
 ---
 
+## Q165:
+
+you are an Azure admin at an independent software vendor.
+Your company uses an Azure internal LB configured inside an Azure VNet.
+Your backend VMs behind the LB are listed as healthy and respond to the
+health probes.
+However, the BE VMs do not respond to traffic on the configured data port.
+
+You diagnose and find that one of the VMs in the BE tries to access the 
+internal LB frontend, resulting in the failure of data flow.
+
+You must troubleshoot the issue: which TWO actions should you perform?
+
+- use internal Application Gateway with HTTP(S)
+- combine the Azure internal LB with a 3rd party proxy e.i Nginx
+- configure separate BE pool VMs per application
+- evaluate the NSGs for the BE pool VM, list them and reconfigure the NSG rules on the BE VMs
+
+---
+
+### Answer:
+- use internal Application Gateway with HTTP(S)
+- combine the Azure internal LB with a 3rd party proxy e.i Nginx
+
+The scanario is the following:
+
+All the VMs in the BE of a LB are listed as healthy in that they respond to 
+the health probes with 200 OK HTTP codes within the agreed time interval.
+However, the VMs do not responds to data queries therefore they do not generate
+the expecteed data traffic.
+
+**There might be multiple reasons for this behaviour!**
+
+In this case after some investigation you have found that:
+
+one of the VMs in the BE tries to access the internal LB frontend, resulting in the failure of data flow. The result is **intermittent connection timeout** when the data
+flow goes back to the same BE that originated the flow.
+
+---
+
+### References:
+
+[Troubleshoot Azure Load Balancer backend traffic responses](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-troubleshoot-backend-traffic)  
+
+There are several possible failure scenarios:
+
+> Scenario 1 : VMs behind a load balancer are receiving uneven distribution of traffic
+ 
+There might be multiole reaosns for this behavior.
+Azure Load Balancer distributes traffic based on connections.
+Be sure to check traffic distribution per connection and not per packet.
+
+- Cause 1: You have session persistence configured
+
+Using source persistence distribution mode can cause an uneven distribution of traffic.
+[Azure Load Balancer distribution modes](https://learn.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts)  
+
+> Session persistence:
+is also known session affinity, source IP affinity, or client IP affinity. 
+It uses a 
+- two-tuple (source IP and destination IP) or 
+- three-tuple (source IP, destination IP, and protocol type) 
+
+hash to route to backend instances. 
+When using session persistence, connections from the same client go to the same backend instance within the backend pool.
+
+Session persistence mode has two configuration types:
+
+- Client IP (2-tuple) 
+Specifies that successive requests from the same client IP address are handled by the same backend instance.
+
+- Client IP and protocol (3-tuple)
+Specifies that successive requests from the same client IP address and protocol combination are handled by the same backend instance.
+
+> Use cases:
+
+--- 
+
+- Cause 2: You have a proxy configured:
+
+Clients that run behind proxies might be seen as one unique client application 
+from the load balancer's point of view.
+
+---
+
+> Scenario 2: VMs behind a load balancer aren't responding to traffic on the configured data port
+
+**This is the scenario that is covered in the question!**
+However, it is the case prior to the additional investigation!
+
+If a backend pool VM is listed as healthy and responds to the health probes, 
+but is still not participating in the load balancing, or isn't responding to
+the data traffic, it may be due to any of the following reasons:
+
+- A load balancer backend pool VM isn't listening on the data port
+- Network security group is blocking the port on the load balancer backend pool VM 
+- Accessing the load balancer from the same VM and NIC
+- Accessing the Internet load balancer frontend from the participating load balancer backend pool VM
+
+- Cause 1: A load balancer backend pool VM isn't listening on the data port
+
+it may be because either:
+- the target port isn't open on the participating VM 
+- or he VM isn't listening on that port 
+
+On the VM use the command: `netstat -an`
+If the port isn't listed with state LISTENING, configure the proper listener port.
+If the port is marked as LISTENING, then check the target application on that port for any possible issues.
+
+---
+
+- Cause 2: A network security group is blocking the port on the load balancer backend pool VM 
+
+For the public load balancer, the IP address of the Internet clients will be used for communication between the clients and the load balancer backend VMs. 
+**Make sure the IP address of the clients are allowed in the backend VM's network security group**.
+Check the **effective NSG rules** that are applied ot the VM that does not respond to 
+the datatraffic and correct the rules need it be the case. 
+
+---
+
+- Cause 3: Access of the internal load balancer from the same VM and network interface
+
+**If your application hosted in the backend VM of an internal load balancer** is trying to access another application hosted in the same backend VM over the same network interface, **it's an unsupported scenario and will fail**.
+
+You can resolve this issue via one of the following methods:
+
+1. Configure separate backend pool VMs per application.
+2. Configure the application in dual NIC VMs so each application was using its own network interface and IP address.
+
+---
+
+- Cause 4: Access of the internal load balancer frontend from the participating load balancer backend pool VM
+
+**This is the scenario that is covered in the question!**
+However, it is the case AFTER the additional investigation!
+
+If an internal load balancer is configured inside a virtual network, and one of the participant backend VMs is trying to access the internal load balancer frontend, 
+failures can occur when the flow is mapped to the originating VM. 
+
+**This scenario isn't supported**.
+
+- Resolution:
+
+There are several ways to unblock this scenario, including using a proxy. 
+Evaluate **Application Gateway** or other third party proxies
+
+- Details:
+
+**Internal load** balancers **don't** translate outbound originated connections to the front end of an internal load balancer because both are in private IP address space.
+
+**Public load balancers** provide outbound connections from private IP addresses inside the virtual network to public IP addresses. 
+
+**For internal load balancers**, this approach avoids potential SNAT port exhaustion inside a unique internal IP address space, where translation isn't required.
+
+> Side Effect:
+
+A side effect is that if an outbound flow from a VM in the backend pool attempts a flow to front end of the internal load balancer in its pool and is mapped back to itself, the two legs of the flow don't match. 
+
+Because they don't match, the flow fails. 
+
+The flow succeeds if the flow didn't map back to the same VM in the backend pool that created the flow to the front end.
+
+When the flow maps back to itself, the outbound flow appears to originate from the VM to the front end, and the corresponding inbound flow appears to originate from the VM to itself. **From the guest operating system's point of view, the inbound and outbound parts of the same flow don't match inside the virtual machine**. 
+**The TCP stack won't recognize these halves of the same flow as being part of the same flow**.
+**The source and destination don't match.**
+
+When the flow maps to any other VM in the backend pool, the halves of the flow do match and the VM can respond to the flow.
+
+> symptom:
+
+The symptom for this scenario is intermittent connection timeouts
+
+> Workarounds:
+
+Common workarounds include insertion of a proxy layer behind the internal load balancer.
+[Multiple frontends for Azure Load Balancer](https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-multivip-overview)  
+
+---
+
 ## Q164:
 
 your company uses an Azure standard public LB, you are Azure admin.
