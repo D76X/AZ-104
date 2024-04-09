@@ -15,25 +15,288 @@
 
 ---
 
+## Q164:
+
+your company uses an Azure standard public LB, you are Azure admin.
+You must troubleshooot outbound connectivity with Azure LB.
+You want to proactively monitor the data path availability and 
+perform health probe status checks on the LB.
+
+you create the following metrics: `getBatch API`
+
+```
+POST subscription/<the-sub-id>/metrics:getBatch?
+metricNamespace=micorsoft.compute/virtualMachines&api-version=2023-03-01-preview
+Host: eastus.metrics.monitor.azure.com
+Content-Type: application/json
+Authorization: Bearer <TOKEN-VALUE>
+{
+  "resourceIds":[
+    ".../virtualMachines/vmss-Id1"  
+    ".../virtualMachines/vmss-Id2"  
+    ]
+}
+```
+
+You need to retrieve the multi-dimentional definitions and metrics programmatically 
+via APIs.
+
+Select yes/no:
+
+- the metrics `getBatch API` here allows you to prevent throttling and performance issues when querying multiple resources in a single REST request
+Yes
+
+- both VMs `vmss-Id1` & `vmss-Id2` can be spread across multiple Azure Regions
+
+- both VMs `vmss-Id1` & `vmss-Id2` can be in the same Azure Region
+
+---
+
+### Answer:
+
+- the metrics `getBatch API` here allows you to prevent throtling and performance issues when querying multiple resources in a single REST request
+Yes: see reference below.
+
+- both VMs `vmss-Id1` & `vmss-Id2` can be spread across multiple Azure Regions
+No: see reference below.
+
+- both VMs `vmss-Id1` & `vmss-Id2` can be in the same Azure Region
+Yes: see reference below.
+
+
+---
+
+### References:
+
+[Metrics Batch - Batch](https://learn.microsoft.com/en-us/rest/api/monitor/metrics-batch/batch?view=rest-monitor-2023-10-01&tabs=HTTP)  
+
+[How to migrate from the metrics API to the getBatch API](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/migrate-to-batch-api?tabs=individual-response)  
+
+Heavy use of the metrics API can result in **throttling or performance problems**.
+`metrics:getBatch` API allows you to query multiple resources in a single REST request
+therefore reducing these problems.
+
+
+```
+POST /subscriptions/<subscriptionId>/metrics:getBatch?metricNamespace=<resource type namespace>&api-version=2023-10-01
+Host: <region>.metrics.monitor.azure.com
+Content-Type: application/json
+Authorization: Bearer <token>
+{
+   "resourceids":[<comma separated list of resource IDs>]
+}
+```
+
+> Restrictions:
+
+- All resources in a batch must be in the same subscription.
+- All resources in a batch must be in the same Azure region.
+- All resources in a batch must be the same resource type.
+
+---
+
+[Azure monitoring REST API walkthrough](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/rest-api-walkthrough?tabs=portal)  
+
+Retrieve: 
+
+- metric definitions
+- dimension values
+- metric values 
+
+using the Azure Monitor API and use the data: 
+
+- in your applications
+- or store in a database for analysis. 
+- You can also list alert rules and view activity logs 
+
+> Authenticate Azure Monitor requests:
+
+All requests are authenticated with Microsoft Entra ID.
+One approach to authenticating the client application is to create a Microsoft Entra service principal and retrieve an authentication token.
+
+```
+POST /<tenant-id>/oauth2/token
+    Host: https://login.microsoftonline.com
+    Content-Type: application/x-www-form-urlencoded
+    
+    grant_type=client_credentials
+    &client_id=<app-client-id>
+    &resource=https://management.azure.com
+    &client_secret=<password>
+```
+
+> Retrieve metric definition available for a service:
+
+```
+GET /subscriptions/<subscription id>/resourcegroups/<resourceGroupName>/providers/<resourceProviderNamespace>/<resourceType>/<resourceName>/providers/microsoft.insights/metricDefinitions?api-version=<apiVersion>
+Host: management.azure.com
+Content-Type: application/json
+Authorization: Bearer <access token>
+```
+
+> Retrieve dimension values:
+
+After the retrieving the available metric definitions, 
+retrieve the range of values for the metric's dimensions. 
+
+```
+GET /subscriptions/<subscription-id>/resourceGroups/  
+<resource-group-name>/providers/<resource-provider-namespace>/  
+<resource-type>/<resource-name>/providers/microsoft.insights/  
+metrics?metricnames=<metric>  
+&timespan=<starttime/endtime>  
+&$filter=<filter>  
+&resultType=metadata  
+&api-version=<apiVersion>   HTTP/1.1
+Host: management.azure.com
+Content-Type: application/json
+Authorization: Bearer <access token>
+```
+
+> Example: retrieve dimension values
+
+The following example retrieves the list of dimension values that were emitted for the API Name dimension of the **Transactions metric**, **where the GeoType dimension** has 
+**a value of Primary**, for the specified time range.
+
+```
+curl --location --request GET 'https://management.azure.com/subscriptions/12345678-abcd-98765432-abcdef012345/resourceGroups/azmon-rest-api-walkthrough/providers/Microsoft.Storage/storageAccounts/ContosoStorage/providers/microsoft.insights/metrics  \
+?metricnames=Transactions \
+&timespan=2023-03-01T00:00:00Z/2023-03-02T00:00:00Z \
+&resultType=metadata \
+&$filter=GeoType eq \'Primary\' and ApiName eq \'*\' \
+&api-version=2019-07-01'
+-header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJ0e..meG1lWm9Y'
+```
+
+> Retrieve metric values:
+
+After retrieving 
+
+1. the metric definitions 
+2. dimension values
+
+retrieve the metric values.
+
+Use the metric's `name.value` element in the filter definitions.
+If no dimension filters are specified, the rolled up, aggregated metric is returned.
+
+To fetch multiple time series with specific dimension values 
+specify a filter query parameter that specifies both dimension values such as:
+
+`"&$filter=ApiName eq 'ListContainers' or ApiName eq 'GetBlobServiceProperties'"`
+
+To return a time series for every value of a given dimension, use an * filter such as:
+
+`"&$filter=ApiName eq '*'"`
+
+**The Top and OrderBy query parameters can be used to limit and order the number of time series returned**.
+
+```
+GET /subscriptions/<subscription-id>/resourceGroups/<resource-group-name>/providers/<resource-provider-namespace>/<resource-type>/<resource-name>/providers/microsoft.insights/metrics?metricnames=<metric>&timespan=<starttime/endtime>&$filter=<filter>&interval=<timeGrain>&aggregation=<aggreation>&api-version=<apiVersion>
+Host: management.azure.com
+Content-Type: application/json
+Authorization: Bearer <access token>
+```
+
+> Querying metrics for multiple resources at a time:
+
+In addition to querying for metrics on an individual resource, 
+**some resource types also support querying for multiple resources** 
+in a single request.
+
+The following example shows an individual metric definitions request:
+
+```
+GET https://management.azure.com/subscriptions/12345678-abcd-98765432-abcdef012345/resourceGroups/EASTUS-TESTING/providers/Microsoft.Compute/virtualMachines/TestVM1/providers/microsoft.insights/metricdefinitions?api-version=2021-05-01
+```
+
+The following request shows the **equivalent metric definitions request** 
+for multiple resources:
+
+```
+GET https://management.azure.com/subscriptions/12345678-abcd-98765432-abcdef012345/providers/microsoft.insights/metricdefinitions?api-version=2021-05-01&region=eastus&metricNamespace=microsoft.compute/virtualmachines
+```
+
+The following example shows an individual metrics request:
+
+
+```
+GET https://management.azure.com/subscriptions/12345678-abcd-98765432-abcdef012345/resourceGroups/EASTUS-TESTING/providers/Microsoft.Compute/virtualMachines/TestVM1/providers/microsoft.Insights/metrics?timespan=2023-06-25T22:20:00.000Z/2023-06-26T22:25:00.000Z&interval=PT5M&metricnames=Percentage CPU&aggregation=average&api-version=2021-05-01
+```
+
+Below is an equivalent metrics request for multiple resources:
+
+```
+GET https://management.azure.com/subscriptions/12345678-abcd-98765432-abcdef012345/providers/microsoft.Insights/metrics?timespan=2023-06-25T22:20:00.000Z/2023-06-26T22:25:00.000Z&interval=PT5M&metricnames=Percentage CPU&aggregation=average&api-version=2021-05-01&region=eastus&metricNamespace=microsoft.compute/virtualmachines&$filter=Microsoft.ResourceId eq '*'
+```
+
+A `Microsoft.ResourceId eq '*'` filter is added in the example for the multi resource metrics requests. The filter tells the API to return a separate time series per virtual machine resource in the subscription and region. 
+
+Without the filter the API would return a single time series aggregating the average CPU for all VMs. 
+
+The times series for each resource is differentiated by the Microsoft.ResourceId metadata value on each time series entry, as can be seen in the following sample return value. If there are no resourceIds retrieved by this query an empty time series"timeseries": [] is returned.
+
+---
+
+[Azure Monitor Metrics overview](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics#multi-dimensional-metrics)  
+
+> Nondimensional metric:
+
+The following table shows sample data from a nondimensional metric, network throughput. It can only answer a basic question like "What was my network throughput at a given time?"
+
+> Multi-dimensional metrics:
+
+One of the challenges to metric data is that it often has limited information to provide context for collected values. Azure Monitor addresses this challenge with multi-dimensional metrics.
+
+**Metric dimensions are name/value pairs that carry more data to describe the metric value**.
+
+> Example1:
+
+a metric called `Available disk space` might have a dimension called `Drive` 
+with values C: and D:
+
+That dimension would allow viewing available disk space across all drives
+or for each drive individually.
+
+> Example2: Network throughput and two dimensions ("IP" and "Direction")
+
+The following table shows sample data from a multidimensional metric, network throughput **with two dimensions called IP and Direction**. 
+It can answer questions such as "What was the network throughput for each IP address?" and "How much data was sent versus received?"
+
+Timestamp	Dimension "IP"	Dimension "Direction"	Metric value
+8/9/2017 8:14	IP="192.168.5.2"	Direction="Send"	646.5 Kbps
+8/9/2017 8:14	IP="192.168.5.2"	Direction="Receive"	420.1 Kbps
+8/9/2017 8:14	IP="10.24.2.15"	Direction="Send"	150.0 Kbps
+8/9/2017 8:14	IP="10.24.2.15"	Direction="Receive"	115.2 Kbps
+...
+
+---
+
+[Troubleshoot Azure Load Balancer outbound connectivity issues](https://learn.microsoft.com/en-us/azure/load-balancer/troubleshoot-outbound-connection)  
+
+---
+
 ## Q163:
 
 Your company plans to release a new web app.
-The app si deployed using several resources in Azure and will be available to users
-on the domain `company1.com` that has already been purchased.
+The app is deployed using several resources in Azure and will be 
+available to users on the domain `company1.com` that is a DNS 
+available for purchase but has not yet been purchased.
 
 You must ensure that `company1.com` can be resolved on the Internet.
-You must follw best practice guidlines.
+You must follow best practice guidlines.
 
 Which three actions should you perform?
 
+- create a NS record in your registrar that points to azure-dns servers
 - create a NS record in your Azure DNS zone that points to azure-dns servers
+- create a SOA record in your registrar that points to azure-dns servers
+- create a SOA record in your DNS Zone that points to azure-dns servers
 - configure a reverse DNS zone in Azure 
+- configure a DNS Forwarder in Azure 
 - purchase `company1.com` domain by using a registrar
 - purchase `company1.com` domain by using Azure DNS
-- create a NS record in your registrar that points to azure-dns servers
-- create a SOA record in your registrar that pints to azure-dns servrs
-- create a SOA record in your DNS Zone that points to azure-dns servers
-- configure a DNS Forwarder in Azure 
 
 
 
@@ -42,9 +305,125 @@ Which three actions should you perform?
 
 ### Answer:
 
+- purchase `company1.com` domain by using a registrar
+- configure a DNS Forwarder in Azure 
+- create a NS record in your registrar that points to azure-dns servers
+
+It is not possible ot purchase `company1.com` from Azure DNS, it must be
+purchased from a registrar.
+
+Then you **create a DNS zone in Azure that will work as a DNS Forwarder**.
+This Azure DNS Zone is used to resolve DNS names such as `company1.com` 
+to the IP addresses where of the application resources in Azure.
+
+> NS record:
+
+**In your registrar** then you **create a NS record** that points to the 
+Azure DNS Servers. This NS record or any NS record in general represents
+the name server that host the DNS Zone for the DNS domain.
+
+It might be the case that there is already a NS record in your registrar
+that points to the DNS Server of the registrar for the domain `company1.com`. 
+In this case you do not create a new NS record instead you just modify the 
+existing NS record in your registrar.
+
+If you did not add this NS record in your registrar its own NS record would
+point to the DNS Server of the registrar itself and not the Azure DNS Server
+and therefore the resolution of `company1.com`  to IP addresses in Azure would 
+not be possible.
+
+The names of the Azure DNS Servers are:
+`ns1-01.azure-dns.com` 
+`ns2-01.azure-dns.net` 
+`ns3-01.azure-dns.org`
+`ns4-01.azure-dns.info`
+
+The remaining options do not apply:
+
+- purchase `company1.com` domain by using Azure DNS:
+This has already been discussed: it is not possible ot purchase `company1.com` from Azure DNS, it must be purchased from a registrar.
+
+- configure a reverse DNS zone in Azure:
+a **reverse DNS** is used to convert IP addresses to domain names.
+It simply does not apply in this case.
+
+- create a NS record in your Azure DNS zone that points to azure-dns servers:
+this is unnecessary as when you create an Azure DNS Zone the NS records that point to 
+`ns1-01.azure-dns.com.` 
+`ns2-01.azure-dns.net.` 
+`ns3-01.azure-dns.org.`
+`ns4-01.azure-dns.info.`
+are created automatically for you.
+
+**Notice that there is a trailing period in the azure-dns server names**, it is not a mistake!
+
+- create a SOA record in your DNS Zone that points to azure-dns servers:
+- create a SOA record in your registrar that points to azure-dns servers:
+the SOA (Start fo Authority) record is always created automatically in and by
+the registrar where the domain is purchased.
+
 ---
 
 ### References:
+
+[Tutorial: Host your domain in Azure DNS](https://learn.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns)   
+
+You can use Azure DNS to host your DNS domain and manage your DNS records. 
+
+> Advantages of hosting your DNS domain in Azure DNS:
+
+By hosting your domains in Azure, you can manage your DNS records by using the same credentials, APIs, tools, and billing as your other Azure services.
+**For example, you can use PowerShell to manage your domains rather than the specific UI of a registrar**. 
+
+> Example:
+
+Suppose you buy the domain `contoso.com` from a domain name registrar and then 
+**create a zone with the name `contoso.com` in Azure DNS**. 
+Since you're the owner of the domain, your registrar offers you the option to 
+configure the name server (NS) records for your domain. 
+
+**The registrar stores the NS records in the .com parent zone**. 
+Internet users around the world are then directed to your domain in your Azure DNS zone when they try to resolve DNS records in `contoso.com`.
+
+> Delegate the domain:
+
+This is when you go to your registrar to create or edit the NS record to make it 
+point to the  Azure DNS name servers (for your `contoso.com` Azure DNS Zone):
+`ns1-01.azure-dns.com.` 
+`ns2-01.azure-dns.net.` 
+`ns3-01.azure-dns.org.`
+`ns4-01.azure-dns.info.`
+
+Use all four name servers, regardless of the name of your domain. 
+**Domain delegation doesn't require a name server to use the same top-level domain as your domain**.
+
+When you copy each name server address, make sure you copy the trailing period at the end of the address. The trailing period indicates the end of a fully qualified domain name. Some registrars append the period if the NS name doesn't have it at the end. To be compliant with the DNS RFC, include the trailing period.
+
+> Verify the delegation:
+
+`nslookup -type=SOA contoso.com`
+
+Query the Start of Authority (SOA) record for your zone.
+
+```
+Server: ns1-04.azure-dns.com
+Address: 40.90.4.1
+
+contoso.com
+        primary name server = ns1-04.azure-dns.com
+        responsible mail addr = azuredns-hostmaster.microsoft.com
+        serial = 1
+        refresh = 3600 (1 hour)
+        retry = 300 (5 mins)
+        expire = 604800 (7 days)
+        default TTL = 300 (5 mins)
+ns1-01.azure-dns.com    internet address = 40.90.4.1
+ns1-01.azure-dns.com    AAAA IPv6 address = 2603:1061::1
+```
+
+---
+
+[Delegation of DNS zones with Azure DNS](https://learn.microsoft.com/en-us/azure/dns/dns-domain-delegation)  
 
 
 ---
