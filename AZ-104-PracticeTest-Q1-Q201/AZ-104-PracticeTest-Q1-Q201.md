@@ -2,12 +2,203 @@
 
 ---
 
-## Q17x:
+## Q18x:
 
 
 ---
 
 ### Answer:
+
+---
+
+### References:
+
+---
+
+## Q180:
+
+You have the Azure subscription named `sub1`.
+You create an alert rule named `alert1`.
+
+The rule generate: 
+email, voice message, sms message
+
+you determine that the rule fires every minute.
+
+You configure an action group to manage how often the notifications are sent. 
+
+How many alert notofications will be sent when  the rate limits are configured at their maximum value?
+
+email        : 0 | 1 | 4 | 12 | 60
+voice message: 0 | 1 | 4 | 12 | 60 
+sms message  : 0 | 1 | 4 | 12 | 60
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q179:
+
+Your company has an Azure subscription.
+You create a Azure Log Analytics workspace and collect data from various data sources.
+You run Azure Monitor log query.
+You want to display tabular data as a chart pinned to a shared dashboard.
+
+You need to identify restrictions when pinning a result chart to a dashboard.
+
+select yes/no:
+
+- data display in the chart is limited to no more than 14 days
+- data display in the chart is limited up to 4 cols and teh top 7 rows
+- chart types are limited to line and stack column only
+
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q178:
+
+Your company has an Azure subscription with a VNet in East US.
+A Windows Server 2016 VM named VM1 is this VNet.
+
+You need to capture the network packets into and out of VM1
+over a two-hour period.
+The captured packets must be stored in VM1's storage.
+
+What should you use?
+
+- Azure Network Watcher
+- Azure Monitor
+- Azure Network Perfomance Monitor
+- Windows Perfomance Monitor
+
+---
+
+### Answer:
+- Azure Network Watcher
+
+this is the obvious answer, NW allows you to store the
+trafic performance info aither on disk on send it to a
+SA.
+
+This was discussed in detail in a previos question.
+
+The remaining options do not apply:
+
+- Azure Monitor
+
+- Windows Perfomance Monitor:
+this collects performormance counter within the Windows OS it does not apply to network traffic
+
+- Azure Network Perfomance Monitor:
+this was discussed in detail in a previois question
+
+
+---
+
+### References:
+
+
+[Network Watcher: Packet capture overview](https://learn.microsoft.com/en-us/azure/network-watcher/packet-capture-overview)  
+
+---
+
+## Q177:
+
+You have an Azure subscription with 5 VMs.
+
+You need to enable alerts related to: 
+VM restarts, stops, deallocations.
+
+The alerts must be sent to two admins both by email & by 
+Azure app push notifications.
+
+You must create alert rules, action groups and notifications
+in the Azure Portal.
+
+What are the minimum number of:
+
+alert rules   : 1 | 3 | 5 | 15
+action groups : 1 | 3 | 5 | 6 | 10 | 15 | 30
+notifications : 1 | 2 | 10 | 15 | 30
+
+that you should create?
+
+---
+
+### Answer:
+
+alert rules   : 3
+action groups : 1
+notifications : 2
+
+The event Logs you want to generate aleerts on are: 
+VM restarts, stops, deallocations
+therefore you need three alert rules
+
+A sigle AG can be used to accomplish all the send the 2 notifications
+that are required to both admins.
+
+This was discussed in detail in a previous question.
+
+---
+
+### References:
+
+
+
+---
+
+## Q176:
+
+you plan to deploy 30 application gateways to Azure.
+These gateways will provide public access to 30 different web apps
+hosted on Azure VMs.
+
+You need to recommend a monitoring solution that can provide a 
+consolidated view of the types of requests that are being made over 
+the Internet to the application gateways.
+
+The solution must meet the following requirements:
+
+1. it must be able to query all requests that are being blocked by the Web Application Firewall (WAF) gateway
+
+2. it must support analysis if metrics collected for the number of requests being made over a period of one month
+
+3. it must provide insights into the performance of the application gateways in serving various pages to users
+
+What should you recommend?
+
+- Azure Monitor
+- Azure Log Analytics
+- Azure Application Insights
+- Azure Sentinel
+
+---
+
+### Answer:
+- Azure Monitor
+
+The remaining options do not apply:
+
+- Azure Application Insights:
+This is an APM (Application Performance Monitoring) framework that can be used to generate telemetry data. It **will not** provide a comprehensive view of WAF logs!
+
+- Azure Sentinel:
+this is a SIEM (Security Information Event Management) solution beased on AI available in Azure as a SaaS service and does not apply to this case.
 
 ---
 
@@ -84,6 +275,96 @@ Get-AzEffectiveNetworkSecurityGroup -NetworkInterfaceName 'myVM' -ResourceGroupN
 
 [Troubleshoot outbound connections using PowerShell](https://learn.microsoft.com/en-us/azure/network-watcher/connection-troubleshoot-powershell)    
 
+> Check connectivity to a virtual machine:
+
+```
+$rgName = "ContosoRG"
+$sourceVMName = "MultiTierApp0"
+$destVMName = "Database0"
+
+$RG = Get-AzResourceGroup -Name $rgName
+
+$VM1 = Get-AzVM -ResourceGroupName $rgName | Where-Object -Property Name -EQ $sourceVMName
+
+$VM2 = Get-AzVM -ResourceGroupName $rgName | Where-Object -Property Name -EQ $destVMName
+
+$networkWatcher = Get-AzNetworkWatcher | Where-Object -Property Location -EQ -Value $VM1.Location
+
+Test-AzNetworkWatcherConnectivity -NetworkWatcher $networkWatcher -SourceId $VM1.Id -DestinationId $VM2.Id -DestinationPort 80
+```
+
+> Validate routing issues:
+
+This example checks connectivity between a virtual machine and a remote endpoint.
+
+```
+$rgName = "ContosoRG"
+$sourceVMName = "MultiTierApp0"
+
+$RG = Get-AzResourceGroup -Name $rgName
+$VM1 = Get-AzVM -ResourceGroupName $rgName | Where-Object -Property Name -EQ $sourceVMName
+
+$networkWatcher = Get-AzNetworkWatcher | Where-Object -Property Location -EQ -Value $VM1.Location
+
+Test-AzNetworkWatcherConnectivity -NetworkWatcher $networkWatcher -SourceId $VM1.Id -DestinationAddress 13.107.21.200 -DestinationPort 80
+```
+
+> Check website latency | to a storage endpoint:
+
+The following example checks connectivity to a website. This example requires that you have Network Watcher enabled in the region containing the source VM.
+
+```
+$rgName = "ContosoRG"
+$sourceVMName = "MultiTierApp0"
+
+$RG = Get-AzResourceGroup -Name $rgName
+$VM1 = Get-AzVM -ResourceGroupName $rgName | Where-Object -Property Name -EQ $sourceVMName
+
+$networkWatcher = Get-AzNetworkWatcher | Where-Object -Property Location -EQ -Value $VM1.Location
+
+Test-AzNetworkWatcherConnectivity -NetworkWatcher $networkWatcher -SourceId $VM1.Id -DestinationAddress https://bing.com/
+
+# to a storage endpoint
+
+Test-AzNetworkWatcherConnectivity -NetworkWatcher $networkWatcher -SourceId $VM1.Id -DestinationAddress https://contosostorageexample.blob.core.windows.net/ 
+
+```
+
+---
+
+[Test-AzNetworkWatcherConnectivity](https://learn.microsoft.com/en-us/powershell/module/az.network/test-aznetworkwatcherconnectivity?view=azps-11.5.0)  
+
+returns connectivity information for a specified source VM and a destination. If connectivity between the source and destination cannot be established, the cmdlet returns details about the issue.
+
+---
+
+[Diagnose a virtual machine network routing problem - Azure PowerShell](https://learn.microsoft.com/en-us/azure/network-watcher/diagnose-vm-network-routing-problem-powershell)  
+
+> Use next hop:
+
+You may create custom routes that override the default routes. Sometimes, custom routes can cause communication to fail. 
+To test routing from a VM, use the Get-AzNetworkWatcherNextHop command to determine the next routing hop when traffic is destined for a specific address.
+
+Test outbound communication from the VM to one of the IP addresses for www.bing.com.
+
+```
+Get-AzNetworkWatcherNextHop -NetworkWatcher $networkWatcher -TargetVirtualMachineId $VM.Id -SourceIPAddress 192.168.1.4 -DestinationIPAddress 13.107.21.200
+```
+
+> View details of a route:
+
+```
+Get-AzEffectiveRouteTable -NetworkInterfaceName myVm -ResourceGroupName myResourceGroup |
+  Format-table
+```
+
+---
+
+[Get-AzNetworkWatcherNextHop](https://learn.microsoft.com/en-us/powershell/module/az.network/get-aznetworkwatchernexthop?view=azps-11.5.0)  
+
+gets the next hop from a VM. Next hop allows you to view the type of Azure resource, the associated IP address of that resource, and the routing table rule that is responsible for the route.
+
+[Get-AzEffectiveRouteTable](https://learn.microsoft.com/en-us/powershell/module/az.network/get-azeffectiveroutetable?view=azps-11.5.0)  
 
 ---
 
