@@ -2,7 +2,7 @@
 
 ---
 
-## Q16X:
+## Q17x:
 
 
 ---
@@ -12,6 +12,656 @@
 ---
 
 ### References:
+
+---
+
+## Q175:
+
+You deploy VMs in your Azure subscription.
+The VMs are connected to different VNets.
+You configure custom NSGs with filtering rules on teh VNets.
+Communication between the VMs is working correclty.
+
+You dploy a new VNet named VNet1 but it expirince connectivity issues.
+You decide to use Nework Watcher to troubleshoot.
+You need to determin wich NSG rule causes the issue.
+
+Which two cmdlet should you use?
+
+- Test-AzNetworkWatcherIPFlow
+- Test-AzNetworkWatcherNextHop
+- Test-AzNetworkWatcherConnectivity
+- Get-AzNetworkSecurityGroup
+- Get-AzEffectiveNetworkSecurityGroup
+
+---
+
+### Answer:
+- Test-AzNetworkWatcherIPFlow
+- Get-AzEffectiveNetworkSecurityGroup
+
+`Test-AzNetworkWatcherIPFlow` is teh cmdlet equivalte to the NW IP Flow that you can do in the Azure Portal from NW.
+This has laready been discussed in details in one of teh previous questions.
+
+`Get-AzEffectiveNetworkSecurityGroup` this can be used after `Test-AzNetworkWatcherIPFlow` to understand why a specific rule that is reported by `Test-AzNetworkWatcherIPFlow` as being the cause of blocked traffic causes the problem.
+
+---
+
+### References:
+
+[Quickstart: Diagnose a virtual machine network traffic filter problem using Azure PowerShell](https://learn.microsoft.com/en-us/azure/network-watcher/diagnose-vm-network-traffic-filtering-problem-powershell)   
+
+> Test network communication using IP flow verify:
+
+```
+# Place myVM configuration into a variable.
+$vm = Get-AzVM -ResourceGroupName 'myResourceGroup' -Name 'myVM'
+
+# Start the IP flow verify session to test outbound flow to www.bing.com.
+Test-AzNetworkWatcherIPFlow -Location 'eastus' -TargetVirtualMachineId $vm.Id -Direction 'Outbound' -Protocol 'TCP' -RemoteIPAddress '13.107.21.200' -RemotePort '80' -LocalIPAddress '10.0.0.4' -LocalPort '60000'
+```
+
+After a few seconds, you get similar output to the following example:
+
+```
+Access RuleName
+------ --------
+Allow  defaultSecurityRules/AllowInternetOutBound
+```
+
+The test result indicates that access is allowed to 13.107.21.200 because of the default security rule AllowInternetOutBound. By default, Azure virtual machines can access the internet.
+
+> View details of a security rule:
+
+To determine why the rules in the previous section allow or deny communication, review the effective security rules for the network interface of myVM virtual machine.
+
+```
+# Get the effective security rules for the network interface of myVM.
+Get-AzEffectiveNetworkSecurityGroup -NetworkInterfaceName 'myVM' -ResourceGroupName 'myResourceGroup'
+```
+
+---
+
+[Troubleshoot outbound connections using PowerShell](https://learn.microsoft.com/en-us/azure/network-watcher/connection-troubleshoot-powershell)    
+
+
+---
+
+## Q174:
+
+you have an Azure Network as shown in the exhibit.
+
+<img src="./Q174-1.png">
+
+There are two VNets and several servers.
+Server2 has the Network Watcher Agent installed.
+
+You have peered both VNets together but Server1 fails 
+to communicate with Server 2 over HTTPS.
+you must find out why.
+
+What shold you do first?
+
+- use the `Test-Connection` command on each server  
+- use the **Network Performance Monitor** to discuver the issue  
+- install the Network Watcher Agent also on Server 1  
+- use the Network Watcher service to test the TCP connection between Sever 1 and Server 2
+
+---
+
+### Answer:
+- use the Network Watcher service to test the TCP connection between Sever 1 and Server 2
+
+You do not need to install NW also on Server 1.
+**NW does require installation on the source server**, therefore you might think that you must install it also on Server 1 as in the question the TCP traffic that you want to monitor (as it fails) is from Sever 1 to Server 2.
+
+> Special case: IP flow verify
+
+However, **IP flow verify does not require that NW is installed on the source server in order to wak, the destination server might do as well**.
+
+The following do not apply:
+
+- use the `Test-Connection` command on each server  
+this would tell you that the traffic is blocked but not why ar from what like NW IP Flow verify does.
+
+- use the **Network Performance Monitor** to discuver the issue  
+This is a very capable service that would also work in this case but it is designed to cover the scanrios where **continuos newtork monitoring** is desired rather a one-off investigation.
+
+See reference below for the details.
+
+---
+
+### References:
+
+[IP flow verify overview](https://learn.microsoft.com/en-us/azure/network-watcher/ip-flow-verify-overview)   
+
+IP flow verify looks at the rules of all network security groups applied to a virtual machine's network interface, whether the network security group is associated to the virtual machine's subnet or network interface. It additionally, looks at the Azure Virtual Network Manager rules applied to the virtual network of the virtual machine.
+
+IP flow verify uses:
+
+- traffic direction
+- protocol
+- local IP
+- remote IP
+- local port
+- remote port 
+
+to to test security and admin rules that apply to the virtual machine's network interface.
+
+IP flow verify returns **Access denied** or **Access allowed**, 
+**the name of the security rule that denies or allows** the traffic, and the network security group with a link to it so you can edit it if you need to. 
+
+It doesn't provide a link if a default security rule is denying or allowing the traffic. 
+
+---
+
+[Connection monitor: Network Performance Monitor solution in Azure](https://learn.microsoft.com/en-us/previous-versions/azure/azure-monitor/insights/network-performance-monitor)  
+
+Network Performance Monitor is a cloud-based hybrid network monitoring solution that helps you monitor network performance between various points in your network infrastructure.
+
+ It also helps you monitor network connectivity to:
+
+ - service endpoints 
+ - application endpoints 
+ - monitor the performance of Azure ExpressRoute
+
+Network Performance Monitor **detects network issues** like:
+
+- traffic blackholing
+- routing errors
+- issues that conventional network monitoring methods aren't able to detect
+
+Network Performance Monitor offers three broad capabilities:
+
+- Performance Monitor: 
+across cloud deployments and on-premises locations, multiple data centers, and branch offices and mission-critical multitier applications or microservices. 
+With Performance Monitor, you can detect network issues 
+**before users complain**.
+
+- Service Connectivity Monitor: 
+monitor the connectivity from your users to the services you care about
+identify where network bottlenecks occur. 
+You can know about outages before your users
+see the exact location of the issues along your network path.
+This capability helps you perform tests based on: 
+**HTTP, HTTPS, TCP, and ICMP** 
+
+- ExpressRoute Monitor: 
+Monitor end-to-end connectivity and performance between your branch offices and Azure, over Azure ExpressRoute.
+
+---
+
+## Q173:
+
+You deploy several VMs for different purposes.
+You deploy Network Watcher in the East US region.
+You see some odd traffic on a VM named VM1.
+VM1 makes connections to a unknown SFTP service.
+
+You need to configure a filter to capture those packages 
+to the unknown SFTP service.
+You decide to use PS for this task.
+
+```
+$res = Get-AzResource | `
+Where {$_.ResourceType -eq OPTIONS-1 -and $_.Location -eq "East US"}
+
+$nw = Get-AzNetworkWatcher -Name $res.Name `
+-ResourceGroupName $res.ResourceGroupName
+
+$diagnosticSA = Get-AzStorageAccount -Name  "diagnosticSA" `
+-ResourceGroupName diagnosticsRG
+
+$filter1 = New-AzPackageCaptureFilterConfig -Protocol TCP `
+-RemoteIPAddress OPTIONS-2 `
+-LocalIPAddress "10.0.0.3" `
+-LocalPort OPTIONS-3 `
+-RemotePort 
+
+OPTIONS-4 -NetworkWatcher $nw `
+-TargetVirtualMachineId  $vm.Id `
+-PacketCaptureName "Capture SFTP Traffic" `
+-StorageAccountId $diagnosticSA.Id `
+-TimeLimitInSeconds 60 `
+-Filter $filter1
+```
+
+OPTIONS-1:
+"Micorsoft.Network/networkWatchers"
+"Micorsoft.Network/networkWatchers/packetCaptures"
+
+OPTIONS-2:
+"0.0.0.0",
+"0.0.0.0-255.255.255.255",
+
+OPTIONS-3:
+"0"
+"1-65535"
+"20,21"
+"20-21"
+"22"
+
+OPTIONS-4:
+New-AzNetworkWatcherPacketCapture
+New-AzNetworkWatcher
+
+---
+
+### Answer:
+
+```
+$res = Get-AzResource | `
+Where {$_.ResourceType -eq "Micorsoft.Network/networkWatchers" -and $_.Location -eq "East US"}
+
+$nw = Get-AzNetworkWatcher -Name $res.Name `
+-ResourceGroupName $res.ResourceGroupName
+
+$diagnosticSA = Get-AzStorageAccount -Name  "diagnosticSA" `
+-ResourceGroupName diagnosticsRG
+
+$filter1 = New-AzPackageCaptureFilterConfig -Protocol TCP `
+-RemoteIPAddress "0.0.0.0-255.255.255.255" `
+-LocalIPAddress "10.0.0.3" `
+-LocalPort "1-65535" `
+-RemotePort "22"
+
+New-AzNetworkWatcherPacketCapture -NetworkWatcher $nw `
+-TargetVirtualMachineId  $vm.Id `
+-PacketCaptureName "Capture SFTP Traffic" `
+-StorageAccountId $diagnosticSA.Id `
+-TimeLimitInSeconds 60 `
+-Filter $filter1
+```
+The answer is slef-explanatory
+
+The only two details worth noticing are for the `New-AzPackageCaptureFilterConfig` command.
+
+`-RemoteIPAddress "0.0.0.0-255.255.255.255"`
+`-LocalPort "1-65535" `
+
+These mean literally **any remote IP address** and **any remote port** that is destination of the packets. 
+
+`-RemotePort "22"`
+Port 22 is the port used to communicate over SFTP.
+
+---
+
+### References:
+
+
+[New-AzPacketCaptureFilterConfig](https://learn.microsoft.com/en-us/powershell/module/az.network/new-azpacketcapturefilterconfig?view=azps-11.5.0)  
+
+creates a new packet capture filter object. This object is used to restrict the type of packets that are captured during a packet capture session using the specified criteria. 
+
+[New-AzNetworkWatcherPacketCapture](https://learn.microsoft.com/en-us/powershell/module/az.network/new-aznetworkwatcherpacketcapture?view=azps-11.5.0)  
+
+---
+
+[Manage packet captures for virtual machines with Azure Network Watcher using PowerShell](https://learn.microsoft.com/en-us/azure/network-watcher/packet-capture-vm-powershell)  
+
+```
+# Install Network Watcher agent on a Linux virtual machine.
+Set-AzVMExtension -Publisher 'Microsoft.Azure.NetworkWatcher' -ExtensionType 'NetworkWatcherAgentLinux' -Name 'AzureNetworkWatcherExtension' -VMName 'myVM' -ResourceGroupName 'myResourceGroup' -TypeHandlerVersion '1.4' -EnableAutomaticUpgrade 1
+
+# Install Network Watcher agent on a Windows virtual machine.
+Set-AzVMExtension -Publisher 'Microsoft.Azure.NetworkWatcher' -ExtensionType 'NetworkWatcherAgentWindows' -Name 'AzureNetworkWatcherExtension' -VMName 'myVM' -ResourceGroupName 'myResourceGroup' -TypeHandlerVersion '1.4' -EnableAutomaticUpgrade 1
+
+# --------------
+# START CAPTURE 
+# --------------
+
+# Place the virtual machine configuration into a variable.
+$vm = Get-AzVM -ResourceGroupName 'myResourceGroup' -Name 'myVM'
+
+# Place the storage account configuration into a variable.
+$storageAccount = Get-AzStorageAccount -ResourceGroupName 'myResourceGroup' -Name 'mystorageaccount'
+
+# Start the Network Watcher capture session.
+New-AzNetworkWatcherPacketCapture -Location 'eastus' -PacketCaptureName 'myVM_1' -TargetVirtualMachineId $vm.Id  -StorageAccountId $storageAccount.Id
+
+
+# --------------
+# STOP CAPTURE 
+# --------------
+
+# Manually stop a packet capture session.
+Stop-AzNetworkWatcherPacketCapture -Location 'eastus' -PacketCaptureName 'myVM_1'
+
+# --------------
+# DOWNLOAD CAPTURE 
+# --------------
+
+# Download the packet capture file from Azure storage container.
+
+Get-AzStorageBlobContent -Container 'network-watcher-logs' -Blob 'subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myresourcegroup/providers/microsoft.compute/virtualmachines/myvm/2024/01/25/packetcapture_22_44_54_342.cap' -Destination 'C:\Capture\myVM_1.cap'
+
+
+
+```
+---
+
+## Q172:
+
+You Azure environment consists of the following resources:
+
+- four VNets
+- 48 Windows Server and Linux VMs
+- six genearl purpose SAs
+
+you must design a universal monitoring solution that enables
+you to query all diagnostics and telemetry data emitted by all
+the resources.
+
+What should you do first?
+
+- activate resource diagnostic settings
+- enable network watcher
+- create a Log Analytics Workspace
+- install teh Microsoft Monitoring Agent
+
+---
+
+### Answer:
+- create a Log Analytics Workspace
+
+This is the obvous answer.
+
+---
+
+### References:
+
+---
+
+## Q171:
+
+You have a RG named RG1 with a Windoes Servr VM named VM1.
+You plan to use Azure Monitor to configure an alert rule on VM1.
+You need to configure an alert that notifies you whenever the VM is restarted.
+
+What should you do?
+
+---
+
+### Answer:
+
+- define a metric-based alert condition
+- define aa Activity Log alert condition
+- define an action group with am ITSM action type
+- define an action group with a webhook action type
+
+
+---
+
+### References:
+- define aa Activity Log alert condition
+
+This is the obvious answer. You want to monitor the **restart**
+of the VM which is **an event in the Activity Log** on Azure Monitor.
+Clearly the VMN must have the Azure Monitor Agent installed on it and its activity logs must be selected for export to Azure Monitor.
+
+---
+
+## Q170:
+
+your company develops a LOB app that uses Azure SQL Database.
+The app uses Windows and Linux VMs for the business and presentation
+layers.
+
+Some users report errors in the app.
+You need to be alerted every time an exeption arises in any part of the app.
+The solution must require minimum admin effort.
+
+Which two actions should you perform?
+
+
+- create an alert using a seach query that looks for exception in the business layer and presentation layer VMs
+
+- create an alert using a seach query that looks for exception in the business layer VMs
+
+- create an alert using a seach query that looks for exception in the application layer servers
+
+- create an alert using a seach query that looks for exception in the Linux VMs
+
+- create an alert using a seach query that looks for exception in the Windows VMs
+
+
+
+---
+
+### Answer:
+
+- create an alert using a seach query that looks for exception in the Linux VMs:
+In this case you can use **Loag Analytics or Application Insights** resources types. You can then write search queries to get all the **Windows Events** that contain the word `Ecxeptoion`.
+
+- create an alert using a seach query that looks for exception in the Windows VMs:
+In this case you use **Syslog messages**.
+
+The remainign options do not apply.
+
+
+---
+
+### References:
+
+[Collect Windows event log data sources with Log Analytics agent](https://learn.microsoft.com/en-us/azure/azure-monitor/agents/data-sources-windows-events)   
+
+**Windows event logs** are one of the most common data sources for **Log Analytics agents on Windows virtual machines** because many applications write to the Windows event log. 
+
+You can collect events from **standard logs**, such as **System and Application**, and any **custom logs created by applications** you need to monitor.
+
+> [Migrate to Azure Monitor Agent from Log Analytics agent](https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-migration)
+
+`Azure Monitor Agent (AMA)` replaces the Log Analytics agent (also known as Microsoft Monitor Agent (MMA) and OMS) for Windows and Linux machines, in Azure and non-Azure environments, including on-premises and third-party clouds. 
+
+---
+
+[Collect Syslog data sources with the Log Analytics agent](https://learn.microsoft.com/en-us/azure/azure-monitor/agents/data-sources-syslog)  
+
+**Syslog** is an event logging protocol that's common to **Linux**.
+
+Applications send messages that might be:
+- stored on the local machine or 
+- delivered to a Syslog collector
+
+When the Log Analytics agent for Linux is installed, it configures the local Syslog daemon to forward messages to the agent. The agent then sends the messages to Azure Monitor where a corresponding record is created.
+
+---
+
+## Q169:
+
+your company develops a LOB app that uses Azure SQL Database.
+**System Center Service Manager** is also deployed.
+
+You need to configure an alert when the DB reaches 70% of CPU.
+When the alert is triggered you must notify several users by email 
+and SMS.
+You also need to automatically create a tickt in the **ITSM system**.
+The solution must be that of minimum admin effort.
+
+Which **two** actions should you perform?
+
+- configure System Center Service Manager with Azure Automation
+
+- configure one action group with two actions: one for email and SMS notification and one action for the ITSM ticket creation
+
+- configure two action group with one action action each: one AG for the action email and the action SMS notification and the other AG for the action ITSM ticket creation
+
+- **configure an it service connector ITSMC**
+
+---
+
+### Answer:
+
+- configure one action group with two actions: one for email and SMS notification and one action for the ITSM ticket creation
+an AG can be defined with multiple actions, therefore there is no need to use two separate AGs.
+The types of actions in an AG are:
+
+- send email
+- send sms
+- send voice message
+- run an Azure Runbook
+- run an Azure LogicApp
+- trigger a Webhook
+- trigger a secure Webhook
+- trigger a ITSM action: this requires a ITSMC and configuration
+
+- **configure an it service connector ITSMC**:
+you need a connector in order to link your particular ITSM to Azure.
+This connector is what allows Azure to create a ticket into it.
+In this case the ITSMC is **System Center Service Manager** nad 
+such connector exists.
+
+
+---
+
+### References:
+
+[Azure Monitor - Action Groups](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups)   
+
+**Alerts triggered by Azure Monitor can contain action groups**, 
+**which are a collection of notification preferences**. 
+
+- Azure Monitor
+- Azure Service Health
+- Azure Advisor 
+
+use action groups to notify users about the alert and take an action.
+
+Each action is made up of:
+
+- Name: A unique identifier within the action group.
+
+- Type: 
+The notification that's sent or action that's performed. 
+  - send email
+  - send sms
+  - send voice message
+  - run an Azure Runbook
+  - run an Azure LogicApp
+  - trigger a Webhook
+  - trigger a secure Webhook
+  - trigger a ITSM action: this requires a ITSMC and configuration
+
+- Details: 
+The corresponding details that vary by type.
+
+> an action group is a global service
+
+Global requests from clients can be processed by action group services **in any region**. If one region of the action group service is down, the traffic is automatically routed and processed in other regions. 
+
+**As a global service, an action group helps provide a disaster recovery solution.**
+
+- You can add up to five action groups to an alert rule.
+- Action groups are executed concurrently, in no specific order.
+- Multiple alert rules can use the same action group.
+
+---
+
+[Azure Monitor IT Service Management integration](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/itsmc-overview)  
+
+Azure services like **Log Analytics** and **Azure Monitor** provide tools to: 
+
+- detect
+- analyze
+- troubleshoot 
+
+problems with your **Azure** and **non-Azure** resources. 
+But the work items related to an issue typically reside in an ITSM product or service.
+
+**Azure Monitor provides a bidirectional connection between Azure and ITSM tools** to help you resolve issues faster. You can create work items in your ITSM tool based on: 
+
+- your Azure metric alerts
+- activity log alerts
+- log search alerts
+
+
+Azure Monitor supports connections with the following ITSM tools:
+
+- ServiceNow ITSM or IT Operations Management (ITOM)
+- BMC
+
+> ITSM integration workflow:
+
+For ServiceNow ITOM events or BMC Helix, use the **secure webhook action**:
+
+1. Register your app with Microsoft Entra ID
+2. Define a service principal
+3. Create a secure webhook action group
+4. Configure your partner environment. Secure Export supports connections with the following ITSM tools:
+ServiceNow ITOM
+BMC Helix
+
+---
+
+[Azure Monitor: Connect ServiceNow with IT Service Management Connector](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/itsmc-connections-servicenow)  
+
+configure the connection between a ServiceNow instance and the IT Service Management Connector (ITSMC) in Log Analytics.
+
+--- 
+
+[About System Center - Service Manager](https://learn.microsoft.com/en-us/system-center/scsm/service-manager?view=sc-sm-2022)   
+
+System Center - Service Manager provides **an integrated platform** 
+**for automating and adapting** your organization's IT service **management best practices**, such as those in: 
+
+- Microsoft Operations Framework (MOF) 
+- Information Technology Infrastructure Library (ITIL). 
+
+It provides: 
+
+- built-in processes for incident and problem resolution
+- change control
+- asset lifecycle management
+
+---
+
+## Q168:
+
+your company develops a LOB app that uses Azure IoT Hub to gather info from devices.
+The app uses IoT Hub Service SDK to read device telemetry from the IoT Hub.
+You must monitor the device telemetry and be able to configure alerts based
+on the telemetry values.
+
+Your solution should require the minimum admin effort.
+
+What should you do?
+
+- enable Azure Monitor resource diagnostics logs on the IoT Hub
+- use Azure Application Insignts in the LOB app
+- use Azure activity logs
+- use Azure Resource Health
+
+---
+
+### Answer:
+- enable Azure Monitor resource diagnostics logs on the IoT Hub
+
+zure Monitor resource diagnostics logs are resource-level logs. 
+This allows you to moniotr the events inside the reosurce: IoT Hub.
+
+Each resource ahs its own set of events, 
+**for IoT Hub the event category DeviceTelemetry** is what fits in this scenario
+to satify the requirements.
+
+The remaing options do not apply:
+
+- use Azure Application Insignts in the LOB app:
+OK but it requires coding.
+
+- use Azure activity logs:
+this provides info about (management) **actions performed on the resource** through the 
+Resource Manager. 
+
+- use Azure Resource Health:
+this is another service alltogether, used to set up test probes on Azure Resources.
+
+---
+
+### References:
+
+[Sources of monitoring data for Azure Monitor and their data collection methods](https://learn.microsoft.com/en-us/azure/azure-monitor/data-sources)  
+
+[Resource Health overview](https://learn.microsoft.com/en-us/azure/service-health/resource-health-overview)  
 
 ---
 
@@ -1298,6 +1948,7 @@ However, they differ in the way the local network gateway is configured.
 
 
 <img src="./Q158-1.png">
+
 
 ---
 
