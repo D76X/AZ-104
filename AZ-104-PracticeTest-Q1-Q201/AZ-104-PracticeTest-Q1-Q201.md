@@ -2,8 +2,7 @@
 
 ---
 
-## Q18x:
-
+## Q19x:
 
 ---
 
@@ -12,6 +11,138 @@
 ---
 
 ### References:
+
+
+---
+
+## Q189:
+
+You have two Azure VMs named vm1 and vm2 runnign Windows Server 2019.
+The VMs are backed up by an Azure Recovery Service vault.
+A daily backup is scheduled.
+
+A configuration file on VM1 was updated and you need to restore it to 
+a version from six days ago. 
+You must perform this action as quickly as possible without affecting other systems files.
+
+Which four actions should you permorn in a squence?
+
+- doenload and execute a PowerShell script to browese and recover files on VM1
+- copy the file from the mounted volume to the VM
+- mount the volume containing the file that is needed on VM2
+- create a new VM
+- restore teh disk containing the config file
+- start the file recovery process and select the recovery point of 6 days ago
+- un mount the volume
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q188:
+
+
+You plan to configure a backup policy as shown in the exhibit.
+The exhibit defines a daily backup policy, with weekly and montly retention schedules.
+
+<img src="./Q188-1.png">
+
+You must understand the effect that myBackupPolicy has on the backup of VMs.
+
+max recovery time for VMs: OPTIONS-1
+Recovery Point Objective (RPO): OPTIONS-2
+
+OPTIONS-1:
+60 days 
+24 weeks
+24 months
+30 months
+
+OPTIONS-2: 1 day | 1 week | 1 months | 1 year
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q187:
+
+Your company has web app deplyed to Azure.
+The web app is in three layers with three VMs per layer.
+The web app has a public IP address to allow customers to access the app.
+
+You implement the **Business Continuity Disaster Recovery (BCDR) plan** for the web app using **Azure Site Recovery**.
+
+You have configured replication of the VMs in the Azure region that hosts your app.
+
+You must **minimize the Recovery Time Objective (RTO)**.
+
+Which four actions should you perform in a sequence?
+
+- create a trafic manager profile
+- create a recovery plan
+- configure NSGs in the target region
+- configure NSGs in the source region
+- configure ExpressRoute public peering
+- configure ExpressRoute private peering
+- customize the plan and add a step for attaching the public IP address
+
+---
+
+### Answer:
+
+1. configure NSGs in the target region
+2. create a recovery plan
+3. customize the plan and add a step for attaching the public IP address
+4. create a trafic manager profile
+
+1. configure NSGs in the target region
+2. create a recovery plan:
+Azure Site Recovery can automatically configure VNets and Subnets in the target region based on the source region. However, it cannot automatically replicate the NGs this must be done manually in the target region after the the first replication has been performed.
+
+Then you create a recovery plan. This consists of teh tasks that are required to bring the web app back online after critical failure in teh source Azure region. 
+The recovery plan is the automation of a series of tasks, one of these tasks will be the replication of all teh VMs.
+
+3. customize the plan and add a step for attaching the public IP address
+
+One of the steps will involve to attach a public IP address.
+Azure Site Recovery does not, by default, migrate a public IP address and these kind of IP addresses cannot be retained during failover.
+For this reason, you must create a new public IP address in the new region by means of an Automation Runbook.
+
+4. create a trafic manager profile:
+Traffic Manager can be setup to monitor the status of the source and target sites and in the case of failure of the source site TM **automatically redirects traffic** directed to the source IP to that of the teargt IP.
+This minimize downtime.
+
+The remaining options do not apply to this case.
+
+- configure ExpressRoute public peering
+- configure ExpressRoute private peering
+this is off topic here as your app is exposed to the internet to public users.
+
+- configure NSGs in the source region:
+obviously not as there are already NSGs there.
+
+
+---
+
+### References:
+
+[Set up public IP addresses after failover](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-public-ip-address-with-site-recovery)  
+
+[Network Security Groups with Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-network-security-group-with-site-recovery)  
+
+[Azure Traffic Manager with Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-traffic-manager-with-site-recovery)   
 
 ---
 
