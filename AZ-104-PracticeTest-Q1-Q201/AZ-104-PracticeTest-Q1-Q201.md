@@ -15,6 +15,506 @@
 
 ---
 
+## Q186:
+
+You are an Azure admin for an organization that runs an on-prem site
+and uses Azure to host iots mission-critical LOB apps.
+One of your on-prem apps and an app hosted on a Azuere VMSS connect to the same SA endpoint.
+
+You need to perform a comparative analysis of latencies of teh on-prem site and that of the app hosted in Azure.
+
+What should I use?
+
+- Azure Network Watcher Connection monitor
+- Azure Network Watcher IP flow
+- Azure Network Watcher NSG diagnostics
+- Azure Network Watcher VPN troubleshoot from the Azure portal 
+
+---
+
+### Answer:
+- Azure Network Watcher Connection monitor:
+This tools allows to monitor and capture the metrics of connection also in hybrid environments.
+The details are below in the references.
+
+The reamining options do not apply to this case:
+
+- Azure Network Watcher NSG diagnostics:
+troubleshhot NSG rules in cases where traffic is allowed or denied and you must understand why, that is whichi NSG rule causes ot to be allowed or denied.
+
+- Azure Network Watcher IP flow:
+troubleshoot network connectivity at packet level based on the 5-tuple paradigm.
+
+- Azure Network Watcher VPN troubleshoot from the Azure portal:
+troubleshoot the connection between **VNet gateways**. 
+
+[VPN troubleshoot overview](https://learn.microsoft.com/en-us/azure/network-watcher/vpn-troubleshoot-overview) 
+
+Virtual network gateways provide connectivity between 
+**on-premises resources** and **Azure Virtual Networks**.
+
+Azure Network Watcher VPN troubleshoot provides the capability to troubleshoot virtual network gateways and their connections. 
+
+When called, Network Watcher diagnoses the health of the gateway, or connection, and returns the appropriate results.
+
+VPN troubleshoot can be called through:
+
+- the Azure portal
+- Azure PowerShell
+- Azure CLI
+- REST API
+
+> Supported Gateway types:
+VPN
+Route Based
+IPSec
+VNet2VNet
+
+> Log files
+The resource troubleshooting log files are stored in a storage account after resource troubleshooting is finished. 
+---
+
+### References:
+
+[Azure Network Watcher Connection monitor overview](https://learn.microsoft.com/en-us/azure/network-watcher/connection-monitor-overview)   
+
+Connection monitor provides unified, end-to-end connection monitoring in Network Watcher. 
+
+**The Connection monitor feature supports hybrid and Azure cloud deployments**. 
+
+> Use Case 1: check network connectivity between the two VM/or scale sets
+
+Your front-end web server virtual machine (VM) or virtual machine scale set communicates with a database server VM in a multi-tier application. You want to check network connectivity between the two VM/or scale sets.
+
+> Use Case 2: compare cross-region network latencies
+
+You want VMs/scale sets in, for example, the East US region to ping VMs/scale sets in the Central US region, and you want to compare cross-region network latencies
+
+> Use Case 3: compare the latencies to Microsoft between sites
+
+You have multiple on-premises office sites, one in Seattle, Washington, for example, and another in Ashburn, Virginia. Your office sites **connect to Microsoft 365 URLs**. For your users of Microsoft 365 URLs, you want to compare the latencies between Seattle and Ashburn.
+
+> Use Case 4: ompare the latencies of the on-premises site with the latencies of the Azure application
+
+**This is the use case of the question!**
+
+Your **hybrid application needs connectivity to an Azure storage account endpoint**. Your on-premises site and your Azure application connect to the same endpoint. You want to compare the latencies of the on-premises site with the latencies of the Azure application.
+
+> Use Case 5: check the connectivity in hybrid deployments
+
+You want to check the connectivity between your on-premises setups and the Azure VMs/virtual machine scale sets that host your cloud application.
+
+
+<img src="./Q186-1.png">
+
+
+> Install monitoring agents:
+
+Connection monitor now supports auto enablement of monitoring extensions for Azure & Non-Azure endpoints, thus eliminating the need for manual installation of monitoring solutions during the creation of Connection monitor.
+
+Connection monitor relies on lightweight executable files to run connectivity checks.
+
+It supports connectivity checks from both Azure environments and on-premises environments. The executable file that you use depends on whether your VM is hosted on Azure or on-premises.
+
+---
+
+## Q185:
+
+You are an Azure admin at a retail organization.
+Your organization uses 4500 Azure SAs accross two Azure subscriptions.
+
+You have been tasked with performing an audit b implementing teh following:
+
+1. identify the SAs that have no use
+2. enable the view of interactive storage metrics for the 4500 SAs accross the two subsccriptions
+3. cunstomized dashboard coloring for availability
+
+You have decided to use **Storage Insights** vie in Azure Monitor.
+
+Select yes/no:
+
+- you can sort your SAs in ascending order by using teh transaction column to identify the SA with no use
+
+- the overview workbook for the selected subscriptions will exhibit up to 500 SAs
+
+- you can apply customized coloring in the Availability threshold section
+
+---
+
+### Answer:
+
+- you can sort your SAs in ascending order by using the transaction column to identify the SA with no use
+yes: this is doen through teh columen named transaction volume whichi is sortable.
+
+- the overview workbook for the selected subscriptions will exhibit up to 500 SAs
+no: the maximum is 200!
+
+- you can apply customized coloring in the Availability threshold section
+yes: it is possble to apply customize coloring schemes.
+
+
+---
+
+### References:
+
+[Best practices for monitoring Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/blob-storage-monitoring-scenarios)  
+
+This article features a collection of common storage monitoring scenarios, and provides you with best practice guidelines to accomplish them.
+
+> Identify storage accounts with no or low use:
+
+Storage Insights is a dashboard on top of Azure Storage metrics and logs.
+
+> Analyze transaction volume:
+sort your accounts in ascending order by using the Transactions column. 
+If There are no read and write transactions. This might lead you to believe that the account is not being used in a significant way.
+
+> Analyze used capacity:
+
+From the Capacity tab sort your accounts in ascending order by using the Account used capacity column. 
+
+> Monitor the use of a container (by customer):
+
+If you partition your customer's data by container, 
+then can monitor how much capacity is used by each customer. 
+You can use **Azure Storage blob inventory** to take an inventory of blobs with size information.
+
+[Calculate blob count and total size per container using Azure Storage inventory](https://learn.microsoft.com/en-us/azure/storage/blobs/calculate-blob-count-size)  
+
+**You can also evaluate traffic at the container level by querying logs**.
+
+> Example: query to get the number of read transactions and the number of bytes read on each container
+
+```
+StorageBlobLogs
+| where OperationName  == "GetBlob"
+| extend ContainerName = split(parse_url(Uri).Path, "/")[1]
+| summarize ReadSize = sum(ResponseBodySize), ReadCount = count() by tostring(ContainerName)
+```
+
+> uses a similar query to obtain information about write operations:
+
+```
+StorageBlobLogs
+| where OperationName == "PutBlob" or
+  OperationName == "PutBlock" or
+  OperationName == "PutBlockList" or
+  OperationName == "AppendBlock" or
+  OperationName == "SnapshotBlob" or
+  OperationName == "CopyBlob" or
+  OperationName == "SetBlobTier"
+| extend ContainerName = split(parse_url(Uri).Path, "/")[1]
+| summarize WriteSize = sum(RequestBodySize), WriteCount = count() by tostring(ContainerName)
+```
+
+> Audit account activity:
+> Auditing control plane operations: with Activity Logs
+
+In many cases, you'll need to audit the activities of your storage accounts **for security and compliance**. 
+
+- control plane: ARM
+- data plane: Azure Storage API 
+
+> Auditing data plane operations:
+
+Data plane operations are captured in **Azure resource logs for Storage in Azure Monitor**. 
+
+You can configure **Diagnostic setting** to export logs to Log Analytics workspace for a native query experience.
+
+```
+StorageBlobLogs
+| where TimeGenerated > ago(3d)
+| project TimeGenerated, AuthenticationType, RequesterObjectId, OperationName, Uri
+```
+
+> Optimize cost for infrequent queries:
+
+When you have massive transactions on your storage account, the cost of using logs with Log Analytics might be high.
+
+If you only plan to query logs occasionally (for example, query logs for compliance auditing), you can **consider reducing the total cost by exporting logs to storage account, and then using a serverless query solution on top of log data, for example, Azure Synapse**.
+
+**With Azure Synapse, you can create server-less SQL pool to query log data when you need**.
+**This could save costs significantly**.
+
+---
+
+[Monitoring your storage service with Azure Monitor Storage insights](https://learn.microsoft.com/en-us/azure/storage/common/storage-insights-overview?toc=%2Fazure%2Fazure-monitor%2Ftoc.json)  
+
+Storage insights provides comprehensive monitoring of your Azure Storage accounts by delivering **a unified view of your Azure Storage services** performance, capacity, and availability. 
+
+This tool allows to derive actionable knowledge on the health and performance of Storage accounts at scale, with a capability to focus on hotspots and diagnose latency, throttling, and availability issues.
+
+You can observe storage capacity, and performance in two ways:
+
+- directly from a storage account 
+- from Azure Monitor to see across groups of storage accounts
+
+**This feature does not require you to enable or configure anything, the storage metrics from your storage accounts are collected by default**.
+
+> Overview workbook:
+
+The default Availability threshold is:
+Warning - 99%
+Critical - 90%
+
+> Capacity workbook:
+
+Select Capacity at the top of the page and the Capacity workbook opens.
+
+
+---
+
+## Q184:
+
+your company hosts its infrastructure in Azure, it consists of VMs,
+storage in the form of disks and Azure file shares and several VNets
+with Subnets.
+
+The service desk sees an influx of support tickets that have been loged in the past 24 h regarding itermittent connectivity issues to a we server.
+
+After some investigation the ticket has been escaleted to you and you 
+need to use Network Watcher diagnostic tool to check if packets are allowed or denied to the web server.
+
+Which NW diagnostic tool should you use?
+
+- IP flow verify
+- connection troubleshoot
+- next hop
+- effective security rules
+
+
+---
+
+### Answer:
+- IP flow verify:
+This tool show which NSG rule causes inbound/outbound packets denial to a web server. 
+It is based on a 5-tuple rule packet:
+SOURCE IPs+PORTS, DESTINATION IPs+PORTS, PROTOCOL
+
+
+The remaining options do not apply:
+
+- connection troubleshoot:
+this is to check whether it is possible to establish as TCP connection between two IPs (that is a VM and an IP that might be another VM).
+You can use FQDN, URI to IPs.
+
+- next hop:
+This is to troubleshoot DNS route tables, that is how packets travel from a VM to a destination.
+
+- effective security rules:
+shows the NGS rule that are applied to a VM NIC.
+
+This topic was examined in detail in onbe of the previous questions.
+
+---
+
+### References:
+
+[IP flow verify overview](https://learn.microsoft.com/en-us/azure/network-watcher/ip-flow-verify-overview)  
+
+---
+
+## Q183:
+
+You have two VMs and three SAs in an Azure subscription.
+The subscription configuration is shown in the exhibit.
+
+<img src="./Q183-1.png">
+
+vm1 Ubuntu LTS          Central US
+vm2 Windows Server 1019 East    US
+
+SA1 LRS Premium         Central US
+SA2 LRS Standard V1     East    US
+SA3 GRS Standard V2     Central US
+
+You need to enable boot diagnostics (BD) in Azure VMs using the 
+available SAs.
+
+Which SA should you use?
+
+Enable BD in VM1 by using: OPTIONS 
+Enable BD in VM2 by using: OPTIONS 
+
+OPTIONS:
+SA1
+SA2
+SA3
+SA1 & SA2
+SA2 & SA3
+SA1 & SA2 & SA3
+
+---
+
+### Answer:
+
+Enable BD in VM1 by using: SA3 
+Enable BD in VM2 by using: SA2
+
+vm1 > Central US > SA3 > Central US
+vm2 > East    US > SA2 > East    US
+
+You can use a Standard SA V2 or V1 as long as it is in the same region
+as the VM the fact that ti is LRS rather GRS does not matter to 
+boot diagnostics.  
+
+
+---
+
+### References:
+
+[How to use boot diagnostics to troubleshoot virtual machines in Azure](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/boot-diagnostics)   
+
+There can be many reasons that a virtual machine enters a non-bootable state. To address issues **with your virtual machines created using Resource Manager deployment model**, you can use the following debugging features: 
+
+- Console Output 
+- Screenshot support for Azure virtual machines
+
+**For Linux virtual machines**, you can view the output of your console log from the Portal.
+
+**For both Windows and Linux virtual machines**, Azure enables you to see a screenshot of the VM from the hypervisor.
+
+**Select the Boot diagnostics option to view the log and the screenshot**.
+
+The **diagnostics profile** enables you to select the storage account where you want to put these logs.
+
+```
+{
+  "apiVersion": "2018-10-01",
+  "type": "Microsoft.Compute/virtualMachines",
+  …
+
+"diagnosticsProfile": {
+ "bootDiagnostics": {
+  "enabled": true,
+  "storageUri": "[concat('https://', parameters('newStorageAccountName'), '.blob.core.windows.net')]"
+  }
+    }  
+  ...  
+}
+
+```
+---
+
+## Q182:
+
+You have an ASP.NET Core app running in an App Service.
+The app generate log messages that should be stored for at least a week.
+You need to enable diagniostic logging and only store logs with severety level of Warning or higher.
+
+How should you configure the diagnostic loggig?
+
+Diagnostic logging: OPTIONS-1
+Severety level    : Error | Information | Verbose | Warning
+
+OPTIONS-1:
+application logging (blob)
+application logging (filesystem)
+web server logging (storage)
+detailed error messages 
+
+---
+
+### Answer:
+
+Diagnostic logging: application logging (blob)
+Severety level    : Warning
+
+---
+
+### References:
+
+[Enable diagnostics logging for apps in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs)    
+
+- logs can be written to the local filesystem but this is only meant for debugging the the options switches off automatically after 12 h
+
+- only .Net application logs can be witten to Blob storage. This options is meant for long-term retention.
+
+- Python / Node.js / Java logs can only be stored to the local filesystem
+
+- if you set a retention policy for the logs saved to blobs the retention policy is removed when the App Service is removed and the logs will be retained indefinitely on the SA
+
+- if the access keyes to teh SA are regenerated then you must reste all in the App Service
+
+web server logging (storage)
+detailed error messages 
+
+can only be saved to the local filesystem and the retantion is 50 of each aftyer that App Service deletes them automatically displacing teh oldest.
+
+
+---
+
+## Q181:
+
+You need to create an alert for a VM named VM1 that will be fired
+when the VM's CPU utilization is grater than 95% for at least 10 mins.
+
+You need to add an action group named AG1 to this alert.
+
+```
+az monitor metrics alert OPTIONS-1 -n A1 -g RG1 `
+--OPTIONS-2 "avg Percentage CPU > 95" `
+--OPTIONS-3 10m --OPTIONS-4 AG1
+```
+
+OPTIONS-1: create | list | show
+OPTIONS-2: condition | desription | scopes
+OPTIONS-3: action | evaluation-frequency | windows-size
+OPTIONS-4: action | condition | name
+
+
+---
+
+### Answer:
+
+> THIS IS NOT RIGHT !
+It is almost right, it lacks the `--scopes`
+```
+az monitor metrics alert create -n A1 -g RG1 `
+--condition "avg Percentage CPU > 95" `
+--window-size 10m --action AG1
+```
+
+`--scopes`
+Space-separated list of scopes the rule applies to. The resources specified in this parameter must be of the same type and exist in the same location.
+**For examle the IDs of a set of VMs**.
+
+---
+
+### References:
+
+[az monitor metrics alert](https://learn.microsoft.com/en-us/cli/azure/monitor/metrics/alert?view=azure-cli-latest)  
+
+Create a high CPU usage alert on a VM with no action.
+
+```
+az monitor metrics alert create -n alert1 -g {ResourceGroup} --scopes {VirtualMachineID} --condition "avg Percentage CPU > 90" --description "High CPU"
+```
+
+Create a high CPU usage alert on a VM with email and webhook actions:
+
+```
+az monitor metrics alert create -n alert1 `
+-g {ResourceGroup} `
+--scopes {VirtualMachineID} `
+--condition "avg Percentage CPU > 90" `
+--window-size 5m `
+--evaluation-frequency 1m `
+--action "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.Insights/actionGroups/<actionGroupName>" apiKey={APIKey} type=HighCPU --description "High CPU"
+```
+
+Create an alert when a storage account shows a high number of slow transactions, using multi-dimensional filters.:
+
+```
+az monitor metrics alert create -g {ResourceGroup} `
+-n alert1 --scopes {StorageAccountId} `
+--description "Storage Slow Transactions" `
+--condition "total transactions > 5 where ResponseType includes Success" `
+--condition "avg SuccessE2ELatency > 250 where ApiName includes GetBlob"
+```
+
+---
+
 ## Q180:
 
 You have the Azure subscription named `sub1`.
@@ -37,9 +537,19 @@ sms message  : 0 | 1 | 4 | 12 | 60
 
 ### Answer:
 
+email        : 60 / h
+voice message: 12 / h = 1 notification / 5 mins
+sms message  : 12 / h = 1 notification / 5 mins
+
+These are the maximum rate limits.
+
+However, **the max number of alerts that can be set for an action group is 100  notification per hour**.
+
 ---
 
 ### References:
+
+[Action groups](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups)   
 
 ---
 
@@ -63,9 +573,64 @@ select yes/no:
 
 ### Answer:
 
+- data display in the chart is limited to no more than 14 days
+Yes: this is the case when teh chart is pinned the table or teh chart to the Azure Portal dashboard.
+
+- data display in the chart is limited up to 4 cols and teh top 7 rows
+No
+
+- chart types are limited to line and stack column only
+No
+
+Unless the render operation is specified in the Azure Monitor query the data from Azure Monitor Log is returned as a table. You have the option of formatting the data as a chart in multiple supported chart formats includung lines, columns, stacked colums and pie.
+
 ---
 
 ### References:
+
+[Log queries in Azure Monitor](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-query-overview)   
+
+Azure Monitor Logs is based on Azure Data Explorer, and log queries are written by using the same Kusto Query Language (KQL).
+
+> Areas in Azure Monitor where you'll use queries include:
+
+- Log Analytics:
+Use this primary tool in the Azure portal to edit log queries and interactively analyze their results. Even if you intend to use a log query elsewhere in Azure Monitor, you'll typically write and test it in Log Analytics before you copy it to its final location.
+
+- Log search alert rules: 
+Proactively identify issues from data in your workspace. 
+**Each alert rule is based on a log query that's automatically run at regular intervals**. The results are inspected to determine if an alert should be created.
+
+- Workbooks: 
+Include the results of log queries by using different visualizations in **interactive visual reports in the Azure portal**.
+
+- Azure dashboards: 
+Pin the results of any query into an Azure dashboard, which allows you to visualize log and metric data together and optionally share with other Azure users.
+
+- Azure Logic Apps: 
+Use the results of a log query in an automated workflow by using a logic app workflow.
+
+- PowerShell: 
+Use the results of a log query in a **PowerShell script** from a command line or an **Azure Automation runbook** that uses `Invoke-AzOperationalInsightsQuery`.
+
+[Invoke-AzOperationalInsightsQuery](https://learn.microsoft.com/en-us/powershell/module/az.operationalinsights/invoke-azoperationalinsightsquery?view=azps-11.5.0)
+
+- Azure Monitor Logs API: 
+Retrieve log data from the workspace from any REST API client. 
+The API request includes a query that's run against Azure Monitor to determine the data to retrieve.
+
+- Azure Monitor Query client libraries: 
+Retrieve log data from the workspace via an idiomatic client library for the following ecosystems: .NET / Go / Java / JavaScript / Python
+
+---
+
+[Log Analytics tutorial](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-tutorial)   
+
+Log Analytics is a tool in the Azure portal to edit and run log queries from data collected by Azure Monitor logs and interactively analyze their results.
+
+[Tutorial: Learn common KQL operators](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/tutorials/learn-common-operators?pivots=azuremonitor)  
+
+[Use queries in Log Analytics](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/queries?tabs=groupby)  
 
 ---
 
