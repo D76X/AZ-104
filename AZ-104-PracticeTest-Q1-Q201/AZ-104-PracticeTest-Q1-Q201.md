@@ -2,28 +2,409 @@
 
 ---
 
-## Q19x:
+## Q201:
+
+You are an Azure admin and there are mission-critical LOB apps in a multi-region deployment.
+One of these VMs hosts a critical SQL Server DB.
+You want to initiate an Azure VM disaster recovery using Azure Site Recovery.
+You plan to use **Azure Site Recovery High Churn** to achieve enahanced RPO Recovery Point Objective.
+
+What does **Azure Site Recovery High Churn** use?
+
+- permium block blod storage
+- azure files
+- standard general v2 storage
+- Azure Elastic SAN
 
 ---
 
 ### Answer:
+- permium block blod storage
+
+**Azure Site Recovery High Churn** is an approprate to restore a Azure SLQ DB in order to reduce RTO to a minimum. In order to support HC you must use  permium block blod storage for write rates up to 100 MB/s.
+
+HR would not work with any of the other storage options:
+standard general v2 storage
 
 ---
 
 ### References:
 
+[Azure VM Disaster Recovery - High Churn Support](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-azure-to-azure-high-churn-support)   
+
+[Premium block blob storage accounts](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-block-blob-premium)  
+
+---
+
+## Q200:
+
+You back up two VMs named vm1 & vm2 to a ARS vault named vault1.
+You use the same back up policy for vm1 and vm2.
+Your organization support additional VMs and ARS vaults.
+You are preparing how to reorganize backups through the Azure Backup Service.
+
+You need to delete vault1.
+Which three actions should you perform?
+
+- stop the backup of vm1 and vm2
+- disable the soft delete feature and delete all data
+- permanently delete all the itemns in the soft delete state
+
+- delete vm1 and vm2
+- delete the backup policy
+
+---
+
+### Answer:
+
+- stop the backup of vm1 and vm2:
+if there is any ongoing backup teh vault cannot be deleted
+
+- disable the soft delete feature and delete all data:
+if soft deleted is still enable the data is not removed and the vault cannot be deleted with data still in it
+
+- permanently delete all the itemns in the soft delete state:
+once the vault1 does not hold nay data it can be permanently be deleted 
+
+
+These are not necessary:
+- delete vm1 and vm2
+- delete the backup policy
+
+---
+
+### References:
+
+[Delete an Azure Backup Recovery Services vault](https://learn.microsoft.com/en-us/azure/backup/backup-azure-delete-vault?tabs=portal)  
+
+---
+
+## Q199:
+
+Your company Azure subscription has VMs as shown in teh exhibit.
+They want to start back ups for them using Azure Recovery Services.
+
+Wat uis the minimum number of ARS vauls required? 
+
+<img src="./Q199-1.png">
+
+- 1
+- 2
+- 3
+- 4
+
+---
+
+### Answer:
+- 2
+you need one ARS vault per region!
+**ARS is a regional service**.
+
+---
+
+### References:
+
+---
+
+## Q198:
+
+your company Azure uses multiple recovery saervices vaults to store backed up data.
+the company palns to use **Azure Backup reports** to help forecast cloud storage requirements and audit backup restores.
+
+You need to configure **Azure Recovery Services vault diagnostic settings**
+and specify teh target for each Azure Recovery Services vault's diagnostic data to support reporting.
+
+Where should you target the ARS vault diagnostic data?
+
+- send toLog Analytics
+- archive to blob storage
+- archive to storage accoubnt
+- stream to Event Hub
+
+---
+
+### Answer:
+- send toLog Analytics
+this is the correct way of doing it!
+
+---
+
+### References:
+
+[Configure Azure Backup reports](https://learn.microsoft.com/en-us/azure/backup/configure-reports?tabs=recovery-services-vaults)  
+
+[Use diagnostics settings for Recovery Services vaults](https://learn.microsoft.com/en-us/azure/backup/backup-azure-diagnostic-events?tabs=recovery-services-vaults)  
+
+---
+
+## Q197:
+
+Your company has an Azure subscription with VM1 which is backed up through Azure Backup using a custom backup policy that runs backups twice a day.
+
+You want to create a new VM based on VM1.
+You paln to restore to restore form teh Azure Portal and choose create a new VM restore type.
+
+Does this method meet you needs?
+
+select yes/no:
+
+- you can create the new VM in the same RG as the source VM or a different/new RG
+
+- you can create the new VM in the same region as teh source VM or specify a different region
+
+- you can specify the VNet for the new VM
+
+
+---
+
+### Answer:
+
+- you can create the new VM in the same RG as the source VM or a different/new RG
+yes
+
+- you can create the new VM in the same region as teh source VM or specify a different region
+no: the VM must be created in the same region as the source VM!
+
+- you can specify the VNet for the new VM
+yes
+
+---
+
+### References:
+
+---
+
+## Q196:
+
+Your company has an Azure subscription.
+You create a Azure Recovery Service vault and configure operiod backups for your VMs based on the default policy.
+
+How long are daily backups maintained by default?
+
+- 7 days
+- 14 days
+- 30 days
+- 9999 days
+
+---
+
+### Answer:
+- 30 days
+
+- 7 days:
+this is the **minimum retention period that a user can specify for daily backups in a custom policy**, the default policy uses 30 days!
+
+---
+
+### References:
+
+[Back up an Azure VM from the VM settings](https://learn.microsoft.com/en-us/azure/backup/backup-azure-vms-first-look-arm)  
+
+[Frequently asked questions-Back up Azure VMs](https://learn.microsoft.com/en-us/azure/backup/backup-azure-vm-backup-faq)  
+
+---
+
+## Q195:
+
+Your company has an Azure subscription.
+You currently do not use Azure Backup.
+You wanto to back up a VM named vm1 with Azure Backup.
+The backup should use teh default backup policy to run daily backups.
+
+You must identify teh cmdlet required to configure recurring backups usinf the default backup policy.
+
+Which three cmdlet should you use?
+
+`Register-AzResourceProvider`
+`New-AzRecoveryServiceVault`
+`Enable-AzRecoveryServicesBackupProtection`
+
+`Enable-AzRecoveryServicesBackupAutoProtection`
+`Set-AzRecoveryServicesBackupProperty`
+`Backup-AzRecoveryServicesBackupItem`
+
+---
+
+### Answer:
+
+`Register-AzResourceProvider`
+`New-AzRecoveryServiceVault`
+`Enable-AzRecoveryServicesBackupProtection`
+
+This is the correct sequence.
+
+1. registetr the provider to support Azure Backup to your subscription
+2. create the Recovery Services  Vault
+3. enable backups
+
+The remaining options do not apply:
+
+`Backup-AzRecoveryServicesBackupItem`:
+used to run on-demand backups based on a backup policy
+
+`Enable-AzRecoveryServicesBackupAutoProtection`:
+allows users to automatically protect all unprotected databases!
+
+`Set-AzRecoveryServicesBackupProperty`:
+set a property of the the Recovery Services  Vault
+
+---
+
+### References:
+
+[Back up a virtual machine in Azure with PowerShell](https://learn.microsoft.com/en-us/azure/backup/quick-backup-vm-powershell)   
+
+[Enable-AzRecoveryServicesBackupAutoProtection](https://learn.microsoft.com/en-us/powershell/module/az.recoveryservices/enable-azrecoveryservicesbackupautoprotection?view=azps-11.5.0&viewFallbackFrom=azps-3.7.0)  
+
+sets up automatic protection of current and any future SQL DBs within the given instance with the supplied policy.
+
+---
+
+## Q194:
+
+An IaaS VM named vm10 is backed up on an Azure Recovery Services vault.
+vm10 and all of its restore points are deleted by mistake.
+you need to recover vm10.
+
+How long does vm10's data remain available for recovery?
+
+- 14 days
+- 30 days
+- 90 days
+- 365 days
+
+---
+
+### Answer:
+- 14 days
+Azure Recovery Services vault has soft delete by default and the data will be purged only after 14 days.
+
+---
+
+### References:
+
+[Soft delete for virtual machines in Azure Backup](https://azure.microsoft.com/en-us/updates/soft-delete-virtual-machine-backup/)  
+
+
+---
+
+## Q193:
+
+Your company has an Azure subscription.
+they use Azure Backup to protect VMs.
+the subscription has a VM1 with Windows Server 2019.
+VM1 is part of an Availability Set and it is backed up through machine-level backup.
+VM1 is mistakenly deleted.
+
+You must restore VM1 from backup and configure it as part of the same AS.
+
+which three actions should you perform in a sequence?
+
+- select a restore point for vm1 in Azure Recovery Services vault
+- select Restore Disks as the Restore Type and restore the data
+- fetch and deploy the deployment template from the Azure Recovery vault
+- manually create the VM
+- select Create vm as the Restore Type and restore the data
+- select Replace vm as the Restore Type and restore the data
+
+---
+
+### Answer:
+1. select a restore point for vm1 in Azure Recovery Services vault
+2. select **Restore Disks** as the Restore Type and restore the data
+3. fetch and deploy the deployment template from the Azure Recovery vault
+
+When a VM that was part a AS is to be restored you should use select **Restore Disks** as the type of restore operation. After the disks are restored then you can attach them to an existing VM.
+
+The remaining optiosn do not apply:
+
+- manually create the VM
+- select Create vm as the Restore Type and restore the data
+- select Replace vm as the Restore Type and restore the data:
+this is used to replace disks on an existing VM.
+
+
+---
+
+### References:
+
+[Restore a VM with Azure CLI](https://learn.microsoft.com/en-us/azure/backup/tutorial-restore-disk)  
+
+---
+
+## Q192:
+
+Your company has an Azure subscription.
+You create a Azure Recovery Service Vault named rsv1.
+You have VM1 deployed to the East US region.
+You create a backup policy for VM1 on a recurring schedule.
+At the first Back Up run the Pre-Check status displayes a warning status.
+
+You must determine the possible causes of this warning.
+Which condition would cause a warning?
+
+- the most recent VM agent has not been installed on the VM
+- vm1 is an unmanaged VM1 encrypted with BitLocker encryption keys (BEKs)
+- vm1 does not have a premium storage account
+- vm1 is unable to communicate with Azure Backup service
+
+---
+
+### Answer:
+- the most recent VM agent has not been installed on the VM
+The warning should provide recommendations to ensure successful backups.
+
+The other options:
+
+- vm1 is unable to communicate with Azure Backup service:
+this would result in a **critical status** not just a warning status!
+
+- vm1 does not have a premium storage account:
+no warning status
+
+- vm1 is an unmanaged VM1 encrypted with BitLocker encryption keys (BEKs):
+no warning status, the backup of this kind of VMs is actually supported by Azure Backups.
+
+---
+
+### References:
+
+[Introducing Backup Pre-Checks for Backup of Azure VMs](https://azure.microsoft.com/en-us/blog/azure-vm-backup-pre-checks/)  
+
+[What is the Azure Backup service?](https://learn.microsoft.com/en-us/azure/backup/backup-overview)  
+
+[An overview of Azure VM backup](https://learn.microsoft.com/en-us/azure/backup/backup-azure-vms-introduction)  
 
 ---
 
 ## Q191:
 
+Your company has an Azure subscription.
+You create a Azure Recovery Service Vault named rsv1.
+You back up VM1 from the East US region.
+You need to restore VM1 to a different region.
+
+To which region should you restore VM1?
+
+- East US paired region
+- Central US
+- any US non-gov region
+- any region outside US
+
 ---
 
 ### Answer:
+- East US paired region
+
+This scenario is that of a **Cross Regional Restore (CRR)** and can only happen between paired regions from the primary region to teh paired secondary region.
 
 ---
 
 ### References:
+
+[Azure cross-region replication](https://learn.microsoft.com/en-us/azure/reliability/cross-region-replication-azure)  
+
+[Create and configure a Recovery Services vault](https://learn.microsoft.com/en-us/azure/backup/backup-create-recovery-services-vault)   
 
 ---
 
