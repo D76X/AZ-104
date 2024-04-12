@@ -15,6 +15,68 @@
 
 ---
 
+## Q191:
+
+---
+
+### Answer:
+
+---
+
+### References:
+
+---
+
+## Q190:
+
+Your company has two Azure subscriptions named sub1 & sub2.
+You create a Recovery Service Vault named Vault1 in the Cental US region.
+You configure Vault1 for Azure Backup.
+
+you need to move Vault1 to sub2.
+You want to minimize downtime and data loss during this process.
+
+Which cmdlet should you run first?
+
+`Move-AzResource`
+`Set-AzResource`
+`New-AzResource`
+`Export-AzResourceGroup`
+
+
+---
+
+### Answer:
+`Move-AzResource`
+
+This command is the only command required to move the recovery vault, 
+it moves a Recovery Service Vault to either:
+- a different subscription
+- a differen resource group within the same subscription
+
+During the move both the source and the destination resource groups are **locked**. 
+All data and backup policies are all retained and there is no need to create any resource afterwards.
+This command provides the solution of minimal effort.
+
+The other options do not apply:
+
+`Export-AzResourceGroup`:
+used to export a RG to a ARM template, it is often used to produce a ARM template from a set of resources that have already been deployed to Azure.
+
+`New-AzResource`:
+create a new resource manually
+
+`Set-AzResource`:
+set any property of an existing resource to a new valu3
+
+---
+
+### References:
+
+[Move a Recovery Services vault across Azure subscriptions and resource groups](https://learn.microsoft.com/en-us/azure/backup/backup-azure-move-recovery-services-vault)    
+
+---
+
 ## Q189:
 
 You have two Azure VMs named vm1 and vm2 runnign Windows Server 2019.
@@ -25,13 +87,13 @@ A configuration file on VM1 was updated and you need to restore it to
 a version from six days ago. 
 You must perform this action as quickly as possible without affecting other systems files.
 
-Which four actions should you permorn in a squence?
+Which four actions should you permorn in a sEquence?
 
-- download and execute a PowerShell script to browese and recover files on VM1
+- download and execute a PowerShell script to browse and recover files on VM1
 - copy the file from the mounted volume to the VM
 - mount the volume containing the file that is needed on VM2
 - create a new VM
-- restore teh disk containing the config file
+- restore the disk containing the config file
 - start the file recovery process and select the recovery point of 6 days ago
 - un mount the volume
 
@@ -39,9 +101,45 @@ Which four actions should you permorn in a squence?
 
 ### Answer:
 
+1. start the file recovery process and select the recovery point of 6 days ago
+2. download and execute a PowerShell script to browse and recover files on VM1
+3. copy the file from the mounted volume to the VM
+4. un mount the volume
+
 ---
 
 ### References:
+
+[Recover files from Azure virtual machine backup](https://learn.microsoft.com/en-us/azure/backup/backup-azure-restore-files-from-vm)  
+
+Restoring files and folders is available only for Azure VMs deployed using the Resource Manager model and protected to a Recovery Services vault.
+
+- Step 1: Generate and download script to browse and recover files
+
+- Step 2: Ensure the machine meets the requirements before executing the script:
+
+After the script is successfully downloaded, make sure you have the right machine to execute this script. The VM where you are planning to execute the script, should not have any of the following unsupported configurations. If it does, then choose an alternate machine that meets the requirements.
+
+You can't run the executable script on the VM with any of the following characteristics: Choose an alternate machine
+
+ - Volumes that span multiple disks (spanned and striped volumes).
+ - Fault-tolerant volumes (mirrored and RAID-5 volumes) on dynamic disks.
+
+You can't run the downloaded executable on the same backed-up VM if the backed-up VM has Windows Storage Spaces. Choose an alternate machine.
+
+- Step 3: OS requirements to successfully run the script..
+
+- Step 4: Access requirements to successfully run the script
+
+- Step 5: Running the script and identifying volumes
+
+- Step 6: Closing the connection
+
+After identifying the files and copying them to a local storage location, remove (or unmount) the additional drives. To unmount the drives, on the File Recovery menu in the Azure portal, select Unmount Disks.
+
+---
+
+[How to restore Azure VM data in Azure portal](https://learn.microsoft.com/en-us/azure/backup/backup-azure-arm-restore-vms)    
 
 ---
 
