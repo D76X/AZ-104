@@ -27,7 +27,7 @@ You must perform this action as quickly as possible without affecting other syst
 
 Which four actions should you permorn in a squence?
 
-- doenload and execute a PowerShell script to browese and recover files on VM1
+- download and execute a PowerShell script to browese and recover files on VM1
 - copy the file from the mounted volume to the VM
 - mount the volume containing the file that is needed on VM2
 - create a new VM
@@ -70,15 +70,34 @@ OPTIONS-2: 1 day | 1 week | 1 months | 1 year
 
 ### Answer:
 
+max recovery time for VMs: 24 months
+Recovery Point Objective (RPO): 1 day
+
+As shown in the exhibit the `Retention of montlhy backup point` is 
+**weekly based** and set on each first Sunday of the month and each is retained for 24 months.
+
+This is max recovery time.
+
+- Recovery Point Objective:
+Recovery point objective (RPO) is defined as the maximum amount of data – as measured by time – that can be lost after a recovery from a disaster, failure, or comparable event before data loss will exceed what is acceptable to an organization.
+
+The backup policy in the exhibit specifies a daily backup therfore 1 day worth of data is the max amount of data that may be lost as a consequence of a disaster recovery event.
+
+Recovery Point Objective (RPO): 1 day
+
 ---
 
 ### References:
+
+[What is the Azure Backup service?](https://learn.microsoft.com/en-us/azure/backup/backup-overview)   
+
+[Enable backup when you create an Azure VM](https://learn.microsoft.com/en-us/azure/backup/backup-during-vm-creation)  
 
 ---
 
 ## Q187:
 
-Your company has web app deplyed to Azure.
+Your company has web app deployed to Azure.
 The web app is in three layers with three VMs per layer.
 The web app has a public IP address to allow customers to access the app.
 
@@ -133,6 +152,15 @@ this is off topic here as your app is exposed to the internet to public users.
 - configure NSGs in the source region:
 obviously not as there are already NSGs there.
 
+- **Recovery Time Objective (RTO)**:
+is the maximum acceptable amount of time for restoring a network or application and regaining access to data after an unplanned disruption. 
+Loss of revenue and the extent to which a disrupted process impacts business continuity can both have an impact on RTO.
+
+By utilizing Traffic Manager, you can frontload the work required for DNS updates.  No manual or scripted action is required at the time of actual failover.
+
+This approach helps in quick switching (and hence lowering RTO) as well as avoiding costly time-consuming DNS change errors in a disaster event. With Traffic Manager, even the failback step is automated, which would otherwise have to be managed separately.
+
+You can additionally optimize the DNS Time to Live (TTL) value for the Traffic Manager profile. TTL is the value for which a DNS entry would be cached by a client. For a record, DNS would not be queried twice within the span of TTL. Each DNS record has a TTL associated with it. Reducing this value results in more DNS queries to Traffic Manager but can reduce RTO by discovering outages faster.
 
 ---
 
@@ -145,6 +173,188 @@ obviously not as there are already NSGs there.
 [Azure Traffic Manager with Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-traffic-manager-with-site-recovery)   
 
 ---
+
+[Set up public IP addresses after failover](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-public-ip-address-with-site-recovery)  
+
+Public IP addresses serve two purposes in Azure: 
+
+1. allow **inbound communication from Internet** resources to Azure resources 
+
+> Examples of Azure Resources that might need one or more IP addresses:
+
+- Azure Virtual Machines (VM)
+- Azure Application Gateways
+- Azure Load Balancers
+- Azure VPN Gateways
+
+2. enable Azure resources **to communicate outbound to the Internet** and public-facing Azure services that have an IP address assigned to the resource
+
+**Outbound connectivity to the Internet using a predictable IP address**.
+
+For example: **a VM can communicate outbound to the Internet without a public IP address assigned to it!**  
+
+However, in this case its address will be **network address translated** by Azure **to an unpredictable public address**, by default. 
+
+Assigning a public IP address to a resource enables such a VM in this example you to know which IP address is used for the outbound connection. 
+
+**Though predictable, the address can change, depending on the assignment method chosen**. 
+
+> Create a public IP address:
+
+- Dynamic: Dynamic addresses: 
+IP address is associated to an Azure resource and is started for the first time. Dynamic addresses can change if a resource such as a virtual machine is stopped (deallocated) and then restarted through Azure.
+The address remains the same if a virtual machine is rebooted or stopped from within the guest OS. 
+When a public IP address resource is removed from a resource, the dynamic address is released.
+
+- Static: Static addresses:  
+are assigned when a public IP address is created. Static addresses aren't released until a public IP address resource is deleted.
+
+> Public IP address assignment using Recovery Plan:
+
+**Public IP address of the production application cannot be retained on failover**. **Workloads brought up as part of failover process must be assigned an Azure Public IP resource available in the target region**. 
+
+This step can be done either manually or is automated with recovery plans. 
+
+**A recovery plan** gathers machines into **recovery groups**. 
+It helps you to define a systematic recovery process. 
+You can use a recovery plan **to impose order, and automate the actions** needed at each step, using **Azure Automation runbooks** for failover to Azure, or scripts.
+
+> Public endpoint switching with DNS level Routing:
+
+Azure Traffic Manager enables DNS level routing between endpoints and can assist with driving down your RTOs for a DR scenario.
+
+1. On-premises to Azure failover with Traffic Manager
+2. Azure to Azure failover with Traffic Manager
+
+> Traffic Manager setup:
+
+1. Create a Traffic Manager profile.
+
+2. Utilizing the Priority routing method, create two endpoints – Primary for source and Failover for Azure. Primary is assigned Priority 1 and Failover is assigned Priority 2.
+
+3. The Primary endpoint can be Azure or External depending on whether your source environment is inside or outside Azure (on-prem).
+
+4. The Failover endpoint is created as an Azure endpoint. Use a static public IP address as this will be external facing endpoint for Traffic Manager in the disaster event.
+
+---
+
+[Network Security Groups with Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-network-security-group-with-site-recovery)  
+
+> Scenario 1: on-premises to Azure replication with NSG:
+
+**Azure Site Recovery** enables disaster recovery and migration to Azure for:
+
+- on-premises Hyper-V virtual machines
+- VMware virtual machines
+- and physical servers
+
+**For all on-premises to Azure scenarios, replication data is sent to and stored in an Azure Storage account**. 
+
+Once VMs have been created after failover to Azure, NSGs can be used to limit network traffic to the virtual network and VMs. 
+
+**Site Recovery does not create NSGs as part of the failover operation**. 
+**We recommend creating the required Azure NSGs before initiating failover**. 
+
+You can then associate NSGs to failed over VMs **automatically during failover**, using automation scripts with Site Recovery's powerful recovery plans.
+
+> Scenario-2: Azure to Azure replication with NSG
+
+When enabling replication for Azure VMs, Site Recovery can create the 
+replica virtual networks including subnets and gateway subnets on the target region and create the required mappings between the source and target virtual networks. 
+
+You can also **manually pre-create** the target side networks and subnets, and use the same while enabling replication.
+
+**Site Recovery does not create any VMs on the target Azure region prior to failover**.
+
+For Azure VM replication, **ensure that the NSG rules on the source Azure region allow outbound connectivity for replication traffic** (to the storage account to which the VMs to backup).
+
+Site Recovery **does not create or replicate NSGs** as part of the failover operation. **We recommend creating the required NSGs on the target Azure region before initiating failover**. 
+
+You can then associate NSGs to failed over VMs automatically during failover, using automation scripts with Site Recovery's powerful recovery plans.
+
+> Steps:
+
+1. replica VNets
+Site Recovery can create replicas of Contoso VNet and Contoso Subnet on the target Azure region when replication is enabled for the VM.
+
+2. replica Subnets NGSs & VM NGSs
+You can create the desired replicas of Subnet NSG and VM NSG (named, for example, Target Subnet NSG and Target VM NSG, respectively) on the target Azure region, allowing for any additional rules required on the target region.
+
+3. pre-associate NGSs to the Subnets
+Target Subnet NSG can then be immediately associated with the target region subnet, as both the NSG and the subnet are already available.
+
+4. associate NGSs to the replicated VMs at faillover in RP
+Target VM NSG can be associated with VMs during failover using recovery plans.
+
+---
+
+[Azure Traffic Manager with Azure Site Recovery](https://learn.microsoft.com/en-us/azure/site-recovery/concepts-traffic-manager-with-site-recovery)   
+
+Azure Traffic Manager enables you to control the distribution of traffic across your application endpoints. An endpoint is **any Internet-facing service hosted inside or outside of Azure**.
+
+**Traffic Manager uses the Domain Name System (DNS)** to direct client requests to the most appropriate endpoint, based on: 
+
+- a traffic-routing method 
+  [traffic-routing method](https://learn.microsoft.com/en-us/azure/traffic-manager/traffic-manager-routing-methods)  
+  - Priority
+  - Weighted
+  - Performance
+  - Geographic
+  - Multivalue
+  - Subnets
+
+- and the health of the endpoints:
+  To configure endpoint monitoring, you must specify the following settings on your Traffic Manager profile:
+  - Protocol 
+  - Port
+  - Path
+  - Custom header settings
+  -
+
+> you can combine Azure Traffic Monitor’s intelligent routing with Azure Site Recovery’s powerful disaster recovery and migration capabilities.
+
+> Scenario 1: on-premises to Azure failover in Disaster Recovery
+
+Company A is running applications with public endpoints and wants the ability to seamlessly redirect traffic to Azure in a disaster event. 
+The **Priority traffic-routing method** in Azure Traffic Manager allows Company A to easily implement this failover pattern.
+
+- Priority routing method: 
+Select Priority routing when you want to have a primary service endpoint for all traffic. You can provide multiple backup endpoints in case the primary or one of the backup endpoints is unavailable.
+
+> Setup of TM for DR:
+
+<img src="./Q188-2.png">
+
+When Azure Traffic Manager detects that the Primary endpoint is no longer healthy, it automatically uses the Failover endpoint in the DNS response and users connect to the application recovered on Azure.
+
+When the disaster is contained, Company A can failback from Azure to its on-premises environment (VMware or Hyper-V) using **Azure Site Recovery**.
+Now, when Traffic Manager detects that the Primary endpoint is healthy again, it automatically utilizes the Primary endpoint in its DNS responses.
+
+> Scenario 2: Azure to Azure failover
+
+It is virtually the same as the scenario: Scenario 1: on-premises to Azure failover in Disaster Recovery.
+
+---
+
+> Scenario 3: On-premises to Azure migration
+
+In addition to disaster recovery, Azure Site Recovery also enables migrations to Azure.
+
+--- 
+
+[Site Recovery - Migrating to Azure](https://learn.microsoft.com/en-us/azure/site-recovery/migrate-overview)   
+
+For migration, we recommend that you use the Azure Migrate service to migrate your VMs and servers to Azure, instead of using Azure Site Recovery service.
+
+---
+
+[Create and customize recovery plans](https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-create-recovery-plans#create-a-recovery-plan)  
+
+
+[Run a test failover (disaster recovery drill) to Azure](https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-test-failover-to-azure)  
+
+---
+
 
 ## Q186:
 
