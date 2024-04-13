@@ -456,6 +456,201 @@ set any property of an existing resource to a new valu3
 
 [Move a Recovery Services vault across Azure subscriptions and resource groups](https://learn.microsoft.com/en-us/azure/backup/backup-azure-move-recovery-services-vault)    
 
+> Prerequisites:
+
+1. Lock of RGs
+During vault move across resource groups, both the source and target resource 
+groups are locked preventing the write and delete operations. 
+
+2. Only admin subscription has the permissions to move a vault.
+
+3. same tenant
+For moving vaults across subscriptions, the target subscription must 
+reside in the same tenant as the source subscription and its state must 
+be enabled.
+
+To move a vault to a different Microsoft Entra ID, see: 
+
+[Transfer subscription to a different directory](https://learn.microsoft.com/en-us/azure/backup/backup-azure-move-recovery-services-vault) 
+
+[Recovery Service vault FAQs](https://learn.microsoft.com/en-us/azure/backup/backup-azure-backup-faq)  
+
+4. You must have permission to perform write operations on the target resource group.
+5. The location of the Recovery Services is immutable
+Moving the vault **only changes the resource group**. 
+The Recovery Services vault will reside on the same location 
+and it can't be changed.
+
+6. only one RCS move per region at a time
+You can move only one Recovery Services vault, per region, at a time.
+
+7. excluded VMs
+If a VM doesn't move with the Recovery Services vault across subscriptions, 
+or to a new resource group, the current VM recovery points will remain 
+intact in the vault until they expire.
+Whether the VM is moved with the vault or not, you can always restore 
+the VM from the retained backup history in the vault.
+
+8. VMs with Azure Disk Encryption must find their HV in the same region
+The Azure Disk Encryption requires that the key vault and VMs 
+reside in the same Azure region and subscription.
+
+9. Backup Policies are presenrved
+Backup policies defined for the vault are retained after the vault 
+moves across subscriptions or to a new resource group.
+
+10. Types of Back Up Items that can be moved
+You can only move a vault that contains any of the following types of backup items. Any backup items of types not listed below will need to be stopped and the data permanently deleted before moving the vault.
+
+- Azure Virtual Machines
+- Microsoft Azure Recovery Services (MARS) Agent
+- Microsoft Azure Backup Server (MABS)
+- Data Protection Manager (DPM)
+
+
+11. VM and Backups in Azure Recovery Services must move together!
+
+If you move a vault containing VM backup data, **across subscriptions**, 
+you must move your VMs to the same subscription, and use the same 
+target VM resource group name (as it was in old subscription) 
+to continue backups.
+This is obviosly the case if the ARS is moved to a new RG within 
+the same subscription.
+
+---
+
+> Move a vault to a different Microsoft Entra ID
+> Move a VM with Managed Disks
+
+[Transfer subscription to a different directory](https://learn.microsoft.com/en-us/azure/backup/backup-azure-move-recovery-services-vault) 
+
+When you transfer a subscription to a different Microsoft Entra directory, 
+some resources are not transferred to the target directory. 
+
+> Example:
+
+all role assignments and custom roles in Azure role-based access control 
+(Azure RBAC) are:
+
+- **permanently deleted from the source directory** 
+- and are **not** transferred to the target directory.
+
+---
+
+[Recovery Service vault FAQs](https://learn.microsoft.com/en-us/azure/backup/backup-azure-backup-faq)  
+
+> There are some limits to Azure Recovery Services:
+
+- You can create up to 500 Recovery Services vaults, per supported region of Azure Backup, per subscription. 
+
+- You can register up to 1000 Azure Virtual machines per vault. 
+- you can register up to 50 MARS agents per vault
+- you can register 50 MABS servers/DPM servers to a vault.
+- Protection of up to 2000 datasources/items across all workloads (such as IaaS VM, SQL, AFS)
+- You can only have up to 200 policies per vault. 
+
+> size limits for data backup:
+Windows 8 or later	54,400 GB
+Windows 7	1700 GB
+Windows Server 2012 or later	54,400 GB
+Windows Server 2008, Windows Server 2008 R2	1700 GB
+Azure VM	See the support matrix for Azure VM backup
+
+> Isolation through passphrase: 
+
+Server data that you want to recover together should use the same passphrase
+when you set up backup. 
+
+If you want to isolate recovery to a specific server or servers, 
+use a passphrase for that server or servers only. 
+For example, human resources servers could use one encryption passphrase,
+accounting servers another, and storage servers a third.
+
+> Moving a Azure Recovery Service Vault:
+
+- you can move a ARS vault to a different RG in the same subscription
+- you can move a ARS vault to a different RG in a different subscription
+- Backup data stored in a vault can't be moved to a different vault you must move the whole vault
+- you can move a ARS vault to a new RG and accross subscription **BUT THE VAULT CANNOT CHANGE REGION!**
+
+> Moving ARS vault to a subscription that contains a vault to a different Microsoft Entra ID
+
+In this scenario you must keep in mind the following rule.
+All role assignments and custom roles in Azure role-based access control 
+(Azure RBAC) are:
+
+- **permanently deleted from the source directory** 
+- and are **not** transferred to the target directory.
+- You must recreate the Managed Identity (MI) of the vault by disabling and enabling it again. 
+
+> move a subscription that contains a Recovery Services Vault to a different tenant
+
+Yes. Ensure that you do the following:
+- If the vault uses CMK (customer managed keys), you must update the vault. 
+- You must reconfigure the RBAC permissions in the subscription as the existing permissions can’t be moved
+
+> Changing Seetings of a Azure Recovery Service Vault:
+
+- storage replication type by default is set to geo-redundant storage (GRS)
+- you configure the backup, the option to modify is in disabled state and can't be changed.
+
+> Item Level Restore (ILR) 
+
+- ILR is supported for Azure VMs backed up by Azure VM backup: files & folder or registry keys, etc.
+- not supported for MABS  or System Center DPM
+
+> restore data to on-prem CASE1:
+
+If your vault contains backup of on-premises data, use the corresponding agent 
+(MARS, MABS, or DPM) to restore to on-premises.
+
+> restore data to on-prem CASE2:
+
+**We don't support exporting data DIRECTLY from the Recovery Services vault to on-premises storage for backup of cloud workload**. 
+You can restore these to the corresponding cloud resources in Azure Storage Accounts, and then move the data to on-premises.  
+
+> Cross-Region Restore (CRR)
+
+- If a GRS vault without CRR capability enabled:
+data in the secondary region can't be accessed until Azure declares a disaster in the primary region. 
+**In such a scenario, the restore happens from the secondary region**.
+**When CRR is enabled, even if the primary region is up and running, you can trigger restore in the secondary region**.
+
+> Encryption:
+
+Is the backup data on Azure encrypted as well?
+Yes it is encrypted at rest.
+Microsoft doesn't decrypt the backup data at any point.
+
+- For **on-premises backup**, encryption-at-rest is provided using the **passphrase you provide** when backing up to Azure.
+
+- For Azure VMs, data is encrypted-at-rest using **Storage Service Encryption (SSE)**.
+
+
+---
+
+[Azure Backup MARS agent](https://learn.microsoft.com/en-us/azure/backup/install-mars-agent)  
+
+**Microsoft Azure Recovery Services (MARS) agent**: 
+back up files, folders, and system state from on-premises machines and Azure VMs.  
+Those backups are stored in a Recovery Services vault in Azure.
+
+You can run the agent:
+
+- on on-premises Windows machines
+- On Azure VMs that run Windows side by side with the Azure VM backup extension. 
+The agent backs up specific files and folders on the VM.
+- On a Microsoft Azure Backup Server (MABS) instance or a System Center Data Protection Manager (DPM) server. 
+
+---
+
+[Back up file data with MABS](https://learn.microsoft.com/en-us/azure/backup/back-up-file-data)  
+
+[What's new in Microsoft Azure Backup Server (MABS)?](https://learn.microsoft.com/en-us/azure/backup/backup-mabs-whats-new-mabs)  
+
+Microsoft Azure Backup Server gives you enhanced backup capabilities 
+to protect VMs, files and folders, workloads, and more.
+
 ---
 
 ## Q189:
