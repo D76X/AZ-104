@@ -16,7 +16,7 @@
 
 ---
 
-## Q204:
+## Q205:
 
 ---
 
@@ -25,6 +25,40 @@
 ---
 
 ### References:
+
+---
+
+## Q204:
+
+You have a Microsoft Entra tenant.
+You create a new user named User1.
+You need to assign a Microsoft 365 E5 license to User1.
+
+Which user attribute should be configured for User1 before you can assign the license?
+
+Select only one answer.
+
+- First name
+- Last name
+- Other email address
+- Usage location
+- User type
+
+---
+
+### Answer:
+- Usage location
+
+**Not all Microsoft 365 services are available in all locations**. 
+Before a license can be assigned to a user, you must specify the Usage location. 
+
+The attributes of First name, Last name, Other email address, and User type are not mandatory for license assignment.
+
+---
+
+### References:
+
+[Assign or remove licenses](https://learn.microsoft.com/en-us/entra/fundamentals/license-users-groups)  
 
 
 ---

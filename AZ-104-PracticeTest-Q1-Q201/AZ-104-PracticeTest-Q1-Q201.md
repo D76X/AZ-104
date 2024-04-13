@@ -311,18 +311,17 @@ which three actions should you perform in a sequence?
 
 ### Answer:
 1. select a restore point for vm1 in Azure Recovery Services vault
-2. select **Restore Disks** as the Restore Type and restore the data
+2. select **Restore Disks** as the **Restore Type** and restore the data
 3. fetch and deploy the deployment template from the Azure Recovery vault
 
 When a VM that was part a AS is to be restored you should use select **Restore Disks** as the type of restore operation. After the disks are restored then you can attach them to an existing VM.
 
-The remaining optiosn do not apply:
+The remaining options do not apply:
 
 - manually create the VM
 - select Create vm as the Restore Type and restore the data
 - select Replace vm as the Restore Type and restore the data:
 this is used to replace disks on an existing VM.
-
 
 ---
 
@@ -330,6 +329,123 @@ this is used to replace disks on an existing VM.
 
 [Restore a VM with Azure CLI](https://learn.microsoft.com/en-us/azure/backup/tutorial-restore-disk)  
 
+To restore a disk, you select a recovery point as the source for the recovery data: **the default policy creates a recovery point each day and retains them for 30 days**.
+
+> see a list of available recovery points
+
+```
+az backup recoverypoint list --resource-group myResourceGroup `
+--vault-name myRecoveryServicesVault `
+--backup-management-type AzureIaasVM `
+--container-name myVM `
+--item-name myVM `
+--query [0].name `
+--output tsv
+```
+> Managed disk restore:
+
+If the backed-up VM has managed disks and if the intent is to restore managed disks from the recovery point, you first provide an Azure storage account. 
+
+**This storage account is used to store** 
+
+1. the VM configuration and 
+2. the deployment template 
+
+that can be later used to deploy the VM from the restored disks.
+
+you also provide a target resource group for the managed disks to be restored into.
+
+```
+az storage account create --resource-group myResourceGroup `
+--name mystorageaccount `
+--sku Standard_LRS
+```
+
+> Restore the disk from your recovery point:
+
+ Replace `myRecoveryPointName` with the recovery point name you obtained in the output from the previous az backup recoverypoint list
+
+Replace `mystorageaccount` with the name of the storage account you created in the preceding command. 
+
+```
+az backup restore restore-disks --resource-group myResourceGroup `
+--vault-name myRecoveryServicesVault `
+--container-name myVM `
+--item-name myVM `
+--storage-account mystorageaccount `
+--rp-name myRecoveryPointName `
+--target-resource-group targetRG
+```
+
+**If target-resource-group isn't provided, then the managed disks will be restored as unmanaged disks** o the given storage account. 
+
+This will have significant consequences to the restore time since the time taken to restore the disks entirely depends on the given storage account. 
+
+You'll get the benefit of **instant restore only when the target-resource-group parameter is given**.
+
+---
+
+> Restore disks to secondary region:
+
+The backup data replicates to the secondary region **when you enable cross-region restore on the vault** you've protected your VMs.
+
+Use: `--use-secondary-region` in `az backup restore restore-disks`
+
+> Cross-zonal restore:
+
+You can restore Azure zone pinned VMs in any availability zones of the same region.
+
+To restore a VM to another zone, specify the `TargetZoneNumber`
+
+```
+az backup restore restore-disks
+...
+ --target-zone 3
+```
+
+> Fetch the deployment template:
+
+The template isn't directly accessible since it's under a customer's storage account and the given container. We need the complete URL (along with a temporary SAS token) to access this template.
+
+> Deploy the template to create the VM:
+
+```
+az deployment group create --resource-group ExampleGroup --template-uri $url?$token
+```
+--
+
+> Restore data to virtual machine using CLI:
+
+You can now directly restore data to original/alternate VM without performing multiple steps.
+
+```
+az backup restore restore-disks --resource-group myResourceGroup `
+--vault-name myRecoveryServicesVault `
+--container-name myVM `
+--item-name myVM `
+--restore-mode OriginalLocation `
+--storage-account mystorageaccount `
+--rp-name myRecoveryPointName 
+```
+
+> Restore data to a newly created VM:
+
+```
+az backup restore restore-disks \
+    --resource-group myResourceGroup \
+    --vault-name myRecoveryServicesVault \
+    --container-name myVM \
+    --item-name myVM \
+    --restore-mode AlternateLocation \
+    --storage-account mystorageaccount \
+
+--target-resource-group "Target_RG" \
+    --rp-name myRecoveryPointName \
+    --target-vm-name "TargetVirtualMachineName" \
+    --target-vnet-name "Target_VNet" \
+    --target-vnet-resource-group "Target_VNet_RG" \
+    --target-subnet-name "targetSubNet"
+```
 ---
 
 ## Q192:
