@@ -154,7 +154,6 @@ select yes/no:
 
 - you can specify the VNet for the new VM
 
-
 ---
 
 ### Answer:
@@ -253,6 +252,48 @@ set a property of the the Recovery Services  Vault
 ### References:
 
 [Back up a virtual machine in Azure with PowerShell](https://learn.microsoft.com/en-us/azure/backup/quick-backup-vm-powershell)   
+
+```
+Register-AzResourceProvider -ProviderNamespace "Microsoft.RecoveryServices"
+
+New-AzRecoveryServicesVault -ResourceGroupName "myResourceGroup" -Name "myRecoveryServicesVault" -Location "WestEurope"
+
+# Set the vault context
+Get-AzRecoveryServicesVault -Name "myRecoveryServicesVault" | Set-AzRecoveryServicesVaultContext
+
+# [OPTIONAL] Change the storage redundancy configuration (LRS/GRS) of the vault - defauklt is GRS
+Get-AzRecoveryServicesVault -Name "myRecoveryServicesVault" | Set-AzRecoveryServicesBackupProperty -BackupStorageRedundancy LocallyRedundant/GeoRedundant
+
+```
+
+> Enable backup for an Azure VM:
+
+```
+# set the default policy
+
+$policy = Get-AzRecoveryServicesBackupProtectionPolicy -Name "DefaultPolicy"
+
+Enable-AzRecoveryServicesBackupProtection -ResourceGroupName "myResourceGroup" -Name "myVM" -Policy $policy
+
+```
+
+> Start a backup job:
+
+```
+# specify a container in the vault that holds your backup data
+$backupcontainer = Get-AzRecoveryServicesBackupContainer -ContainerType "AzureVM" -FriendlyName "myVM"
+
+# Each VM to back up is treated as an item. 
+$item = Get-AzRecoveryServicesBackupItem -Container $backupcontainer -WorkloadType "AzureVM"
+
+# run a backup for the item (in this case a VM)
+Backup-AzRecoveryServicesBackupItem -Item $item
+
+# monitor the backup job
+Get-AzRecoveryservicesBackupJob
+```
+
+---
 
 [Enable-AzRecoveryServicesBackupAutoProtection](https://learn.microsoft.com/en-us/powershell/module/az.recoveryservices/enable-azrecoveryservicesbackupautoprotection?view=azps-11.5.0&viewFallbackFrom=azps-3.7.0)  
 
