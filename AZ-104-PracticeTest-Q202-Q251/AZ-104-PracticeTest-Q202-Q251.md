@@ -16,33 +16,502 @@
 
 ---
 
+## Q219:
+
+
+You have an Azure subscription that contains an Azure container app named cont1.
+You plan to add scaling rules to cont1.
+You need to ensure that cont1 replicas are created based on received messages in Azure Service Bus.
+
+Which scale trigger should you use?
+
+Select only one answer.
+
+- CPU usage
+- event-driven
+- HTTP traffic
+- memory usage
+
+---
+
+### Answer:
+- event-driven
+
+Azure Container Apps allows a set of triggers to create new instances, called replicas. For Azure Service Bus, an event-driven trigger can be used to run the escalation method. 
+
+The remaining scale triggers cannot use a scale rule based on messages in an Azure service bus.
+
+---
+
+### References:
+
+[Set scaling rules in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/scale-app?pivots=azure-cli)  
+
+Azure Container Apps manages automatic horizontal scaling through a set of declarative scaling rules. 
+
+Rules are the criteria used by Container Apps to decide when to add or remove replicas.
+
+> Scale rules:
+
+- HTTP: Based on the number of concurrent HTTP requests to your revision.
+
+you have control over the threshold of concurrent HTTP requests that determines how your container app revision scales. 
+**Every 15 seconds**, the number of concurrent requests is calculated as the number of requests in the past 15 seconds divided by 15
+
+- TCP: Based on the number of concurrent TCP connections to your revision.
+
+With a TCP scaling rule, you have control over the threshold of concurrent TCP connections that determines how your app scales. 
+
+- Custom: Based on CPU, memory, 
+or supported event-driven data sources such as:
+Azure Service Bus
+Azure Event Hubs
+Apache Kafka
+Redis
+
+> Event-driven jobs:
+
+Event-driven jobs are triggered by events from supported custom scalers. Examples of event-driven jobs include:
+
+
+---
+
+## Q218:
+
+Your development team plans to deploy an Azure container instance. 
+The container needs a persistent storage layer.
+
+Which service should you use?
+Select only one answer.
+
+- Azure Blob storage
+- Azure Files
+- Azure Queue Storage
+- Azure SQL Database
+
+---
+
+### Answer:
+- Azure Files
+
+You can persist data for Azure Container Instances with the use of Azure Files. Azure Files offers fully managed file shares hosted in Azure Storage that are accessible via the industry standard Server Message Block (SMB) protocol.
+
+---
+
+### References:
+
+[Mount an Azure file share in Azure Container Instances](https://learn.microsoft.com/en-us/azure/container-instances/container-instances-volume-azure-files)   
+
+> Limitations
+
+- You can only mount Azure Files shares to Linux containers. 
+- Azure file share volume mount requires the Linux container run as root 
+
+---
+
+## Q217:
+
+You have an Azure subscription that contains an Azure Storage account named vmstorageaccount1.
+You create an Azure container instance named container1.
+You need to configure **persistent storage** for container1.
+
+What should you create in vmstorageaccount1?
+Select only one answer.
+
+- a blob container
+- a file share
+- a queue
+- a table
+
+---
+
+### Answer:
+- a file share
+
+An Azure container instance (Docker container) can mount Azure File Storage shares as directories and use them as persistent storage.
+
+An Azure container instance cannot mount and use as persistent storage blob containers, queues and tables.
+
+---
+
+### References:
+
+[Persistent Docker volumes with Azure File Storage](https://azure.microsoft.com/de-de/blog/persistent-docker-volumes-with-azure-file-storage/)   
+
+A standard Docker container volume is normally a directory stored on the Docker host machine. 
+This makes the container dependent on the files on a particular host and thus makes it hard to migrate and scale out easily. 
+
+With the Azure File Storage plugin, we can mount Azure File Storage shares as directories on your host’s file system and make it available to containers, **which can now all make use of the Docker volume created through the plugin**.
+
+**Leveraging the SMB 3.0 protocol support capabilities of Azure File Storage on Linux**. This open source Docker volume plugin allows Docker containers to have data volumes stored outside the Virtual Machine and therefore makes it easy to migrate stateful containers between hosts.
+
+---
+
+## Q216:
+
+Your company plans to host an application on four Azure virtual machines. **You need to ensure that at least two virtual machines are available if a single Azure datacenter fails**.
+
+Which availability option should you select for the virtual machine?
+
+Select only one answer.
+
+- an availability set
+- an availability zone
+- scale sets
+
+---
+
+### Answer:
+- an availability zone
+
+To protect against datacenter level failures, and if you want connectivity to multiple machines, you must ensure that the virtual machines are deployed across various availability zones.
+
+---
+
+### References:
+
+[What are availability zones?](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview?tabs=azure-cli)  
+
+> availability zones: 
+which are separated groups of datacenters within a region.
+They are close enough to have low-latency connections to other availability zones.
+They're connected by a high-performance network with a round-trip latency of less than 2ms. 
+
+However, availability zones are far enough apart to reduce the likelihood that more than one will be affected by local outages or weather. 
+
+Availability zones have independent power, cooling, and networking infrastructure. 
+
+---
+
+[Availability sets overview](https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview)  
+
+> What is an availability set?
+
+Availability sets are logical groupings of VMs that reduce the chance of correlated failures bringing down related VMs at the same time.
+
+- **Availability sets place VMs in different fault domains**. 
+
+- When using availability sets, create two or more VMs within an availability set.
+
+- Using two or more VMs in an availability set helps highly available applications and meets the 99.95% Azure SLA.
+
+- Availability sets offer improved VM to VM latencies compared to availability zones, since VMs in an availability set are allocated in closer proximity. 
+
+
+---
+
+## Q215:
+
+You have an Azure virtual network that contains two subnets named Subnet1 and Subnet2. You have a virtual machine named VM1 that is connected to Subnet1. VM1 runs Windows Server.
+
+You need to ensure that VM1 is connected directly to both subnets.
+
+What should you do first?
+Select only one answer.
+
+- From the Azure portal, add a network interface.
+- From the Azure portal, create an IP group.
+- From the Azure portal, modify the IP configurations of an existing network interface.
+- Sign in to Windows Server and create a network bridge. 
+
+---
+
+### Answer:
+- From the Azure portal, add a network interface.
+
+**A network interface is used to connect a virtual machine to a subnet**. 
+
+Since VM1 is connected to Subnet1, VM1 already has a network interface attached that is connected to Subnet1. To connect VM1 directly to Subnet2, you must create a new network interface that is connected to Subnet2. Next, you must attach the new network interface to VM1.
+
+- An IP group 
+is a user-defined collection of static IP addresses, ranges, and subnets. 
+
+- A network bridge 
+allows you to connect multiple existing network connection in Windows together. 
+
+- Changing the IP configurations 
+of the existing network interface results in VM1 being connected to Subnet2 but not to Subnet1.
+
+---
+
+### References:
+
+---
+
+## Q214:
+
+You plan to deploy an Azure virtual machine based on a basic template stored in the Azure Resource Manager (ARM) library.
+
+What can you configure during the deployment of the template?
+
+Select only one answer.
+
+- the disk assigned to virtual machine
+- the operating system
+- the resource group
+- the size of virtual machine
+
+---
+
+### Answer:
+- the resource group
+
+When you deploy a resource by using a template, you can mention the resource group for the deployment. The resource group is a container for Azure resources and makes it easier to manage the resources.
+
+---
+
+### References:
+
+
+---
+
+## Q213:
+
+You have an Azure subscription that contains a resource group named RG1.
+You have an Azure Resource Manager (ARM) template for an Azure virtual machine.
+You need to use PowerShell to provision a virtual machine in RG1 by using the template.
+
+Which PowerShell cmdlet should you run?
+Select only one answer.
+
+New-AzManagementGroupDeployment
+New-AzResourceGroupDeployment
+`New-AzSubscriptionDeployment`
+New-AzVM
+
+---
+
+### Answer:
+New-AzResourceGroupDeployment
+
+Virtual machines are deployed to resource groups, so you must run the New-AzResourceGroupDeployment cmdlet. 
+
+You can deploy virtual machines to subscriptions or management groups directly, therefore, `New-AzManagementGroupDeployment` and `New-AzSubscriptionDeployment` cannot be used. 
+
+`New-AzVM` can be used to provision a new virtual machine, 
+but without using a template.
+
+---
+
+### References:
+
+[Deploy resources with ARM templates and Azure PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-powershell)  
+
+```
+New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateFile <path-to-template>
+
+New-AzResourceGroupDeployment -Name ExampleDeployment `
+-ResourceGroupName ExampleGroup `
+-TemplateFile <path-to-template>
+
+# deploy an external template, use the -TemplateUri parameter
+New-AzResourceGroupDeployment -Name remoteTemplateDeployment ` -ResourceGroupName ExampleGroup `
+-TemplateUri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.storage/storage-account-create/azuredeploy.json
+
+```
+--- 
+
+[Subscription deployments with ARM templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-to-subscription?tabs=azure-cli)  
+
+**New-AzSubscriptionDeployment which is an alias of the New-AzDeployment**
+
+To simplify the management of resources, you can use an Azure Resource Manager template (ARM template) to deploy resources at the level of your Azure subscription.
+
+For example, you can deploy:
+
+- policies (and related) 
+- Blueprints
+- BlueprintsAssignments
+- BlueprintsVersion
+- Azure role-based access control (Azure RBAC) 
+- RGs
+- budgets
+- Adviosor Configurations
+- locks 
+- tags
+
+to your subscription.
+
+You can also create resource groups within the subscription and deploy resources to resource groups in the subscription.
+
+---
+
+## Q212:
+
+You have an Azure subscription that contains a tenant named contoso.com.
+
+All users in contoso.com are currently able to invite external users to B2B collaboration.
+
+You need to ensure that only members of the 
+Guest Inviter, 
+User Administrator, and 
+Global Administrator roles can invite guest users.
+
+What should you configure?
+Select only one answer.
+
+- Access reviews
+- Conditional Access
+- Cross-tenant access settings
+- External collaboration settings
+
+---
+
+### Answer:
+- External collaboration settings
+
+External collaboration settings let you specify which roles in your organization can invite external users for B2B collaboration. These settings also include options for allowing or blocking specific domains and options for restricting which external guest users can see in your Microsoft Entra directory.
+
+**Conditional Access** allows you to apply rules to strengthen authentication and block access to resources from unknown locations.
+
+**Cross-tenant access settings** are used to configure collaboration with a specific Microsoft Entra organization.
+
+**Access reviews** are not used to control who can invite guest users.
+
+---
+
+### References:
+
+[Configure external collaboration settings](https://learn.microsoft.com/en-us/entra/external-id/external-collaboration-settings-configure)  
+
+The following options are available:
+
+- Determine guest user access: 
+Microsoft Entra External ID allows you to restrict what external guest users can see in your Microsoft Entra directory. For example, you can limit guest users' view of group memberships, or allow guests to view only their own profile information.
+
+- Specify who can invite guests: 
+By default, all users in your organization, including B2B collaboration guest users, can invite external users to B2B collaboration. 
+If you want to limit the ability to send invitations, you can turn invitations on or off for everyone, or limit invitations to certain roles.
+
+- Enable guest self-service sign-up via user flows: 
+For applications you build, you can create user flows that allow a user to sign up for an app and create a new guest account. You can enable the feature in your external collaboration settings, and then add a self-service sign-up user flow to your app.
+
+- Allow or block domains: 
+You can use collaboration restrictions to allow or deny invitations to the domains you specify. 
+
+---
+
+[Configure cross-tenant access settings for B2B collaboration](https://learn.microsoft.com/en-us/entra/external-id/cross-tenant-access-settings-b2b-collaboration)  
+
+- Use External Identities cross-tenant access settings:
+to manage how you collaborate with other Microsoft Entra organizations through B2B collaboration. These settings determine both the level of inbound access users in external Microsoft Entra organizations have to your resources, and the level of outbound access your users have to external organizations. 
+
+---
+
+## Q211:
+
+You have an Azure subscription.
+
+You plan to create an Azure Policy definition named Policy1.
+
+You need to include remediation information to indicate when 
+users use Microsoft Defender for Cloud Regulatory and Compliance.
+
+To which definition section should you add remediation information for Policy1?
+
+Select only one answer.
+
+- metadata
+- mode
+- parameters
+- policyRule
+
+---
+
+### Answer:
+- metadata
+
+You must use the `RemediationDescription` field in the `metadata` section from properties to specify a custom recommendation. 
+
+The remaining options are Azure policies, but do not allow specific custom remediation information.
+
+---
+
+### References:
+
+[Create custom security standards and recommendations in Microsoft Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/create-custom-recommendations?pivots=azure-portal#enhance-your-custom-recommendations-with-detailed-information)  
+
+```
+{
+"properties": {
+"displayName": "Security - ERvNet - AuditRGLock",
+"policyType": "Custom",
+"mode": "All",
+"description": "Audit required resource groups lock",
+"metadata": {
+  "securityCenter": {
+    "RemediationDescription": "Resource Group locks can be set via Azure Portal -> Resource Group -> Locks",
+    "Severity": "High"
+ }
+},
+"parameters": {
+  "expressRouteLockLevel": {
+    "type": "String",
+    "metadata": {
+      "displayName": "Lock level",
+      "description": "Required lock level for ExpressRoute resource groups."
+    },
+    "allowedValues": [
+      "CanNotDelete",
+      "ReadOnly"
+    ]
+  }
+},
+"policyRule": {
+  "if": {
+    "field": "type",
+    "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+  },
+  "then": {
+    "effect": "auditIfNotExists",
+    "details": {
+      "type": "Microsoft.Authorization/locks",
+      "existenceCondition": {
+        "field": "Microsoft.Authorization/locks/level",
+        "equals": "[parameters('expressRouteLockLevel')]"
+      }
+    }
+  }
+}
+}
+}
+
+```
+---
+
 ## Q210:
 
 You have an Azure subscription that contains 200 virtual machines.
 
 You plan to use Azure Advisor to provide cost recommendations when underutilized virtual machines are detected.
 
-You need to ensure that all Azure admins are notified whenever an Advisor alert is generated. The solution must minimize administrative effort.
+You need to ensure that all Azure admins are notified whenever an Advisor alert is generated. 
+The solution must minimize administrative effort.
 
 What should you configure?
-
 Select only one answer.
 
-an action group
-
-an application security group
-
-an Azure Automation account
-
-a capacity reservation group
+- an action group
+- an application security group
+- an Azure Automation account
+- a capacity reservation group
 
 ---
 
 ### Answer:
+- an action group
+
+Whenever Azure Advisor detects a new recommendation for resources, an event is stored in the Azure Activity log. You can set up alerts for these events from Azure Advisor. You can select a subscription and optionally a resource group to specify the resources for which you want to receive alerts. 
+
+You also need to create an action group that will contain all the users to be notified.
 
 ---
 
 ### References:
+
+[Create Azure Advisor alerts on new recommendations using the Azure portal](https://learn.microsoft.com/en-us/azure/advisor/advisor-alerts-portal)  
+
+[Verbessern der Reaktion auf Incidents mithilfe von Warnungen in Azure](https://learn.microsoft.com/de-de/training/modules/incident-response-with-alerting-on-azure/)  
 
 ---
 
