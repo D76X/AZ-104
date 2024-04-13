@@ -371,9 +371,89 @@ no warning status, the backup of this kind of VMs is actually supported by Azure
 
 [Introducing Backup Pre-Checks for Backup of Azure VMs](https://azure.microsoft.com/en-us/blog/azure-vm-backup-pre-checks/)  
 
+- Passed: 
+This state indicates that your VMs configuration is conducive for successful backups and no corrective action needs to be taken.
+
+- Warning: 
+This state indicates one or more issues in VM’s configuration that might lead to backup failures and provides recommended steps to ensure successful backups. Not having the latest VM Agent installed, for example, can cause backups to fail intermittently and falls in this class of issues.
+
+- Critical: 
+This state indicates one or more critical issues in the VM’s configuration that will lead to backup failures and provides required steps to ensure successful backups. A network issue caused due to an update to the NSG rules of a VM, for example, will fail backups as it prevents the VM from communicating with the Azure Backup service and falls in this class of issues.
+
 [What is the Azure Backup service?](https://learn.microsoft.com/en-us/azure/backup/backup-overview)  
 
+The Azure Backup service provides simple, secure, and cost-effective solutions to back up your data and recover it from the Microsoft Azure cloud.
+
+> What can I back up?
+
+- On-premises - Back up files, folders, system state WITH mars
+- DPM or Azure Backup Server (MABS) agent to protect on-premises VMs
+- Azure VMs Windows & Linux using backup extensions
+- Azure VMs Windows & Linux files using MARS agent
+- Azure Managed Disks
+- Azure Files shares 
+- SQL Server in Azure VMs
+- SAP HANA databases in Azure VMs 
+- Azure Database for PostgreSQL servers 
+- Azure Blobs
+- Azure Database for PostgreSQL Flexible server 
+- Azure Kubernetes service
+
+---
+
 [An overview of Azure VM backup](https://learn.microsoft.com/en-us/azure/backup/backup-azure-vms-introduction)  
+
+As part of the backup process, a **snapshot** is taken, and the data is transferred to the Recovery Services vault with no impact on production workloads. 
+
+The snapshot provides different levels of consistency, as described here.
+
+> Snapshot consistency:
+
+- Application-consistent (ENABLED BY DEFAULT):
+App-consistent backups capture memory content and pending I/O operations. App-consistent snapshots use a VSS writer (or pre/post scripts for Linux) to ensure the consistency of the app data before a backup occurs.
+
+When you're recovering a VM with an app-consistent snapshot, the VM boots up.
+
+There's no data corruption or loss. The apps start in a consistent state.
+
+- File-system consistent (ENABLED BY DEFAULT):
+
+When you're recovering a VM with a file-system consistent snapshot, the VM boots up.
+
+File-system consistent backups provide consistency by taking a snapshot of all files at the same time.
+
+Apps need to implement their own "fix-up" mechanism to make sure that restored data is consistent.
+
+- Crash-consistent (opt-in):
+
+Azure Backup also takes crash-consistent backups if the VM is not running during backup and when application/file-consistent backups fail.
+
+Only the data that already exists on the disk at the time of the backup operation is captured and backed up; data in read/write host cache isn't captured.
+
+**Starts with the VM boot process followed by a disk check to fix corruption errors**.
+
+---
+
+> Extensions on Azure VMs:
+
+For Windows VMs, the `VMSnapshot` extension is installed.
+For Linux VMs, the `VMSnapshotLinux `extension is installed.
+
+> Encryption of Azure VM backups:
+
+When you back up Azure VMs with Azure Backup, VMs are encrypted at rest with Storage Service Encryption (SSE). 
+Azure Backup can also back up Azure VMs that are encrypted by using Azure Disk Encryption.
+
+- BEK: BitLocker encryption keys
+- KEK: Azure Key Vault key encryption keys
+
+Azure Backup supports backup of managed and unmanaged Azure VMs encrypted with BEKs only, or with BEKs together with KEKs.
+
+Because KEKs and BEKs are backed up, users with the necessary permissions can restore keys and secrets back to the key vault if needed. These users can also recover the encrypted VM.
+
+**The backed-up BEKs (secrets) and KEKs (keys) are encrypted.**
+
+
 
 ---
 
