@@ -4,7 +4,7 @@
 
 ---
 
-## Q21x:
+## Q22x:
 
 ---
 
@@ -13,6 +13,242 @@
 ---
 
 ### References:
+
+---
+
+## Q224:
+
+You have an Azure subscription that contains an ASP.NET application. The application is hosted on four Azure virtual machines that run Windows Server.
+
+You have a load balancer named LB1 to load balances requests to the virtual machines.
+
+You need to ensure that site users connect to the same web server for all requests made to the application.
+
+Which two actions should you perform? 
+Each correct answer presents part of the solution.
+Select all answers that apply.
+
+- Configure an inbound NAT rule.
+- Set Session persistence to Client IP.
+- Set Session persistence to **None**.
+- Set Session persistence to Protocol.
+ 
+
+---
+
+### Answer:
+- Set Session persistence to Client IP.
+- Set Session persistence to Protocol.
+
+By setting Session persistence to Client IP and Protocol, you ensure that site users connect to the same web server for all requests made to the application. 
+
+Setting Session persistence to None disables sticky sessions. 
+
+An inbound NAT rule is used to forward traffic from a load balancer frontend to a backend pool.
+
+---
+
+### References:
+
+[Azure Load Balancer distribution modes](https://learn.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts)   
+
+> Distribution Modes:
+
+1. Ovwerview
+
+Traffic from the same client IP routed to 
+any healthy instance in the backend pool.	
+
+Traffic from the same client IP is routed to 
+the same backend instance	
+
+Traffic from the same client IP and protocol is routed to the same backend instance
+
+2. Tuples
+
+3. Azure Portal Configuration
+
+4. REST API
+
+
+
+
+[Verteilungsmodi von Azure Load Balancer](https://learn.microsoft.com/de-de/azure/load-balancer/distribution-mode-concepts)   
+
+---
+
+## Q223:
+
+Your company plans to migrate servers from on-premises to Azure. There will be dev, test, and production virtual machines on a single virtual network.
+
+You need to restrict traffic between the dev, test, and production virtual machines to specific ports.
+
+What should you use?
+
+Select only one answer.
+
+- a network security group (NSG)
+- an Azure firewall
+- an Azure load balancer
+- an Azure VPN gateway
+
+---
+
+### Answer:
+- a network security group (NSG)
+
+Must configure network security group (NSG) rules to allow TCP or ICMP traffic for specific ports. 
+
+**Azure Firewall**: is a managed service that protects your Azure services across multiple virtual networks. 
+
+**Load balancers**: are used to distribute incoming traffic to available backend servers. 
+
+**Azure VPN**: is used to have a connection establishment between on-premises and Azure.
+
+---
+
+### References:
+
+
+---
+
+## Q222:
+
+You have three network security groups (NSGs) named NSG1, NSG2, and NSG3. Port 80 is blocked in NSG3 and allowed in NSG1 and NSG2.
+
+You have four Azure virtual machines that have the following configurations:
+
+VM1:
+
+Subnet: Subnet1
+Network card: NIC1
+NIC1 is assigned to NSG2.
+
+VM2:
+
+Subnet: Subnet1
+Network card: NIC2
+NIC2 is assigned to NSG3.
+
+VM3:
+
+Subnet: Subnet3
+Network card: NIC3
+NIC3 is assigned to NSG3.
+VM4:
+
+Subnet: Subnet2
+You have the following subnets:
+
+Subnet1 is assigned to NSG1.
+Subnet2 is assigned to NSG3.
+Subnet 3 does not have an NSG assigned.
+
+Which virtual machine will allow traffic from the internet on port 80?
+
+Select only one answer.
+
+- VM1
+- VM2
+- VM3
+- VM4
+ 
+
+---
+
+### Answer:
+- VM1
+
+On VM1, both NSGs assigned to Subnet1 and the NIC1 card allow traffic on port 80. 
+
+On VM2, NSG1 allows traffic, but NSG3 blocks traffic for the network interface. 
+
+On VM3 and VM4, NSG3 blocks traffic.
+
+---
+
+### References:
+
+---
+
+## Q221:
+
+You have a virtual machine named VM1 that is assigned to a network security group (NSG) named NSG1.
+
+NSG1 has the following outbound security rules:
+
+Rule1:
+
+Priority: 900
+Name: BlockInternet
+Port: 80
+Protocol: TCP
+Source: Any
+Destination: Any
+Action: Block
+
+
+Rule2:
+
+Priority: 1000
+Name: AllowInternet
+Port: 80
+Protocol: TCP
+Source: Any
+Destination: Any
+Action: Allow
+
+You need to ensure that internet access to VM1 on port 80 is allowed.
+
+What should you do?
+Select only one answer.
+
+- Change the action of Rule2.
+- Change the name of Rule1.
+- Change the priority of Rule2.
+- Change the source of Rule 2.
+
+---
+
+### Answer:
+- Change the priority of Rule2.
+
+Rule1 has higher priority, so the action will be blocked. You can increase the priority of Rule2, decrease the priority of Rule1, or change the action of Rule1 to achieve the goal.
+
+---
+
+### References:
+
+[Konfigurieren von Netzwerksicherheitsgruppen](https://learn.microsoft.com/de-de/training/modules/configure-network-security-groups/)
+
+---
+
+## Q220:
+
+You have an Azure subscription that contains network security groups (NSGs).
+
+Which two resources can be associated with a NSG? 
+Each correct answer presents a complete solution.
+Select all answers that apply.
+
+- Azure Monitor
+- Azure Network Watcher
+- network interfaces
+- subnets
+
+---
+
+### Answer:
+- network interfaces
+- subnets
+
+You can use a network security group (NSG) to be assigned to a network interface. NSGs can be associated with subnets or individual virtual machine instances within that subnet. When an NSG is associated with a subnet, the access control list (ACL) rules apply to all virtual machine instances of that subnet.
+
+---
+
+### References:
+
+[Konfigurieren von Netzwerksicherheitsgruppen](https://learn.microsoft.com/de-de/training/modules/configure-network-security-groups/)
 
 ---
 
