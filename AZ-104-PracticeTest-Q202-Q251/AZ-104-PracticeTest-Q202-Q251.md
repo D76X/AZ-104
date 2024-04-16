@@ -16,9 +16,174 @@
 
 ---
 
+## Q228:
+
+You have an Azure subscription that contains hundreds of virtual machines that were migrated from a local datacenter.
+You need to identify which virtual machines are underutilized.
+Which Azure Advisor settings should you use?
+
+Select only one answer.
+
+- Cost
+- High Availability
+- Operational Excellence
+- Performance
+
+---
+
+### Answer:
+- Cost
+
+> The Cost blade: 
+allows you to optimize and reduce your overall Azure spending. You can use this to identify the virtual machines that are underutilized. 
+
+> The Performance blade: 
+allows you to improve the speed of your applications. 
+
+High availability is unavailable via Azure Advisor. 
+
+Operational Excellence helps you achieve process and workflow efficiency, resource manageability, and deployment best practices.
+
+---
+
+### References:
+
+[Einführung in Azure Advisor](https://learn.microsoft.com/de-de/training/modules/intro-to-azure-advisor/)  
+
+[Introduction to Azure Advisor](https://learn.microsoft.com/en-us/training/modules/intro-to-azure-advisor/)   
+
+---
+
+## Q227:
+
+You have an Azure subscription that contains a resource group named RG1. 
+RG1 contains a virtual machine that runs daily reports.
+
+You need to ensure that the virtual machine shuts down when resource group costs exceed 75 percent of the allocated budget.
+
+Which two actions should you perform? 
+Each correct answer presents part of the solution.
+Select all answers that apply.
+
+- Create an action group of type Runbook, and then select Scale Up VM.
+- Create an action group of type Runbook, and then select **Stop VM** as an action.
+- From Cost Management + Billing, create a new cost analysis.
+- From Cost Management + Billing, modify the Budgets settings.
+
+---
+
+### Answer:
+- From Cost Management + Billing, modify the Budgets settings.
+- Create an action group of type Runbook, and then select **Stop VM** as an action.
+
+You must go to Cost Management + Billing, and then Budgets to edit the budget associated with the resource group resources. You must also create a new action group of the Runbook type, and then choose Stop VM as an action. 
+
+The cost analysis will not stop the virtual machine from running and the Scale Up VM action group is not required.
+
+---
+
+### References:
+
+---
+
+## Q226:
+
+You have an Azure subscription that contains multiple users and administrators.
+You are creating a new custom role by using the following JSON.
+
+```
+{ 
+
+  "Name": "Custom Role", 
+  "Id": null, 
+  "IsCustom": true, 
+  "Description": "Custom Role description", 
+  "Actions": [ 
+    "Microsoft.Compute/*/read", 
+    “Microsoft.Compute/snapshots/write”, 
+    “Microsoft.Compute/snapshots/read”, 
+    "Microsoft.Support/*" 
+  ], 
+
+  "NotActions": [ 
+  “Microsoft.Compute/snapshots/delete” 
+  ], 
+
+  "AssignableScopes": [ 
+    "/subscriptions/00000000-0000-0000-0000-000000000000", 
+    "/subscriptions/11111111-1111-1111-1111-111111111111" 
+  ] 
+} 
+```
+
+Which three actions can be performed by a user that is assigned the custom role? 
+Each correct answer presents a complete solution.
+Select all answers that apply.
+
+- Call Microsoft Support.
+- Create and delete a snapshot.
+- Create and read a snapshot.
+- Create virtual machines.
+- Read all virtual machine settings.
+
+---
+
+### Answer:
+- Call Microsoft Support.
+- Read all virtual machine settings.
+- Create and read a snapshot.
+
+---
+
+### References:
+
+
+---
+
+## Q225:
+
+You have an Azure subscription.
+
+From PowerShell, you run the `Get-MgUser` cmdlet for a user and receive the following details:
+
+```
+Id: 8755b347-3545-3876-3987-999999999999
+DisplayName: Ben Smith
+Mail: bsmith@contoso.com
+UserPrincipalName: bsmith_contoso.com#EXT#@fabrikam.com
+```
+
+Which statement accurately describes the user?
+Select only one answer.
+
+- The user account is disabled.
+- The user is a guest in the tenant.
+- The user is assigned an administrative role.
+- The user is deleted.
+
+---
+
+### Answer:
+- The user is a guest in the tenant.
+
+For guest users, the user principal name (UPN) will contain the email 
+of the guest user (bsmith_contoso.com) followed by `#EXT#`followed by 
+the domain name of the tenant (@fabrikam.com). 
+
+`user@gmail.com#EXT#@fabrikam.com`
+
+Regular Microsoft Entra users appear in a format of `user@fabrikam.com`.
+
+---
+
+### References:
+
+---
+
 ## Q224:
 
-You have an Azure subscription that contains an ASP.NET application. The application is hosted on four Azure virtual machines that run Windows Server.
+You have an Azure subscription that contains an ASP.NET application. 
+The application is hosted on four Azure virtual machines that run Windows Server.
 
 You have a load balancer named LB1 to load balances requests to the virtual machines.
 
@@ -52,25 +217,83 @@ An inbound NAT rule is used to forward traffic from a load balancer frontend to 
 
 [Azure Load Balancer distribution modes](https://learn.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts)   
 
+Azure Load Balancer supports the following distribution modes 
+for routing connections to instances in the backend pool:
+
 > Distribution Modes:
 
-1. Ovwerview
+1. Hash based
 
-Traffic from the same client IP routed to 
-any healthy instance in the backend pool.	
+Tuples:	five-tuple
+Azure portal configuration: `None (default)`
+REST API:	"loadDistribution":"Default"
+Result: Traffic from the same client IP routed **to any healthy instance** in the backend pool.
 
-Traffic from the same client IP is routed to 
-the same backend instance	
+The five-tuple consists of: Source IP + Source port + Destination IP + Destination port + Protocol type
 
-Traffic from the same client IP and protocol is routed to the same backend instance
+The algorithm provides stickiness only within a transport session. 
+When the client starts a new session from the same source IP, 
+the source port changes and causes the traffic to go to a different backend instance.
 
-2. Tuples
+---
 
-3. Azure Portal Configuration
+2. Session persistence: Client IP  
 
-4. REST API
+Tuples:	two-tuple
+Azure portal configuration: `Session persistence: Client IP`
+REST API:	 "loadDistribution":SourceIP
+Result: Traffic from the same client IP is routed **to the same backend** instance
 
+The two-tuple consists of: Source IP + Destination IP
 
+Successive requests from the same client go to the same backend instance within the backend pool.
+
+---
+
+3. Session persistence: Client IP and protocol
+
+Tuples:	three-tuple
+Azure portal configuration: `Session persistence: Client IP and protocol`
+REST API:	 "loadDistribution":SourceIPProtocol
+Result: Traffic from the same client IP and protocol is routed **to the same backend** instance
+
+The two-tuple consists of: Source IP + Source port + Destination IP
+
+Successive requests from the same client IP address **and protocol** combination are handled by the same backend instance.
+
+> Use Cases: 
+
+1. Remote Desktop Gateway
+Source IP affinity with client IP and protocol solves an incompatibility between 
+Azure Load Balancer and Remote Desktop Gateway (RD Gateway).
+
+2. Media Upload
+The data upload happens through UDP, but the control plane is achieved through TCP.
+
+There are two phases:
+
+- Phase 1:
+A client starts a TCP session to the load-balanced public address and 
+is directed to a specific DIP. 
+The channel is left active to monitor the connection health.
+
+- Phase 2:
+A new UDP session **from the same client computer** is started **to the same load-balanced public endpoint**. 
+The connection is directed to the same DIP endpoint as the previous TCP connection. 
+**The media upload can be executed at high throughput while maintaining a control channel through TCP**.
+
+> Note 1: adding or removing VMs from a backend pool
+
+When Load Balancer backend pool members change either by removing or adding a virtual machine, 
+the distribution of client requests is recomputed. 
+You can't depend on new connections from existing clients to end up at the same server. 
+
+> Note 2: uneven load distribution due to session affinity and proxies
+
+Additionally, using source IP affinity distribution mode can cause an uneven distribution of traffic. 
+Clients that run behind proxies might be seen as one unique client application.
+
+---
 
 
 [Verteilungsmodi von Azure Load Balancer](https://learn.microsoft.com/de-de/azure/load-balancer/distribution-mode-concepts)   
