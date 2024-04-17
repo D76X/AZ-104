@@ -9913,23 +9913,21 @@ which cmdlet should you use?
 - Stop-AzVM
 - Update-AzVM
 
-
 ---
 
 ### Answer:
 - Move-AzResource
 
-This is described in the reference belwo and can also be accomplished manually from 
+This is described in the reference below and can also be accomplished manually from 
 the Azure Portal from the Overview blade of the resource. [ChaNge RG]
-
 
 ---
 
 ### References:
 
 [Move Azure resources to a new resource group or subscription](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/move-resource-group-and-subscription)  
-Both the source group and the target group are locked during the move operation.
 
+Both the source group and the target group are locked during the move operation.
 The lock can last for a maximum of four hours, but most moves complete in much less time.
 
 It doesn't mean the resources are frozen. For example, if you move an Azure SQL logical server, its databases and other dependent resources to a new resource group or subscription, applications that use the databases experience no downtime.
@@ -9970,7 +9968,6 @@ Which cmdlet should you use?
 ### Answer:
 - Set-AzVmssVM
 
-
 ---
 
 ### References:
@@ -9982,13 +9979,11 @@ We recommend using **Flexible Orchestration** for new workloads.
 
 Throughout the lifecycle of your applications, you may need to modify or update your Virtual Machine Scale Set.
 
-
 > The scale set model:
 captures the desired state of the scale set as a whole. 
 
 `Get-AzVmss -ResourceGroupName "myResourceGroup" -VMScaleSetName "myScaleSet"`
 `az vmss show --resource-group myResourceGroup --name myScaleSet`
-
 
 The exact presentation of the output depends on the options you provide to the command. 
 
@@ -10130,7 +10125,7 @@ Your comopany develops a new app.
 The app must be deployed to a VMSS to provide high availability 
 and to meet changing resource requirements.
 
-You run the `New-AzResourceGrou` cmdlet to create the RG for the VMSS.
+You run the `New-AzResourceGroup` cmdlet to create the RG for the VMSS.
 You then want to create the VMSS.
 Which cmdlet should you run next?
 
@@ -10138,7 +10133,6 @@ Which cmdlet should you run next?
 - New-AzVmssVM
 - New-AzVm
 - Set-AzVmss
-
 
 ---
 
@@ -10253,11 +10247,9 @@ Which 4 actions should you perform in a sequence?
 - register an authentication method for SSPR
 - enable SSPR with the selected option
 - enable SSPR with all options
-- select the ME group for which you want SSOR
+- select the ME group for which you want SSPR
 - add user to the SSPR list of users
 - create a Micorsoft Entra security group and add users to it
-
-
 
 ---
 
@@ -10265,7 +10257,7 @@ Which 4 actions should you perform in a sequence?
 
 - create a Micorsoft Entra security group and add users to it
 - enable SSPR with the selected option
-- select the ME group for which you want SSOR
+- select the ME group for which you want SSPR
 - register an authentication method for SSPR
 
 The additional personal info that a user can provide during SSPR:
@@ -10326,7 +10318,7 @@ Data Storage Type:
 Premium SSD
 
 **In order to achive 99.99% SLA on a single instance VM any disk must be Premium SSD**.
-`Standard_DS4_v2` is the only option amonge those available that supports Premium SSD.
+`Standard_DS4_v2` is the only option among those available that supports Premium SSD.
 
 `Standard_D4_v2` & `Standard_A8_v2` **do not** support Premium SSD.
 
@@ -10418,7 +10410,6 @@ As shown in the exhibits, there are three scale conditions:
 You must check the configuration.
 
 What should the observed capacity metric be in the following three scenarios?
-
 
 - scenario 1:
 
@@ -10599,21 +10590,21 @@ $kv = Get-AzKeyVault -KeyVaultName $kvn -ResourceGroupName $kvrg
 $diskEncryptionUrl = $kv.VaultUri
 $kvid = $kv.ResourceId
 
-Set-AzVMDiskEncryptionExtension  -ResourceGroupName $vmrg ` 
+Set-AzVMDiskEncryptionExtension -ResourceGroupName $vmrg ` 
 -DiskEncryptionKeyVaultUrl $diskEncryptionUrl `
 -DiskEncryptionKeyVaultId $kvid `
 -VMname $vmn 
 ```
 
 This is tricky as the `Get-AzKeyVault` uses a nomenclature that is different
-from other similar `Get-AzXXX` cmdlets.
+from other similar `Get-AzXXX` cmdlets i.e. `-KeyVaultName` istead pf simply
+`-Name`.
 
 ---
 
 ### References:
 
 [Azure Disk Encryption scenarios on Windows VMs](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/disk-encryption-windows)  
-
 
 ---
 
