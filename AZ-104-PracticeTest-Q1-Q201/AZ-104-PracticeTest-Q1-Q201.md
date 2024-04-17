@@ -17151,13 +17151,13 @@ able to have SSPR.
 
 ## Q4: Case Study
 
-You deploy an Azure Web App namen My App.
+You deploy an Azure Web App named My App.
 MyApp runs in a Free Tier Service Plan named MyPlan.
 
 During testing you discover that MyApp stops after 60 mins and
 it cannot be restarted until the following day.
 
-You need to ensure that MyApp can run eight each day during testing period.
+You need to ensure that MyApp can run at eight hours each day during testing period.
 You want to keep the additional cost to a minimum.
 
 
@@ -17166,7 +17166,7 @@ You want to keep the additional cost to a minimum.
 ### Q4A:
 
 Solution:
-You change the Pricing Tier fir MyPlan to Shared D1.
+You change the Pricing Tier for MyPlan to Shared D1.
 
 Does this solution meet the goal?
 - Yes
@@ -17236,11 +17236,11 @@ This includes a VNet named VNet1 with the subnets below:
 | Subnet  | address prefix | Deployed Resources |
 | ------------------------ | ------------------ | 
 | subnet1 | 10.0.0.0/24    |  VM1 to VM4        |
-| subnet2 | 10.0.1.0/24    |  VM5, VM6        |
+| subnet2 | 10.0.1.0/24    |  VM5, VM6          |
 | subnet3 | 10.0.4.0/24    |  Container group MyCon01  |
 
 The company deploys a **new Azure Container Group** on VNet1.
-The Container Instances need to communicate with VM5 and VM6.
+The Container instances need to communicate with VM5 and VM6.
 
 You need to determine an appropriate location for deploying the Container Group.
 
@@ -17259,9 +17259,9 @@ Does this solution meet the goal?
 
 This solution does not meet the goal.
 
-It is not possible to deply a Azure Container Group to a subnet
+It is not possible to deploy a Azure Container Group to a subnet
 that already contains resources!
-In this case subnet2 has alreadu VM5 and VM6.
+In this case subnet2 has already VM5 and VM6.
 
 ---
 
@@ -17394,7 +17394,7 @@ even if those ports aren't exposed externally on the group's IP address or from 
 
 You want to install an Internet-facing web app named WebApp1 on multiple Azure VMs.
 The VMs must run **Windows Server 2019**.
-Connections ot WebApp1 must be spread across all the VMs.
+Connections to WebApp1 must be spread across all the VMs.
 The **VMs must be located in separate datacenters in the same region**. 
 The SLA connectivity % must be as high as possible.
 
@@ -17419,8 +17419,8 @@ the SLA will be of 99.99% which is **the highest possible value in Azure**.
 An **availability zone is made of several (2,3,4) datacenters**.
 
 You also need to deploy and configure a **Standard SKU Load Balancer**.
-This includes the creation of a **zone-redundant standard IP adress**.
-The **zone-redundant standard IP adress** will be replicated across the 
+This includes the creation of a **zone-redundant standard IP address**.
+The **zone-redundant standard IP address** will be replicated across the 
 three zones.
 **The LB will be zone-redundat because the attached IP is zone-redundat**.
 Only a **Standard SKU Load Balancer** offer this feature, the **Basic-SKU ALB** 
@@ -17485,7 +17485,7 @@ useless in this scenario.
 In order to load balance over the VMs located in the same VNet the following
 would be suitable:
 - an ALB
-- an application GateWay
+- an application Gateway
 
 ---
 
@@ -17576,7 +17576,7 @@ You have an Azure resource group named RG1.
 RG1 contains a Linux VM named VM1.
 
 You need to automate the deplyment of 20 additional Linux VMs.
-The news VMs should be **based upon** VM1's configuration.
+The new VMs should be **based upon** VM1's configuration.
 
 
 ### Q1C:
@@ -17587,6 +17587,7 @@ From the Resource Group's Policies blade, you click assign Policy.
 Does this solution meet the goal?
 - Yes
 - No
+
 ---
 
 ### Answer: No

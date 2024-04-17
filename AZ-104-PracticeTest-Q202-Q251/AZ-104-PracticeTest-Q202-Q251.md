@@ -52,6 +52,26 @@ Operational Excellence helps you achieve process and workflow efficiency, resour
 
 [Introduction to Azure Advisor](https://learn.microsoft.com/en-us/training/modules/intro-to-azure-advisor/)   
 
+Azure Advisor is a tool that can give you 
+
+- proactive
+- actionable
+- personalized 
+
+recommendations to help you track your cloud environment and usage, and follow best practices for the five pillars of the:
+
+[Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/well-architected/).
+
+> The pillars of WAF:
+
+1. cost optimization
+2. security
+3. reliability
+4. operational excellence
+5. performance efficiency
+
+
+
 ---
 
 ## Q227:
