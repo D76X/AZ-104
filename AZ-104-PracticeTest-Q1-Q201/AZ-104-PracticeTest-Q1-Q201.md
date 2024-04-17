@@ -17005,6 +17005,12 @@ The APM see only catalogs that you have permission to create access packages in.
 
 - All access packages must have at least one policy for users to be assigned to them. 
 
+Policies specify:
+
+1. who can request the access package
+2. the approval and lifecycle settings
+3. OR how access is automatically assigned
+
 - When you create an access package, you can create an initial policy for:
   > users in your directory
   > users not in your directory
