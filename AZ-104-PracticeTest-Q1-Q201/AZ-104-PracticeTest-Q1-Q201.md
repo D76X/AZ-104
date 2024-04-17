@@ -11206,7 +11206,6 @@ Choose the best deployment strategy.
 - create a ARM template and use Powershell to deploy it to Azure
 obvious answer.
 
-
 ---
 
 ### References:
@@ -11217,7 +11216,7 @@ obvious answer.
 
 You create an ARM template based on an existing VM.
 You plan to deply 50 news based on this template.
-Each VM should be deplyed with a unique admin password.
+Each VM should be deployed with a unique admin password.
 
 You need to modify the ARM template to reference an admin psw.
 The psw should not be stored in plain text amd access to it must be secure.
@@ -11245,7 +11244,7 @@ obvious answer.
 
 ## Q83:
 
-You download  an ARM template created from an existing VM.
+You download an ARM template created from an existing VM.
 You plan to use this template to deploy 50 new VMs.
 
 You need to modify the template to reference an admin password.
@@ -11265,7 +11264,6 @@ What should you do first?
 - create and store the psw in an Axure KV and create an access policy
 
 This is the obvious answer all other cannot apply.
-
 
 ---
 
@@ -11319,7 +11317,7 @@ You add a resource group deployment from a ARM template that alredy exists.
 The template is stored on a web server repo.
 You have already created the RG named RG1.
 
-You need to deply the resources from the RGD.
+You need to deploy the resources from the RGD.
 `$ResourceTamplate` is the location of the of the ARM template file on the web server.
 
 Complete the command.
@@ -11640,7 +11638,7 @@ What happened?
 - you used the -mode complete param of `AzResourceGroupDeployment`
 
 This is the obvious answer. 
-The modes complte vs. incremental have already been discussed in details in a 
+The modes complete vs. incremental have already been discussed in details in a 
 previous question. 
 
 The following do not apply:
@@ -11649,7 +11647,6 @@ The following do not apply:
 
 because the ARM template does not contain any linked or nested templates and therefore the 
 mode parameter should not be present in the template.
-
 
 ---
 
@@ -11710,7 +11707,6 @@ Tenants - See tenant deployment commands
 - mode : 'Complete' / 'Incremental'  (required)
 The mode that is used to deploy resources. This value can be either Incremental or Complete. In Incremental mode, resources are deployed without deleting existing resources that are not included in the template. In Complete mode, resources are deployed and existing resources in the resource group that are not included in the template are deleted. Be careful when using Complete mode as you may unintentionally delete resources.	
 
-
 ---
 
 ## Q78:
@@ -11719,7 +11715,7 @@ You have a ARM template to create a Windows VM.
 The ARM template has been obtained from an existing RG with a single VM using the 
 automation script option.
 
-You want to reause this template for other deployments.
+You want to reuse this template for other deployments.
 You need all the resources in the RG to be in the same location.
 
 What should you do?
@@ -11738,9 +11734,9 @@ What should you do?
 
 - edit the template file and update the location param with the value `[resourceGroup().location]`
 
-The following suggested solution could also:
-- edit the parameters file and ass a new parameter named `location` of type string with the default value `[resourceGroup().location]`
-Howwever, you would also need to update the ARM template with the new `[parameters('location')]` where required.
+The following suggested solution could also work:
+- edit the parameters file and add a new parameter named `location` of type string with the default value `[resourceGroup().location]`
+However, you would also need to update the ARM template with the new `[parameters('location')]` where required.
 
 The remaining options are obviously not suitable to this case.
 
