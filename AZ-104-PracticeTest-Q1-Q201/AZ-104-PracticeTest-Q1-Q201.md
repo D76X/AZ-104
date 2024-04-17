@@ -7300,7 +7300,7 @@ To delete a virtual network:
 
 ## Q126:
 
-Ypu plan to deploy a new app to your Azure sub.
+You plan to deploy a new app to your Azure sub.
 You must configure the required layered infrastructure.
 
 - front-end servers on VMs
@@ -7444,6 +7444,7 @@ $bastion = @{
 New-AzBastion @bastion
 
 ```
+
 ---
 
 [Tutorial: Create a secure n-tier app in Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/tutorial-secure-ntier-app)   
@@ -7541,7 +7542,7 @@ THERE ARE MORE STEPS...
 
 ## Q125:
 
-You are an Azure admin and you mneed to swap deployment slots for a web app.
+You are an Azure admin and you need to swap deployment slots for a web app.
 You must swat the slots staging with production.
 
 ```
@@ -7830,7 +7831,8 @@ Yes
 - custom app service backups are available on the Premium storage tier
 Yes.
 
-Custom backups are available on Basic, Standard, Premium and isolated tier of App Services and in all cases Oremium storage can be used.
+Custom backups are available on Basic, Standard, Premium and isolated tier 
+of App Services and in all cases Premium storage can be used.
 
 Automatic backups do not require a storage account.
 
@@ -7847,7 +7849,7 @@ The references have been examined in detailed in a previous question.
 You develop a new Web app whose source code is in an Azure DevOps Git Repo.
 Before moving to production the app must be reviewed by test users.
 
-You must prepare the target envirinment to be ready to publish the app.
+You must prepare the target environment to be ready to publish the app.
 
 Which four commands should you run in sequence?
 
@@ -7867,7 +7869,6 @@ Which four commands should you run in sequence?
 `New-AzWebApp`
 `New-AzWebAppSlot`
 
-
 This sequnece is self-explanatory.
 Thecommand `New-AzWebAppSlot` create a slot dor the app to be published into
 so that testers can test the app on this test slot before rolling it out to 
@@ -7879,7 +7880,7 @@ The remaining options:
 this cmdlet performs the upload of the zip with the binary files to an existing App Service Slot.
 
 `Start-AzWebAppSlot`:
-Thsi cmdlet can b used to control the state of a web app lot to initiate the start process.
+This cmdlet can be used to control the state of a web app lot to initiate the start process.
 
 ---
 
@@ -7899,8 +7900,8 @@ Deploys an Azure Web App from a ZIP, JAR, or WAR file using zipdeploy.
 
 You administer an Azure Web App called `wapp1`.
 The app hosts a public website for your company.
-The Marketuing department publishes over 35 GB of images, audio and video files.
-You notice that follwing this publish event the backup of the app has stopped working.
+The Marketing department publishes over 35 GB of images, audio and video files.
+You notice that following this publish event the backup of the app has stopped working.
 
 You must resolve the issue and minimize the effort.
 
@@ -7918,7 +7919,7 @@ Which two actions should you perform?
 - move images, audio and video files to Azure Storage
 - configure an operational backup for Azure Blobs
 
-App Servervice in Basic, Standard, Premium, and Isolated tiers provides: 
+App Service in Basic, Standard, Premium, and Isolated tiers provides: 
 
 - custom on-demand manual backup
 - or on a schedule basis backup
@@ -7931,11 +7932,10 @@ You can restore a backup:
 The remaining options do not apply:
 
 - perform a backup using a snapshot:
-this deons not minimize cost and effort
+this does not minimize cost and effort
 
 - perform a backup to an on-premise backup solution:
-this deons not minimize cost and effort
-
+this does not minimize cost and effort
 
 ---
 
@@ -7991,8 +7991,6 @@ Backups over VNet:	Supported.
 
 Azure Backup allows you to configure operational and vaulted backups to protect **block blobs** in your storage accounts. 
 
-
-
 ---
 
 [Configure and manage backup for Azure Blobs using Azure Backup](https://learn.microsoft.com/en-us/azure/backup/blob-backup-configure-manage?tabs=operational-backup)   
@@ -8046,7 +8044,7 @@ You must configure the **Domain Name System (DNS)** record to resolve the issue.
 What are two possible options?
 
 - create a Name Server NS record and map it to the IP address og the WebApp1
-- create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
+- create a CNAME Canonical Name and map it to `https://wwww.company1.com`
 - create a PTR (pointer record) and map it to `webapp1.azurewebsites.net`
 - create an A record (Address) and map it to the IP address of WbApp1
 
@@ -8054,7 +8052,7 @@ What are two possible options?
 
 ### Answer:
 
-- create a CNNAME Canonical Name and map it to `https://wwww.company1.com`
+- create a CNAME Canonical Name and map it to `https://wwww.company1.com`
 - create an A record (Address) and map it to the IP address of WbApp1
 
 The remaining options do not apply:
@@ -8130,7 +8128,6 @@ You can use either a CNAME record or an A record to map a custom DNS name to App
 > Validate and complete:
 Azure Portal > App Service > Custom Domain > Back in the Add custom domain dialog in the Azure portal, select Validate.
 
-
 ---
 
 [AZ-104: Deploy and manage Azure compute resources  Configure Azure App Service / Create custom domain names](https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/8-create-custom-domain-names)
@@ -8166,7 +8163,6 @@ app4: Plan2*
 *Python runtime is not supported on Windows ASP. 
 It was an offer in the past but the option of Python on Windows ahs been retired.
 
-
 ---
 
 ### References:
@@ -8177,7 +8173,7 @@ It was an offer in the past but the option of Python on Windows ahs been retired
 
 
 You deploy an Azure Web App named `wapp1` to the West US region.
-The app strams videos to user located globally.
+The app streams videos to user located globally.
 Users in North US can stram video content without interruption.
 User in Europe, Africa and Asia complain of buffering problems and inconsistent playback quality.
 
@@ -8208,7 +8204,6 @@ What should you do?
 
 The remaing options do not apply in this case.
 
-
 ---
 
 ## Q117:
@@ -8233,8 +8228,6 @@ What should you do?
 
 This is the option that minimizes costs and the APS should be on the Standard S1 tier to support 5 instances as the basic tier supports up to three with no autoscaling while Standard S1 up to 10 with autoscaling.
 
-
-
 ---
 
 ### References:
@@ -8255,7 +8248,7 @@ Yiu paln to deply the following apps:
 Web14 | .Net Core 3.0 | East US
 Web15 | asp.nET 4.8   | West US
 
-You must identify which App Service plans can hiost these apps.
+You must identify which App Service plans can host these apps.
 
 Web14 : OPTIONS
 Web15 : OPTIONS
@@ -8282,9 +8275,9 @@ East US: removes all West US APSs -> remaining: ASP1 & ASP2
 
 Web15 : APS3
 
-Web15 | asp.nET 4.8 | West US
+Web15 | asp.net 4.8 | West US
 West US: removes all East US APSs -> remaining: ASP3 & ASP4
-asp.nET 4.8: can run only on Windows -> APS3 
+asp.net 4.8: can run only on Windows -> APS3 
 
 
 ---
@@ -8306,14 +8299,14 @@ What should you di first?
 
 - create a scale rule
 - stop the app
-- scale upp the pricing tier
+- scale up the pricing tier
 - enable aoutoscale
 
 
 ---
 
 ### Answer:
-- scale upp the pricing tier
+- scale up the pricing tier
 
 The basic tier offfers: max 3 instances, no autoscale.
 You must upgrade to Standard S1 in order to access a max of 10 instances and the autoscale feature.
@@ -8328,7 +8321,7 @@ This was discussed in detail in few of the previous questions.
 
 ## Q114:
 
-You plan to depoly a new Azure web app and the deployment must support autoscaling to 20 instances of the web app.
+You plan to deploy a new Azure web app and the deployment must support autoscaling to 20 instances of the web app.
 
 You need to create a App Service plan that support this deployment.
 You must minimize cost.
@@ -8375,7 +8368,6 @@ Select yes/no:
 - you must scale up the plan to the Satandard S1 tier
 - you must create the WebJobs as linked to a web project
 
-
 ---
 
 ### Answer:
@@ -8388,7 +8380,6 @@ No
 
 - you must create the WebJobs as linked to a web project
 Yes
-
 
 ---
 
@@ -8408,7 +8399,7 @@ WebJobs is a feature of Azure App Service that enables you to run:
 
 > WEBJOBS_STOPPED / WEBJOBS_DISABLE_SCHEDULE:
 
-You can also add an application setting named WEBJOBS_STOPPED with a value of 1 to stop all WebJobs running on your site. You can use this method to prevent conflicting WebJobs from running both in staging and production slots. You can similarly use a value of 1 for the WEBJOBS_DISABLE_SCHEDULE setting to disable triggered WebJobs in the site or a staging slot. 
+You can also add an application setting named `WEBJOBS_STOPPED` with a value of 1 to stop all WebJobs running on your site. You can use this method to prevent conflicting WebJobs from running both in staging and production slots. You can similarly use a value of 1 for the `WEBJOBS_DISABLE_SCHEDULE` setting to disable triggered WebJobs in the site or a staging slot. 
 
 For slots, remember to enable the Deployment slot setting option so that the setting itself doesn't get swapped.
 
@@ -8441,7 +8432,6 @@ This can occur for a number of reasons, such as when a long-running WebJob reach
 You can choose to develop a WebJob that runs as either:
 - a .NET Core app 
 - a .NET Framework app. 
-
 
 ---
 
@@ -8515,7 +8505,7 @@ All of these services can solve integration problems and automate business proce
 
 Your company has a **Microsoft 365 business standard licence**.
 You configure **SSPR**.
-You want to configure a **hybruid environment** with your **on-prem AD DS**.
+You want to configure a **hybrid environment** with your **on-prem AD DS**.
 You **enable writeback to your on-prem network**.
 
 You must make sure that prerequisites are met to support writeback.
@@ -8523,7 +8513,7 @@ You must make sure that prerequisites are met to support writeback.
 Select yes/no :
 
 - you should upgrade to Microsoft Entra ID P1
-- you should installl and configure Microsoft Entra Connect
+- you should install and configure Microsoft Entra Connect
 - you should enable & configure MFA
 
 ---
@@ -8534,6 +8524,7 @@ The following are absolute requirements:
 
 - you should upgrade to Microsoft Entra ID P1
 Yes
+
 - you should installl and configure Microsoft Entra Connect
 Yes
 
@@ -8541,7 +8532,6 @@ The following is not a requirement for SSPR:
 - you should enable & configure MFA
 
 enabling MFA is recommended but not required and it is not a requirement to support writebacks to the on-prem AD DS.
-
 
 ---
 
@@ -8591,24 +8581,23 @@ the following permissions and options must be set on the account:
 
 [Microsoft Entra Connect: Enabling device writeback](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-device-writeback)  
 
-
 ---
 
 ## Q111:
 
 You have an app hotsed in an Azure Service Plan (ASP) Premium V2.
-You configure the scale ouu setting for the app as follows:
+You configure the scale out setting for the app as follows:
 
-- R1: AVG(copu%) >= 70%  for t > 10 mins -> increase by 2 & cool down 5 mins
-- R2: AVG(copu%) <=> 35% for t > 10 mins -> decrese  by 1 & cool down 5 mins
+- R1: AVG(cpu%) >= 70%  for t > 10 mins -> increase by 2 & cool down 5 mins
+- R2: AVG(cpu%) <=> 35% for t > 10 mins -> decrese  by 1 & cool down 5 mins
 
 the initial instance count is set at 3.
 the min instance count is set at 2.
 the max instance count is set at 10.
 
 The app goes throughthe following state:
-- AVG(copu%) = 80%  for 15 mins 
-- after for 20 mins AVG(copu%) = 30%
+- AVG(cpu%) = 80%  for 15 mins 
+- after for 20 mins AVG(cpu%) = 30%
 
 What would be the instance count after 35 mins?
 2 | 3 | 4 | 5
@@ -8646,7 +8635,7 @@ The resulting number of instance is now 4.
 You have to provide a website hosting env that meets the following 
 scalability and security requirements:
 
-- at peak load the web app should be able to scale to 10 ibnstances
+- at peak load the web app should be able to scale to 10 instances
 - the web app storage requirement are minimal and will not excede 5 GB
 - the web app perform complex calculations and requires enhanced compute capability
 - the VM where the web app is hosted should be dedicated to your company
@@ -8668,7 +8657,7 @@ Which Azure App Service plan should you choose?
 - premium V2
 
 Azure App Service plan **premium V2 includes enhanced compute capabilities**.
-It uses **Dv2 series VMs which have (compared to theStandard Tier)**: 
+It uses **Dv2 series VMs which have (compared to the Standard Tier)**: 
 
 - a faster processor
 - SSD storage
@@ -8688,7 +8677,7 @@ The remaining options are not suitable as these cannot meet the reuirements:
 - Stadard Tier:
 This satisfies almost all requirements, in particular the following:
 
-- at peak load the web app should be able to scale to 10 ibnstances
+- at peak load the web app should be able to scale to 10 instances
 - the web app storage requirement are minimal and will not excede 5 GB
 - the VM where the web app is hosted should be dedicated to your company
 
@@ -8701,7 +8690,7 @@ This is the most expensive options.
 It would be possible to satify all the requirements except the cost requirement.
 - you must keep costs to a minimum
 
-In particvular, with this plan the app may scale to up to 100 instances.
+In particular, with this plan the app may scale to up to 100 instances.
 
 ---
 
@@ -8762,13 +8751,13 @@ Select yes/no:
 Yes, KEDA checks scaling rules every 30 secs by default.
 
 - if the queue length > 15 KEDA scales the app by adding one new istance aka replica
-Yes, the KEDA scale-up step is ny 1 by default.
+Yes, the KEDA scale-up step is by 1 by default.
 The other options are: 1, 4, 8, 16, 32... up to the configured max replica count.
 
 - the code snippet uses the `TriggerAuthentication` type for the authentication object
 No. 
-This snippet **does not use** the KEDA `TriggerAuthentication` for authentication of objets. This would be thecase if you specified secrets referenced by the
-`autheticationRef` property.
+This snippet **does not use** the KEDA `TriggerAuthentication` for authentication of objets. 
+This would be the case if you specified secrets referenced by the `autheticationRef` property.
 
 1. Find the TriggerAuthentication object referenced by the KEDA ScaledObject specification.
 
@@ -9068,7 +9057,7 @@ to the Azure Container Registry.
 
 You assign a Microsoft Entra Serive Principal to you ACR.
 
-You must identify which ACR roles alllo pull of a non-quarantined image from the 
+You must identify which ACR roles allow pull of a non-quarantined image from the 
 ACR.
 
 Which three roles fullfill this requirement?
@@ -9194,7 +9183,7 @@ Which provider name do you need to register?
 
 - Microsoft.PolicyInsights
 - Microsoft.Automation
-- Microsoft.NotoficationHubs
+- Microsoft.NotificationHubs
 - Microsoft.OperationalInsights
 
 ---
@@ -9202,7 +9191,6 @@ Which provider name do you need to register?
 ### Answer:
 - Microsoft.OperationalInsights
 this is namespace for **Azure Monitor Log Analytics** workspace.
-
 
 The remining options:
 
@@ -9214,7 +9202,6 @@ this is namespace for **Azure Automation** workspace.
 
 - Microsoft.PolicyInsights:
 this is namespace for **Azure Policy** workspace.
-
 
 ---
 
@@ -9292,16 +9279,16 @@ az group delete --name my-container-apps
 
 ## Q106:
 
-Yiyu have a **hybrid network** configuration.
+You have a **hybrid network** configuration.
 Most user accounts are in Microsof Entra ID and the on-prem domain.
 Some users accounts are Microsof Entra only.
-You plan to deply SSPR.
+You plan to deploy SSPR.
 
 You must ensure that SSPR meets the company's password requirements:
 
 Select yes/no:
 
-- SSPR is supported for all user includign cloud-only users
+- SSPR is supported for all user including cloud-only users
 
 - you can configure SSPR registration for all domain users, by group, or by individual user
 
@@ -9312,11 +9299,11 @@ Select yes/no:
 
 ### Answer:
 
-- SSPR is supported for all user includign cloud-only users
+- SSPR is supported for all user including cloud-only users
 Yes
 
 - you can configure SSPR registration for all domain users, by group, or by individual user
-No: it is not possible to set SSPR for individual users, only all domain users or individual security groups can be set uop with SSPR.
+No: it is not possible to set SSPR for individual users, only all domain users or individual security groups can be set up with SSPR.
 
 - supported authentication methods include mobile phone text messages and voice call
 Yes.
@@ -9366,7 +9353,8 @@ However, the documentation also says the following:
 
 **When encrypting Linux OS volumes, the VM should be considered unavailable**. 
 
-**In all cases, you should take a snapshot and/or create a backup before disks are encrypted**. Backups ensure that a recovery option is possible if an unexpected failure occurs during encryption. 
+**In all cases, you should take a snapshot and/or create a backup before disks are encrypted**. 
+Backups ensure that a recovery option is possible if an unexpected failure occurs during encryption. 
 
 **VMs with managed disks require a backup before encryption occurs**. 
 
@@ -9731,10 +9719,9 @@ az vm encryption enable --resource-group 'rg1' --name 'vm1' \
 
 ```
 
-The raminign options do not apply:
+The remainin options do not apply:
 
 `--os-disk-encryption-set`: set a new VM to use a customer-managed encryption key.
-
 
 ---
 
@@ -9751,7 +9738,7 @@ The raminign options do not apply:
 
 ## Q102:
 
-The manage VM named VM1 has the attached disk DataD2.
+The managed VM named VM1 has the attached disk DataD2.
 You must move DataD2 to a VM named VM2 with PS.
 keep the time that data on DataD2 is unavailable to a minimum.
 
@@ -9766,7 +9753,8 @@ Select yes/no:
 
 - you must stop VM1 before you can detach DataD2
 No
-- you can access data ion DataD2 while the disk is unattached
+
+- you can access data on DataD2 while the disk is unattached
 No
 
 - you must run the `Update-AzVM` on both VM1 and VM2 after moving DataD2
@@ -9774,11 +9762,10 @@ Yes
 
 you are not required to stop VM1 before detaching DataD2.
 it is sufficient that nothing is actively using the dada disk while it is being detached.
-the  data disk cannot be accessed while it is detached, ity must be reattached to a VM
+the  data disk cannot be accessed while it is detached, it must be reattached to a VM
 in order to access it again.
 
 `Update-AzVM` must be run on VM1 and on VM2 to aupdate their state after detaching and attaching the disk.
-
 
 `Get-AzDisk` | `New-AzDisk`
 `Add-AzVMDataDisk` 
