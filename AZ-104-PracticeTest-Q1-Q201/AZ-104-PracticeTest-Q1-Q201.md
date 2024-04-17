@@ -12664,11 +12664,10 @@ yes: this ALSO reset the day after modification counter to zero if any changes a
 
 ## Q63:
 
-You create a FileStorage Premium Account and a Premium tier Azure Fiel Share.
+You create a File Storage Premium Account and a Premium tier Azure File Share.
 You plan to mount the file share directly on-prem using `SMB 3.0` protocol.
 
-You must ensure that the network is configured to support mounting an Azure File Share
-on-prem.
+You must ensure that the network is configured to support mounting an Azure File Share on-prem.
 Minimize the admin effort.
 
 What should you do?
@@ -12683,8 +12682,8 @@ What should you do?
 - configure TCP 445 as open in the on-prem firewall
 
 This was discussed in one of the precious questions.
-`SMB 3.0` protocol use TCP 445 and this port must be available therefore it must not 
-be block either from the ISP nor from the company firewall in order to be able to mount 
+`SMB 3.0` protocol uses TCP 445 and this port must be available therefore it must not 
+be blocked either from the ISP nor from the company firewall in order to be able to mount 
 a Azure File Sahre within the on-prem perimeter.
 
 The other options are not relevant.
@@ -12713,13 +12712,14 @@ Which SA Access tier should you recommend?
 - hot
 - cool
 - archive
+
 ---
 
 ### Answer:
 - cool
 
 The **archive tier** has lower costs than the cool tier. However, with the archive tier
-it may take **up to 15 hours to make the data availabkle should the need be**.
+it may take **up to 15 hours to make the data available should the need be**.
 
 ---
 
@@ -12780,8 +12780,7 @@ Select 6 actions in the right order.
 - execute `New-PSDrive` on the Windows servers
 
 The first 4 commands create the File Share on the SA.
-After the FS is available on Azure any VM on Azure can access provided it holds the
-access key and its path.
+After the FS is available on Azure any VM on Azure can access it provided it holds the access key and its path.
 
 - execute CMDKEY on the Windows servers
 allows to permanently store the credentials and map
@@ -12790,7 +12789,8 @@ allows to permanently store the credentials and map
 
 [New-PSDrive](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/new-psdrive?view=powershell-7.4)   
 Creates temporary and persistent drives that are associated with a location in an item data store.
-reates temporary and persistent drives that are mapped to or associated with a location in a data store, such as:
+Creates temporary and persistent drives that are mapped to or associated with a location in a data
+store, such as:
 
 - a network drive
 - a directory on the local computer
@@ -12914,7 +12914,7 @@ the organization has a large number of SAs.
 You must perform the following tasks:
 
 1. an audit of the existing SAs
-2. disable the cration of new SA that allows cross-tenant object replication
+2. disable the creation of new SA that allows cross-tenant object replication
 3. disable the cross-tenant object replication on all existing SAs
 4. validate the implementation as per the org's corporate standards and SLA
 
@@ -12925,7 +12925,7 @@ You review the following Policy Definition:
   "properties": {
     "displayName": "...",
     "policyType": "BuiltIn",
-    "mode": "All | Indexed | Supported",
+    "mode": "All,
     "parameters": {
       "tagName": {
         "type": "String",        
@@ -13013,8 +13013,7 @@ created after Dec 15, 2023, unless you explicitly allow it.
 set the `AllowCrossTenantReplication` property for the storage account to `false`.
 
 > case1: `AllowCrossTenantReplication` = `false`.
-If a storage account does not currently participate in any cross-tenant object replication policies, then setting the AllowCrossTenantReplication property to false prevents future configuration of cross-tenant object replication policies with this storage account as 
-the source or destination. 
+If a storage account does not currently participate in any cross-tenant object replication policies, then setting the AllowCrossTenantReplication property to false prevents future configuration of cross-tenant object replication policies with this storage account as the source or destination. 
 
 > case2: `AllowCrossTenantReplication` = `false`.
 if a storage account currently participates in one or more cross-tenant object replication policies, then setting the AllowCrossTenantReplication property to false 
@@ -13024,7 +13023,7 @@ if a storage account currently participates in one or more cross-tenant object r
 **must include the full Azure Resource Manager IDs for the source and destination account**.
 **Azure Storage requires the full resource ID to verify whether the source and destination** **accounts reside within the same tenant**.
 
-> Rewuired roles to set `AllowCrossTenantReplication` = `false`
+> Required roles to set `AllowCrossTenantReplication` = `false`
 
 - The Azure Resource Manager Owner role
 - The Azure Resource Manager Contributor role
@@ -13064,7 +13063,6 @@ If you have a large number of storage accounts, you may want to perform an audit
 }
 ```
 
-
 ---
 
 The following have already been discussed in one of the precious questions:
@@ -13073,18 +13071,17 @@ The following have already been discussed in one of the precious questions:
 
 [Configure object replication for block blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-configure?tabs=portal)    
 
-
 ---
 
 ## Q59:
 
-You rae a cloud engineer in a global company with offices around the world.
-The organization uses Azure to hist its infrastructure including file shares.
-It use Premium-ZRS accounts as well as Azure Files workloads.
+You are a cloud engineer in a global company with offices around the world.
+The organization uses Azure to host its infrastructure including file shares.
+It uses Premium-ZRS accounts as well as Azure Files workloads.
 
 The company is planning to open new offices in the Azure Europe UK South Region.
 
-You need to decide which option fro Azure Storage should be used based on
+You need to decide which option for Azure Storage should be used based on
 Micorsoft recommendantion.
 
 - LRS with 3 replications
@@ -13109,7 +13106,7 @@ durability of ZRS in case of a world wide scenario like this one.
 
 ## Q58:
 
-You work for a company that has a Azure sbscription and 
+You work for a company that has a Azure subscription and 
 a separate SA for each department.
 
 A member of the Marketing team has downloaded Azure Storage Explorer
@@ -13121,7 +13118,7 @@ following error:
 
 The user has Contributor Access to the SA.
 You must provide them the necessary access to the subscription in order 
-to resove this error and apply the principle of least privilege.
+to resolve this error and apply the principle of least privilege.
 
 What role should you assign to the user at the subscription level?
 
@@ -13137,7 +13134,7 @@ What role should you assign to the user at the subscription level?
 - Reader
 
 **The user has Contributor Access to the SA**.
-This arror is caused because this user lack sufficient permissions at the
+This error is caused because this user lack sufficient permissions at the
 subscription level.
 The need to be able to **list all the storage accounts in the subscription**.
 
@@ -13182,7 +13179,7 @@ that is sent by Microsoft to your on-premise snd then set up in order to
 import large amount of data into Azure.
 **Micorsoft recommends using Data Box for cases over 40 TB of data**.
 
-The following are obviouslu unsuitable:
+The following are obviously unsuitable:
 - AzCopy
 - Azure Storage Explorer
 - PowerShell
@@ -13204,7 +13201,7 @@ when you need to be able to export data out of Azure due to government or securi
 - Migrate back to on-premises or to another cloud service provider
 when you want to move all the data back to on-premises, or to another cloud service provider, export data via Data Box to migrate the workloads.
 
-> Scebarios:
+> Scenarios:
 
 - Onetime migration - when a large amount of on-premises data is moved to Azure.
 Moving a media library from offline tapes into Azure to create an online media library.
@@ -13217,13 +13214,14 @@ when an initial bulk transfer is done using Data Box (seed) followed by incremen
 For example, backup solutions partners such as Commvault and Data Box are used to move initial large historical backup to Azure. Once complete, the incremental data is transferred via network to Microsoft Azure Storage.
 
 - Periodic uploads
-when large amount of data is generated periodically and needs to be moved to Azure. For example in energy exploration, where video content is generated on oil rigs and windmill farms.
+when large amount of data is generated periodically and needs to be moved to Azure. 
+For example in energy exploration, where video content is generated on oil rigs and windmill farms.
 
 ---
 
 ## Q56:
 
-Your aorganization hosts resources as IaaS Azure and on-premise.
+Your organization hosts resources as IaaS Azure and on-premise.
 You have an existig **Azure File Network File System v4.1 (NFSv4.1)** share.
 This uses LRS.
 
@@ -13276,8 +13274,7 @@ If you're familiar with Hadoop or HDInsight, you can attach both the source stor
 
 ## Q55:
 
-An organization is in the process of migrating its reources iniot Azure
-from on-premise.
+An organization is in the process of migrating its reources in Azure from on-premise.
 You plan to use AzCopy to migrate Blob Storage blobs.
 Company policy forbids using SAS tokens.
 
@@ -13295,13 +13292,13 @@ to accomplish the migration of blobs to Blob Storage.
 ### Answer:
 - Microsoft Entra ID
 
-In one of the previous questions it iis discussed that the following
+In one of the previous questions it is discussed that the following
 are the authorization method that are supported with AzCopy to copy
 blobs to a Blob Storage:
 - Microsoft Entra ID
 - SAS
 
-All the remining options for authorization are not supported with AzCopy:
+All the remaining options for authorization are not supported with AzCopy:
 - Microsoft Entra Domain Services
 - AD Domain Services
 - anonymous public read
@@ -13358,12 +13355,13 @@ The GPv2 supports hot, cood and archive tiers
 AND
 automatic lifecycle management setup.
 
-**GPv1** would not be suitable here as it does not suppoert storage tiers.
+**GPv1** would not be suitable here as it does not support storage tiers.
 
 `-sku Standard_GRS`:
 copies your data synchronously three times 
 **within a single physical location in the primary region**. 
-It then copies your data asynchronously to a single physical location in the secondary region. Within the secondary region, your data is copied synchronously three times.
+It then copies your data asynchronously to a single physical location in the secondary region. 
+Within the secondary region, your data is copied synchronously three times.
 
 The `Premium_ZRS` would also work but it is more expensive than `Standard_GRS`
 therefore it does not minimize costs.
@@ -13460,11 +13458,11 @@ The time taken for policy actions to complete depends on the number of blobs eva
 ## Q53:
 
 You plan to configure object replication between SAs in two different regions.
-You must enusre that Azure SA features are configured to support object replication.
+You must ensure that Azure SA features are configured to support object replication.
 Minimize admin effort.
 
 Change Feed: OPTIONS
-Blob vesrioning: OPTIONS
+Blob versioning: OPTIONS
 
 OPTIONS:
 Destination account only
@@ -13476,7 +13474,7 @@ source & destination account
 ### Answer:
 
 Change Feed: source account only
-Blob vesrioning: source & destination account
+Blob versioning: source & destination account
 
 > Change Feed: source account only
 The **change feed provides transaction log support** for changes made 
@@ -13492,7 +13490,7 @@ This change log feed is:
 
 it enables **robust block blob replication** from source to destination SA.
 
-> Blob vesrioning: source & destination account
+> Blob versioning: source & destination account
 
 This is necessary to automatically maintain previous versions of blob objects.
 It provides a path to restore previous versions of a blob.
@@ -13750,9 +13748,6 @@ Which redundancy option should you configure?
 - ZRS : Zone Redundant Storage
 - GRS : Geo Redundant Storage
 
-
-
-
 ---
 
 ### Answer:
@@ -13777,7 +13772,8 @@ It then copies your data asynchronously to a single physical location in the sec
 - GZRS: Geo-zone Redundant Storage
 The GZRS adds on top of GRS **data durability**.
 **copies your data synchronously across three Azure availability zones in the primary region**. 
-It then copies your data asynchronously to a single physical location in the secondary region. Within the secondary region, your data is copied synchronously three times.
+It then copies your data asynchronously to a single physical location in the secondary region. 
+Within the secondary region, your data is copied synchronously three times.
 
 ---
 
@@ -13909,7 +13905,6 @@ update of any file shared between share1 and share2 is retained in both shares.
 
 Any other otions do not apply.
 
-
 ---
 
 ### References:
@@ -13954,13 +13949,11 @@ However, AzCopy does set up and monitor each transfer, and for larger storage ac
 **Therefore, if you are running AzCopy from Virtual Machine (VM)**
 **make sure that the VM has enough cores/memory to handle the load**.
 
-
-
 ---
 
 ## Q49:
 
-Your company uses Micorsoft Entra ID and Azure File Shares.
+Your company uses Microsoft Entra ID and Azure File Shares.
 You use the standard file shares (GPv2) with Geo-Zone Redundant Storage (GZRS).
 
 You need to configure identity-based authentication for Server Message Block (SMB) access.
@@ -13989,9 +13982,9 @@ to support identity-based access to Azure file shares over SMB (Server Message B
 In this scenario, **Hybrid Users / Identities** in AD-DS  **that are synched to MEID** using the
 lightweight agent **ME-Connect sync** or **ME-Connect Cloud sync** sync.
 
-The **ME-Connect Cloud** is provided as an agent that can be istalled from the **Micorsoft Entra Admin Cebter**.
+The **ME-Connect Cloud** is provided as an agent that can be installed from the **Microsoft Entra Admin Center**.
 
-This set-up allows users from the on-prem environemnts who do not have line-of-sight to domain
+This set-up allows users from the on-prem environments who do not have line-of-sight to domain
 controllers from **Microsoft hybrid joined** and **Micorsoft Entra-joined** VMs to access
 Azure File Shares over the internet.
 
@@ -14004,10 +13997,12 @@ This option DOES NOT ALLOW:
 - users to access Azure File Share over the internet who do not have line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs)
 
 - use Microsoft Entra Domain Service authentication:
-This is not a viable option because it requires line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
+This is not a viable option because it requires line-of-sight to domain controllers 
+(Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
 
 - use Active Directory (AD) Kerberos authentication for Linux clients using on-prem AD DS or Micorsoft Entra DS
-Linux client can use Kerberos based auth but require line-of-sight to domain controllers (Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
+Linux client can use Kerberos based auth but require line-of-sight to domain controllers 
+(Microsoft Entra Hybrid joined & Microsoft Entra-joined VMs) 
 
 ---
 
@@ -14115,7 +14110,7 @@ Microsoft Entra Connect is an on-premises Microsoft application.
 ## Q48:
 
 You are an Azure admin for a manufacturing organization.
-You are suing SAS to configure control over the SA.
+You are using SAS to configure control over the SA.
 
 You create a SAP (Storage Access Policy) as an additional level of control over SAS
 on the server side for File Shares.
@@ -14165,6 +14160,7 @@ Authorization: SharedKey myaccount:V47F2tYLS29MmHPhiR8FyiCny9zO5De3kVSF0RYQHmo=
   </SignedIdentifier>  
 </SignedIdentifiers>
 ```
+
 ---
 
 ## Q47:
@@ -14180,12 +14176,12 @@ without interrupting the connection with app1.
 How should you complete the command?
 
 ```
-key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 OPTIONS-1)
+key=$(az storage account keys list --resource-group rg1 --account-name storage1 OPTIONS-1)
 az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
 
 az storage account keys renew --resource-group rg1 - --account-name storage1 OPTIONS-2
 
-key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 OPTIONS-3)
+key=$(az storage account keys list --resource-group rg1 --account-name storage1 OPTIONS-3)
 az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
 
 az storage account keys renew --resource-group rg1 - --account-name storage1 OPTIONS-4
@@ -14204,7 +14200,7 @@ OPTIONS-1,..,4:
 
 ```
 # take key2 first
-key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 query[1].value)
+key=$(az storage account keys list --resource-group rg1 --account-name storage1 query[1].value)
 
 # swap the key1 with key2 in the app 
 az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
@@ -14213,7 +14209,7 @@ az webapp config appsettings set --resource-group rg1 --name app1 --settings STO
 az storage account keys renew --resource-group rg1 - --account-name storage1 --key primary
 
 # take the new key1 that you have jusr regenerated
-key=$(az storage account keys list --resoyrce-group rg1 --account-name storage1 query[0].value)
+key=$(az storage account keys list --resource-group rg1 --account-name storage1 query[0].value)
 
 # swap the key2 with the new key1 in the app 
 az webapp config appsettings set --resource-group rg1 --name app1 --settings STORAGE_ACCOUNT_KEY=$key
@@ -14268,8 +14264,6 @@ Which six actions should you perform in sequence?
 ---
 
 ### References:
-
----
 
 ---
 
@@ -14384,7 +14378,7 @@ This happens because the SAS is configured to grant R/W/List on blobs and NOT Fi
 ## Q43:
 
 You create a BLOB (Binary Large Object) storage acount `reportstorage99`
-that contains achival reports from past corporate board meetings.
+that contains archival reports from past corporate board meetings.
 
 
 A board member requests access to a specific report.
@@ -14404,7 +14398,7 @@ What should you do?
 ---
 
 ### Answer:
-- Generate a SAS token for the report and share the URL eith the board member
+- Generate a SAS token for the report and share the URL with the board member
 This is the obvious answer.
 In particular SAS is the ONLy way that a SA allows access to a INDIVIDUAL resource,
 RBAC cannot be used to cover this scenario!
@@ -14442,7 +14436,7 @@ in an Azure Storage Account.
 This app will be installed on end users' computers.
 
 You need to ensure that he information stored in the SA is accessed in a secure way.
-You ask the developers to use SAS when accessing info on te SA.
+You ask the developers to use SAS when accessing info on the SA.
 Yo must make the required configurations on the SA to follow security best 
 practices and enable access to the SA with immediate effect.
 
@@ -14485,8 +14479,6 @@ To modify the parameters of a stored access policy, you can call the access cont
 - delete it
 - rename it by changing the signed identifier
 - or change the expiry time to a value in the past.
-
-
 
 ---
 
@@ -14665,7 +14657,7 @@ Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myResourceGroup" -Name
 ```
 
 `-Bypass None`: is used to remove access to the SA from any Azure Service.
-`-Bypass  Logging,Metrics`: is used to allow logging and metrice of the SA to be collected in Azure.
+`-Bypass  Logging, Metrics`: is used to allow logging and metrics of the SA to be collected in Azure.
 
 ---
 
@@ -15033,8 +15025,7 @@ You need to test Azure Policy first.
 
 You have downloaded version 2.38 of Azuire CLI to configure new policies. 
 
-You find that the Azure Policies you create do not work with your 
-subscription.
+You find that the Azure Policies you create do not work with your subscription.
 
 What is the cause of the problem?
  
@@ -15046,7 +15037,7 @@ What is the cause of the problem?
 ---
 
 ### Answer:
-- you have not resistered the Azure Policy Insights Resource Provider
+- you have not registered the Azure Policy Insights Resource Provider
 
 `Microsoft.PolicyInsights` must be registered in your Azure subscription. To register a resource provider, you must have permission to register resource providers. 
 
@@ -15089,7 +15080,7 @@ wants to block anyone from deleting ther `devtest-rg` an any
 of its resources,**without having to add any type of resource lock**
 **at subscriotion level**.
 
-You must recommend a solution to facuilitate this requirement.
+You must recommend a solution to facilitate this requirement.
 You muts minimize admin effort.
 
 What should you recommend?
@@ -15117,7 +15108,7 @@ Refer to previous questions and answers for the details.
 
 a company hosts resources in Azure and Microsoft 365.
 A storage account was recently created for the Marketing department
-but it was not picked in the monlthly usage report.
+but it was not picked in the monthly usage report.
 Further investigation shows that no resource tags were configured
 for this SA when it was created.
 
@@ -15173,7 +15164,7 @@ New-AzTag -ResourceId /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Tag $
 A company has a Microsoft Entra Tenant.
 A recent governance audit for the ME-Tenant has found that all users currently 
 have the ability to create management groups within the tenant.
-Tou need to enable **hierarchy protection** so that only admins can create 
+You need to enable **hierarchy protection** so that only admins can create 
 managemnent groups.
 
 You need to create a JSON script to set the relevant permission levels
@@ -15182,14 +15173,14 @@ to ensure that standard users are no longer allowed to create MGs.
 Which ooperation do you need to set in your JSON file to meet the goal?
 
 - Microsoft.Management/managementGroups/delete
-- Microsoft.Management/managementGroups/subscriptios/write
+- Microsoft.Management/managementGroups/subscription/write
 - Microsoft.Management/managementGroups/read
 - Microsoft.Management/managementGroups/write
 
 ---
 
 ### Answer:
-
+`Microsoft.Management/managementGroups/write` 
 ---
 
 ### References:
