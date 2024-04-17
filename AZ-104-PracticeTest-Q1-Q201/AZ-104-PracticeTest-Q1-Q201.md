@@ -15264,11 +15264,11 @@ What should you do?
 The VMs are licensed under two 16-core licences.
 This lets you run two 8-core VMs on each license either in Azure or on-prem, that is 
 you can split the license into two 8-core VMs the way you prefer it.
-In contrast, the **Windows Styandard License** allow to run a VM each either on-prem or Azure. (?)
+In contrast, the **Windows Standard License** allow to run a VM each either on-prem or Azure. (?)
 
 The remanining options do not apply:
 
-- configure Reserved Instances for th VMs
+- configure Reserved Instances for the VMs
 This is a **one-year or three-year agreemnet** and is best suited to VMs that are run continuosly.
 In this case the usage is intermittent on a as-needed basis therefore a pay-as-you-go model
 is preferable as it may save costs.
@@ -15310,10 +15310,10 @@ Workloads using Azure Hybrid Benefit can run only during the Software Assurance 
 ## Q32:
 
 Your Azure subscription has multiple RGs that host project-level resources.
-All team members that usethe subscription have contributor access 
+All team members that use the subscription have contributor access 
 at the subscription level and are allowed to manage resources for all projects.
 
-The `company1-network-rg` contains all the newtowr resources such as
+The `company1-network-rg` contains all the network resources such as
 VNets, NSGs, DNS Zones, Route Tables.
 
 As the need arises, network admins add new DNS entries and routes 
@@ -15321,7 +15321,7 @@ and create additional subnets and NSGs.
 
 You must ensure that no security member, including network admins can
 delete any resources hosted in `company1-network-rg`.
-The solution must provide minimal onging admin effort.
+The solution must provide minimal ongoing admin effort.
 
 What shouuld you do?
 
@@ -15350,7 +15350,7 @@ This would prevent the delition of the RG but not the deletion of the resources 
 - create a custom role that denies delete for Vnet, NSG, DNS Zones, Route Tables 
   resource types.
   apply this new role to a security group and add all users to this SG. 
-Obvuously, this is not maintanable!
+Obviously, this is not maintanable!
 
 ---
 
@@ -15365,7 +15365,7 @@ You develop a policy that will deny the creation of any resource that
 does not have an environment tag with a value of either dev, qa, prod.
 
 You must ensure that only resources that support tagging are subject 
-to thsi policy.
+to this policy.
 
 Complete the JSON policy template.
 
@@ -15387,7 +15387,7 @@ Complete the JSON policy template.
       "if": {
         "not": {
           "field": "OPTIONS-2",
-          "OPTIONS-3": "{dev. qa, prod}"
+          "OPTIONS-3": "{dev, qa, prod}"
           
           //"field": "[concat('tags[', parameters('tagName'), ']')]",
           //"equals": "[parameters('tagValue')]"
@@ -15438,7 +15438,7 @@ notIn
       "if": {
         "not": {
           "field": "[tag[Enviroment]]",
-          "notIn": "{dev. qa, prod}"         
+          "notIn": "{dev, qa, prod}"         
           
         }
       },
@@ -15468,7 +15468,7 @@ Environment
 tag:Enviroment
 [tag[Enviroment]]
 
-Tags on a resource are an array ov objects with each having a name and a value.
+Tags on a resource are an array of objects with each having a name and a value.
 
 `"effect": "deny"`
 OPTIONS-3: equals | notContains | notIn
@@ -15491,7 +15491,7 @@ You have a storage accounts in your Azure subscription for different purposes.
 The SAs have blob containers and file shares.
 
 Some users access these SAs by using the **Microsoft Storage Explorer Desktop App**.
-They report that they get the error message in the exhibit whn they try to browse
+They report that they get the error message in the exhibit when they try to browse
 the contents of the SA.
 
 You must resolve the issue.
@@ -15523,7 +15523,7 @@ the lock on the storage account doesn't protect blob, queue, table, or file data
 
 > If the request uses control plane operations: the lock protects those resources.
 
-The user oprocess for the the **Microsoft Storage Explorer Desktop App** needs to read 
+The user process for the the **Microsoft Storage Explorer Desktop App** needs to read 
 the access keys of the SA before listing the contents of the containers in it. 
 The access keys of the SA provide write access to all data in the SA and there is no 
 read only access key in the SA and in order to perform the listing of the contents of
@@ -15580,15 +15580,15 @@ type of incident in the future.
 
 What should you do?
 
-- consfigure a read-only lock on TST01-rg and TST02-rg
-- consfigure a delete lock on TST01-rg and TST02-rg
-- consfigure a read-only lock on the subscription
-- consfigure a delete lock on the subscription
+- configure a read-only lock on TST01-rg and TST02-rg
+- configure a delete lock on TST01-rg and TST02-rg
+- configure a read-only lock on the subscription
+- configure a delete lock on the subscription
 
 ---
 
 ### Answer:
-- consfigure a delete lock on the subscription
+- configure a delete lock on the subscription
 
 A delete lock can be used at the follwing levels:
 - resource
@@ -15669,7 +15669,6 @@ What should you do?
 - define and deply an Azure Automation Desired State Configuration (DCS)
 - define and deploy a custom Azure Policy template
 
-
 ---
 
 ### Answer:
@@ -15679,7 +15678,7 @@ The remaining options do not apply:
 
 - create an Azure management group
 - enforce conditional access policy in Microsoft Entra ID
-- define and deply an Azure Automation Desired State Configuration (DCS)
+- define and deploy an Azure Automation Desired State Configuration (DCS)
 
 
 ---
@@ -15775,7 +15774,7 @@ Commonly applie
 You build a new Marketing solution in an Azure RG called RG1.
 RG1 has an existing tag with the name Department and its value is Marketing.
 
-You plan to use **SAzure Cloud Shell** to add another tag to RG1
+You plan to use **Azure Cloud Shell** to add another tag to RG1
 with the name Status and the value Approved.
 
 You must ensure that RG1's existing tag is preserved.
@@ -15960,7 +15959,8 @@ they don't restrict how a resource performs its functions.
 
 > For example: 
 
- A **ReadOnly lock** on an **SQL Database logical server**, protects it from deletions or modifications. It allows you to create, update, or delete data in the server database. 
+ A **ReadOnly lock** on an **SQL Database logical server**, protects it from deletions or modifications. 
+ It allows you to create, update, or delete data in the server database. 
  Data plane operations allow data transactions.
 
 [Considerations before applying your locks](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json#considerations-before-applying-your-locks)  
@@ -16026,10 +16026,6 @@ Azure RBAC assignments.
 A **cannot-delete lock on a resource group** prevents Azure Resource Manager from 
 automatically deleting deployments in the history. 
 > If you reach 800 deployments in the history, your deployments fail.
-
-
-
-
 
 ---
 
@@ -16223,23 +16219,17 @@ New Custom Property
 
 > [Example 12: Create calculated properties for each InputObject](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/select-object?view=powershell-7.4#example-12-create-calculated-properties-for-each-inputobject)  
 
-
-```
-```
-
----
-
 ---
 
 ## Q24:
 
 You deploy an application in a RG named App-RG01 in your subscription.
 
-App-RG01 coontains the following components:
+App-RG01 contains the following components:
 
 - two App Services each with a free App Service managed SSL certificate
 - a peered VNet
-- Redic cache deployed in the VNte
+- Redis cache deployed in the VNet
 - a standard ALB
 
 You must move all the resources in App-RG01 to a new RG named App-RG02.
@@ -16260,7 +16250,7 @@ Yes
 
 It is not possible to move an App Service that uses a **free** SSL certificate.
 The SSL certificate must be deleted first, then the App Service can be moved to 
-the destibnbation RG and a new free certificate can be configured with the App Service.
+the destination RG and a new free certificate can be configured with the App Service.
 
 - you can move the ALB only within the same subscription
 No
@@ -16269,10 +16259,9 @@ The ALB must be recreated and re-configured.
 
 - you need to disable the peer before movinng the VNet
 Yes
-The peering **must be disabled before THE vnET moving to the destination RG**.
-Whe a VNet is moved to a new RG then all its contanied VMs and other resources
+The peering **must be disabled before the Vnet moving to the destination RG**.
+When a VNet is moved to a new RG then all its contanied VMs and other resources
 must be moved as well.
-
 
 - you can move the VNet within the same subscription
 Yes
@@ -16307,7 +16296,7 @@ They need to gain better understanding of the cost structure
 so they can assign to the correct cost center.
 
 You must provide cost center information.
-Your soulution must minimize admin effort.
+Your solution must minimize admin effort.
 
 Which two actions should you perform?
 
@@ -16341,7 +16330,7 @@ The following do not apply:
 
 - instruct the accounting department to use the Cost Analysis blade in the subscription panel
 In this case the subscription **is managed by a cloud service provider**
-therefor the accounting departemnt does not have access to this blade in the Portal! 
+therefore the accounting departemnt does not have access to this blade in the Portal! 
 This could have been the simplest solution but it is not applicable here.
 
 - instruct the accounting department to use Azure Accounting Center
@@ -16349,11 +16338,11 @@ This could have been the simplest solution but it is not applicable here.
 [How Cost Management and Billing relate](https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview#how-cost-management-and-billing-relate)  
 
 > **Cost Management**: 
-is a set of FinOps tools that enable you to analyze, manage, and optimize your costs. Cost Management is available from within the Billing experience.
+is a set of FinOps tools that enable you to analyze, manage, and optimize your costs. 
+Cost Management is available from within the Billing experience.
 
 > **Billing**: 
-provides all the tools you need to manage your billing account 
-and pay invoices.
+provides all the tools you need to manage your billing account and pay invoices.
 
 > [Cost Analysis - Quickstart: Start using Cost analysis](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/quick-acm-cost-analysis)  
 
@@ -16424,11 +16413,11 @@ This is the script that works:
 ```
 $r = Get-AzResource -ResourceName "corpstorage99" `
 -ResourceGroupName "prod-rg" 
-$r.Tags.Add("Dept"."IT")
+$r.Tags.Add("Dept","IT")
 Set-AzResource -Tag $r.Tags -ResourceId $r.ResourceId -Force
 ```
 
-> The `Set-AzResource` owirride any existing tags on the resource!
+> The `Set-AzResource` override any existing tags on the resource!
 
 The remainign options do not apply:
 
@@ -16481,20 +16470,21 @@ For each of the following statements select Yes (True) or No (False).
 
 The first effect of a policy to be evaluated is the **Disabled** effect.
 The **Disabled** effect allows the editor of the policy to use paramter to decide
-whether the policy should nto should not be evaluated.
+whether the policy should or should not be evaluated.
 
 The order fo evaluation is:
 
 > Disable Effect > Append Effect > Deny Effect > Audit Effect
 
 [Disabled](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#disabled)
-This effect is useful for testing situations or for when the policy definition has parameterized the effect. This flexibility makes it possible to disable a single assignment instead of disabling all of that policy's assignments.
+This effect is useful for testing situations or for when the policy definition has parameterized the effect.
+This flexibility makes it possible to disable a single assignment instead of disabling all of that policy's assignments.
 Policy definitions that use the Disabled effect have the default compliance state Compliant after assignment.
 
 An alternative to the Disabled effect is **enforcementMode**.
 This is which is set on the policy assignment. 
 When enforcementMode is Disabled, resources are still evaluated. 
- Logging, such as Activity logs, and the policy effect don't occur. 
+Logging, such as Activity logs, and the policy effect don't occur. 
 
 [Deny](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects#deny)
 Deny is used to prevent a resource request that doesn't match defined standards through a policy definition and fails the request.
@@ -16582,8 +16572,6 @@ Mutate
 
 ---
 
----
-
 ## Q20:
 
 You have been tasked with assigning RBAC roles to users in your company.
@@ -16599,7 +16587,6 @@ az role assignment OPTIONS-1 OPTIONS-2 \
 --assignee UserA@myorg.com \
 --output json \
 --query `[].{principalName: principalName, roleDefinitionName: roleDefinitionName, scope: scope}` 
-
 ```
 
 OPTIONS-1:
@@ -16637,6 +16624,12 @@ OPTIONS-2:
 - --include-inherited: include the role assignments on the parent scopes
 - --include-classic-administrators: for classic administrator & co-admin roles
 
+```
+az role assignment list --include-goups \
+--assignee UserA@myorg.com \
+--output json \
+--query `[].{principalName: principalName, roleDefinitionName: roleDefinitionName, scope: scope}` 
+```
 
 ---
 
@@ -16703,9 +16696,9 @@ There are 4 possible scopes for RBAC:
 - subscription
 - management group
 
-In thsis case the `-ResourceGroupNane medicine-sales` specifies the RG sope.
+In this case the `-ResourceGroupNane medicine-sales` specifies the RG sope.
 
-- the roles lest you manage VMs, but not manage access to Virtual Network or the Storage Account
+- the roles lets you manage VMs, but not manage access to Virtual Network or the Storage Account
   the VMs are connected to
 Yes
 
@@ -16790,8 +16783,9 @@ obviosly too wide!
 
 You are the administrator for your Azure subscription.
 Your company hires a new cloud engineer.
-The cloud engineer needs to manage other engineers' access to Azure resources.
-You must follow th eprinciple of least privilege.
+The cloud engineer needs to manage other engineers' 
+access to Azure resources.
+You must follow the principle of least privilege.
 
 Which role should you assign to the new engineer?
 
@@ -16825,10 +16819,8 @@ The other options do not apply in this case
 This is one of the **old (classic) roles** and it is equivalent to: Owner of RBAC.
 
 > User Administrator [Microsoft Entra ID Role]:
-This is a **Microsoft Entra ID Administrator Role** and **does not** control access to 
-any resource on a scope (subscription). This roles grants permissions to manage users
-on the MEID tenant that is associated to the subscription.
-
+This is a **Microsoft Entra ID Administrator Role** and **does not** control access to any resource on a scope (subscription). 
+This roles grants permissions to manage users on the MEID tenant that is associated to the subscription.
 
 ---
 
