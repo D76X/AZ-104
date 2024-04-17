@@ -7226,8 +7226,6 @@ As soon as you apply the routing table to the virtual network, traffic gets forw
 **You must configure the routing table in the virtual appliance to forward the traffic**, in a manner that is 
 appropriate for your environment.
 
-
-
 --- 
 
 [Virtual network traffic routing](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview)    
@@ -7236,7 +7234,7 @@ appropriate for your environment.
 
 ## Q127:
 
-You have a VNet `corp-net` that has been recently deployed with the follwoing properties:
+You have a VNet `corp-net` that has been recently deployed with the following properties:
 
 - address range:    172.16.0.0/16
 - front-end subnet: 172.16.2.0/24
@@ -7260,7 +7258,7 @@ What should you do?
 ### Answer:
 - remove and redeploy `corp-vnet`
 **The definition of a VNet and its subnets is immutable**.
-The delition of a VNet **requires** the delition of its subnets firts!
+The deletion of a VNet **requires** the deletion of its subnets firts!
 In this scenario a complete redeploy is the simplest solution available.
 
 ---
