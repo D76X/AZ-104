@@ -10962,10 +10962,6 @@ All HBv4-series VMs feature:
 There are also the following series:
 
 
-
-
-
-
 ---
 
 *** Bicep End ***
@@ -10974,8 +10970,8 @@ There are also the following series:
 
 You are an Azure admin and deploy Azure resource with Bicep.
 You want to use Lamba functions to hadle an array.
-Yiu need to convert an array to an object with a custom key function
-and optional custom value function to produce the follwoing output.
+You need to convert an array to an object with a custom key function
+and optional custom value function to produce the following output.
 
 `{"MrFunny":{"name":"MrFunny","age":2},"MrNaughty":{"name":"MrNaughty","age":3},}`
 
@@ -10996,15 +10992,73 @@ var cats = [
 output twocats object = OPTIONS (cats, entry=>entry.name)
 ```
 
+OPTIONS: toObject | sort | reduce | map
+
+
 ---
 
-### Answer:
+### Answer: toObject
 
 ---
 
 ### References:
 
+[Lambda functions for Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-functions-lambda)  
 
+Bicep are essentially blocks of code that can be passed as an argument. 
+
+`<lambda variable> => <expression>`
+
+> Limitations:
+
+Using lambda variables (the temporary variables used in the lambda expressions) inside resource or module array access isn't currently supported.
+
+Using lambda variables inside the listKeys function isn't currently supported.
+
+Using lambda variables inside the reference function isn't currently supported.
+
+Lambda expression can only be specified directly as function arguments in these functions: 
+
+- filter()
+filter(inputArray, lambda expression)
+output oldDogs array = filter(dogs, dog => dog.age >=5)
+
+- map()
+Applies a custom mapping function to each element of an array.
+map(inputArray, lambda expression)
+
+```
+output dogNames array = map(dogs, dog => dog.name)
+output sayHi array = map(dogs, dog => 'Hello ${dog.name}!')
+output mapObject array = map(range(0, length(dogs)), i => {
+  i: i
+  dog: dogs[i].name
+  greeting: 'Ahoy, ${dogs[i].name}!'
+})
+```
+
+- reduce()
+Reduces an array with a custom reduce function.
+reduce(inputArray, initialValue, lambda expression)
+```
+var ages = map(dogs, dog => dog.age)
+output totalAge int = reduce(ages, 0, (cur, next) => cur + next)
+output totalAgeAdd1 int = reduce(ages, 1, (cur, next) => cur + next)
+```
+
+- sort()
+sort(inputArray, lambda expression)
+output dogsByAge array = sort(dogs, (a, b) => a.age < b.age)
+
+- toObject():
+toObject(
+  inputArray, 
+  lambda expression to provide the key predicate, 
+  [lambda expression to provide the value]
+  )
+
+`output twocats object = toObject(cats, entry=>entry.name)`
+`output dogsObject object = toObject(dogs, entry => entry.name, entry => entry.properties)`
 ---
 
 ## Q89:
@@ -11038,16 +11092,96 @@ resource otherZone 'Microsoft.Network/dnszones@2023-06-01' = {
 For each statement select Yes/No
 
 - the resource named otherResource is implicitly dependent on PrimaryDnsZome
-- the resource named otherZoe is implicitly dependent on PrimaryDnsZome
+- the resource named otherZone is implicitly dependent on PrimaryDnsZome
 - Azure Resource Manager deploys the PrimaryDnsZone and otherZone resources in parallel
 
 ---
 
 ### Answer:
 
+- the resource named otherResource is implicitly dependent on PrimaryDnsZome
+yes
+
+- the resource named otherZone is implicitly dependent on PrimaryDnsZome
+no
+
+- Azure Resource Manager deploys the PrimaryDnsZone and otherZone resources in parallel
+no
+
+There are two kinds of resource dependencies in Bicep:
+
+- implicit:
+when a resorce declaration refrences aonethor in the smae deployment
+
+- explicit:
+when the `dependOn: [resouceName]` syntx is used.
+
+It is olso possible to use the operator `::` to reach nested dependencies.
+
 ---
 
 ### References:
+
+[Resource dependencies in Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/resource-dependencies)  
+
+```
+resource myParent 'My.Rp/parentType@2023-05-01' = {
+  name: 'myParent'
+  location: 'West US'
+
+  // implicit dependency on 'myParent'
+  resource myChild 'childType' = {
+    name: 'myChild'
+  }
+}
+```
+
+```
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'examplestorage'
+  location: resourceGroup().location
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource service 'Microsoft.Storage/storageAccounts/fileServices@2022-09-01' = {
+  name: 'default'
+  parent: storage
+}
+```
+
+[::operator](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/operators-access#nested-resource-accessor)  
+
+> parentResource::nestedResource
+
+```
+resource demoParent 'demo.Rp/parentType@2023-01-01' = {
+  name: 'demoParent'
+  location: 'West US'
+
+  // Declare a nested resource within 'demoParent'
+  resource demoNested 'childType' = {
+    name: 'demoNested'
+    properties: {
+      displayName: 'The nested instance.'
+    }
+  }
+
+  // Declare another nested resource
+  resource demoSibling 'childType' = {
+    name: 'demoSibling'
+    properties: {
+      // Use symbolic name to reference because this line is within demoParent
+      displayName: 'Sibling of ${demoNested.properties.displayName}'
+    }
+  }
+}
+
+// Use nested accessor to reference because this line is outside of demoParent
+output displayName string = demoParent::demoNested.properties.displayName
+```
 
 ---
 
@@ -11086,10 +11220,10 @@ Which two resources should you use?
 
 ## Q87:
 
-An RG was deplyed from an ARM template.
-Resouirces have since been added to the RG and some also modified through the Azure Portal.
+An RG was deployed from an ARM template.
+Resources have since been added to the RG and some also modified through the Azure Portal.
 
-You need to create a new ARM template based on the curremnt state of the RG.
+You need to create a new ARM template based on the current state of the RG.
 
 Which PowerShell cmflet should you use?
 
@@ -11104,7 +11238,7 @@ Which PowerShell cmflet should you use?
 - Export-AzResourceGroup
 
 This cmdlet capture the deployment state of the RG as it is and produces a 
-ARM templatethat replicates the resources as they are presently ion the RG. 
+ARM template that replicates the resources as they are presently on the RG. 
 
 The remaining options do not apply:
 
