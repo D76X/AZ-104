@@ -6724,7 +6724,7 @@ Add-AzVirtualNetworkPeering -Name `vnet2-vnet1` `
 
 You must configure a subnet named `subnet1` that is part of a Vnet named `vnet1`.
 Hosts on `subnet1` of `vnet1` must be able to reach resources on `vnet2` 
-and also to reach a **proxy server** that scans all outbount internet requests 
+and also to reach a **proxy server** that scans all outbound internet requests 
 from resources hosted on `subnet1`.
 
 The **proxy server** is hosted on your on-prem Vnet.
