@@ -11765,7 +11765,6 @@ What should you do?
 - use Export-AzResourceGroup
 - use Save-Get-AzResourceGroupDeploymentTemplate
 
-
 ---
 
 ### Answer:
@@ -11800,41 +11799,36 @@ It can potentially log and expose secrets like passwords used in the resource pr
 
 [Manage Azure resources by using Azure PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resources-powershell)  
 
-
 ---
 
 ## Q76:
 
-company1 has varous workloads runnign on Azure.
+company1 has various workloads running on Azure.
 In order to acces apps hosted on Azure all users of company1 autheticate to the
 `company1.com` tenant with Microsoft Entra. 
-**Microsoft Entra Connect Sync** is used with the on-porm AD.
+**Microsoft Entra Connect Sync** is used with the on-prem AD.
 
-company2 own the Azure tenant `company2.com`.
-
+company2 owns the Azure tenant `company2.com`.
 company2 signs an agreement with company1.
+
 Five users from company2 need access to a number of apps hosted on `company1.com`.
-company2 users should laso be able to use SSO to access `company1.com` resources
-useing their `company2.com` credentials.
+company2 users should also be able to use SSO to access `company1.com` resources
+using their `company2.com` credentials.
 
 You need to implement a solution quickly and at no costs.
-
 What should you do?
 
 - enable B2C authetication to allow the five uses from company2 to use their outlook.com email addresses to access the app on  `company1.com`
 
-- add five company2 users principal namens UPNs as guest users on the `company1.com` tenant
+- add five company2 users principal names UPNs as guest users on the `company1.com` tenant
 
 - configure ADFS at company1 to federate thet five company2 users to a utheticate with the company2 AD
 
 - create user accounts for the five users from company2 in the company1 on-prem AD
-
-
-
 ---
 
 ### Answer:
-- add five company2 users principal namens UPNs as guest users on the `company1.com` tenant
+- add five company2 users principal names UPNs as guest users on the `company1.com` tenant
 
 adding these 5 UPN to `company1.com` as guest and sending them an invitation provides them 
 with SSO and it is the easiest solution.
@@ -11842,15 +11836,15 @@ with SSO and it is the easiest solution.
 The remaining options do not apply:
 
 - enable B2C authetication to allow the five uses from company2 to use their outlook.com email addresses to access the app on `company1.com`
-This is not a goood solution because if any of these users left company2 theyy would still be able to access `company1.com`. They are not customers by themself the agreement is between
+This is not a goood solution because if any of these users left company2 they would still be able to access `company1.com`. They are not customers by themselves, the agreement is between
 the companies and you want that if any of this fives are removed from `company2.com`
 then their identities become invalid also in `company1.com`.
 
-- configure ADFS at company1 to federate thet five company2 users to a utheticate with the company2 AD
+- configure ADFS at company1 to federate their five company2 users to a utheticate with the company2 AD
 This is possible but fairly complex and expensive.
 
 - create user accounts for the five users from company2 in the company1 on-prem AD
-This would work also but it brakes the requirement that the five users need to use
+This would work also, but it breaks the requirement that the five users need to use
 SSO therefore they want to be able to autheticate to `company1.com` with the same
 credentials used on `company2.com`.
 
@@ -11903,23 +11897,22 @@ testing enviroment.
 
 The ARM template uses the `complete` deployment mode.
 
-Select Ye/No for each statement.
+Select Yes/No for each statement.
 
 - you need to export the ARM template from the latest deployment
 - each deployment contains only the resources that have been added in that deployment
 - that parameters file contains the values used during that deployment
 - the template contains thet scripts needed to deply the template
 
-
 ---
 
 ### Answer:
 
-
 - you need to export the ARM template from the latest deployment
 No
-The latest deployment contains only the resources that have been deplyed within the latest 
-deployment. In order to get the ARM template to deploy all the resources you must export 
+The latest deployment contains only the resources that have been deployed within the latest 
+deployment. 
+In order to get the ARM template to deploy all the resources you must export 
 the ARM template from the RG.
 
 - each deployment contains only the resources that have been added in that deployment
@@ -11928,7 +11921,7 @@ Yes
 - that parameters file contains the values used during that deployment
 Yes
 
-- the template contains thet scripts needed to deply the template
+- the template contains the scripts needed to deplOy the template
 No
 
 ---
@@ -11946,7 +11939,8 @@ When deploying your resources, you specify that the deployment is either
 - incremental update 
 - complete update
 
-**For both modes**, Resource Manager tries to create all resources specified in the template. **If the resource already exists** in the resource group and 
+**For both modes**, Resource Manager tries to create all resources specified in the template. 
+**If the resource already exists** in the resource group and 
 **its settings are unchanged, no operation is taken for that resource**.
 
 **If you change the property values for a resource, the resource is updated with those new values.**
@@ -11967,7 +11961,7 @@ In incremental mode, Resource Manager leaves unchanged resources that exist in t
 ## Q74:
 
 Your organization uses Azure Blobs for storing data.
-You enabke blob versioning for the SA.
+You enable blob versioning for the SA.
 You need to determine which write operations create a new version.
 
 Which 4 write ops create a new version?
@@ -11994,7 +11988,7 @@ this creates a new block, page or append blob or it updates the content of
 an existing block blob. Any metadata on the blob will be overwritten.
 
 - Put Block List
-writes a blob by soecifying the list of bloch IDs that make up the blob.
+writes a blob by specifying the list of block IDs that make up the blob.
 It allows to update a blob by uploading only those blocks that have changed
 and then committing the new blocks and the old one together as a new version.
 
@@ -12093,14 +12087,13 @@ You plan to migrate to Azure File Share and map the AFS to on-prem servers.
 
 The following is the current on-prem situation:
 
-
 | Server Name | OS WS:Windows Server | OPTION |
 | ----------- | -------------------- | ------ |
-| server1     | WS2022  | ? |
-| server2     | WS2022  | ? |
-| server3     | WS2016  | ? |
-| server4     | WS2019  | ? |
-| server5     | WS2012 R2  | ? |
+| server1     | WS2022               | ? |
+| server2     | WS2022               | ? |
+| server3     | WS2016               | ? |
+| server4     | WS2019               | ? |
+| server5     | WS2012 R2            | ? |
 
 Choose the correct option for each server:
 
@@ -12172,7 +12165,7 @@ You currently have three Azure SAs as shown below.
 | storage3  | GPv2    | 
 
 
-Currently, none of the existing SAa allows you to provision a premium file share,
+Currently, none of the existing SAs allows you to provision a premium file share,
 but your manager has asked you to provision one in the most cost-effective way possible.
 
 Select Yes/No.
@@ -12187,9 +12180,10 @@ Select Yes/No.
 
 - you should convert storage1 & storage3 to Premium SAa
 No
-- you should convert storage2 to Premium SAa
 
+- you should convert storage2 to Premium SAa
 No
+
 - you should create a new premium SA:
 Yes
 
@@ -12212,7 +12206,7 @@ There's no downtime or risk of data loss associated with upgrading to a general-
 You work for an organization that uses **Azure Virtual Desktop (AVD)**  to facilitate remote working.
 
 Your users have only local profiles, but you need to implement `FSLogix` to allow them to
-have netwoek profiles.
+have network profiles.
 
 You create an Azure File Share that stores user profiles and you configure the relevant
 file path onto each Windows 10 session host in the AVD pool.
@@ -12233,12 +12227,12 @@ What is the source of this problem?
 ### Answer:
 - users do not have the permission to access the Azure File Share
 
-Users taht log into the session host need R/W permissions to the Azure File Share.
-This is to allow a profile to be created and updated very time they log off.
-If a user does nto have the R/W permission thne theyr are logged in with a local profile
+Users that log into the session host need R/W permissions to the Azure File Share.
+This is to allow a profile to be created and updated every time they log off.
+If a user does not have the R/W permission thne they are logged in with a local profile
 on the Windows 10 session host and this does not save any changes made on the session.
 
-This is also why the admin can instead log on the session hist via the File Share.
+This is also why the admin can log on the session host via the File Share.
 It also proves that it is not the firewall tha blocks the communication to the Azure File Share
 and the loading of the profiles.
 
@@ -12302,8 +12296,8 @@ $cn = "container1"
 $ctx = New-AzStorageContext -StorageAccountName $sa -UseConnectedAccount
 New-AzStorageContainer -Name $cn -Context $ctx
 Set-AzStorageBlobContent -Container $cn `
--File "file1.xtx" `
--Blob "file1.xtx" `
+-File "file1.txt" `
+-Blob "file1.txt" `
 -Context $ctx `
 -StandardBlobTier cool
 ```
@@ -12348,9 +12342,9 @@ $Context = New-AzStorageContext -StorageAccountName "myaccountname" -UseConnecte
 
 ## Q68:
 
-You work at a company that hosts resource in Azure including a File Share.
-You are aseked to create a new VNet and a Azure File Share to be connected 
-to a new Windows Server 2019 VM  that must also be provisioned by you.
+You work at a company that hosts resources in Azure including a File Share.
+You are asked to create a new VNet and a Azure File Share to be connected 
+to a new Windows Server 2019 VM that must also be provisioned by you.
 
 You successfully provisioned:
 
@@ -12368,7 +12362,7 @@ You need to fix this error on the Winodws Server.
 What should you do?
 
 - unblock TCP 445
-- check that permission is configure correctly
+- check that permission is configured correctly
 - unblock port 2049
 - enable New Technology LAN Manager version 1 (NTLMv1)
 
@@ -12381,13 +12375,13 @@ The error: `System Error 67 has occured`
 is returned on Windows Server when TCP 445 is blocked.
 This prevents the Windows Server to communicate over SMB v3.0 to the Azure File Share.
 
-This was discussed wellin previous questions.
+This was discussed well in previous questions.
 
 The other options are not relevant in this case:
 
 `NTLMv1` should be already disabled on WS2019 if you enabled you would get the error:
 `System Error 53 has occured`
-when tryong to mount the SAzur File share.
+when trying to mount the Azure File share.
 Azure file share only support `NTLMv2`
 
 **TCP 2049** is used on Windows Server for **Network File Share (NFS)** protocol and not SMB.
@@ -12405,10 +12399,10 @@ Azure file share only support `NTLMv2`
 ## Q67:
 
 Your company has on-prem infrastructure and plans to move to IaaS in Azure.
-You plan to migrate the erachice data to Azure Blob Storage and you have used
+You plan to migrate the erchive data to Azure Blob Storage and you have used
 Azure Storage Explorer to complete an initial bulk upload.
 
-You need to creat a lifecycle management policy using Powershell to move data
+You need to create a lifecycle management policy using Powershell to move data
 that has not been modified for the last 30 days to the hot tier to the cool tier.
 
 Complete the Powershell script.
@@ -12500,8 +12494,7 @@ What should you do?
 ### Answer:
 - use a lifecycle management policy 
 
-This is the obvouos answer to this question.
-
+This is the obviouos answer to this question.
 
 ---
 
@@ -12513,8 +12506,8 @@ This is the obvouos answer to this question.
 
 ## Q65:
 
-Your company implements block blod storage in a GPv2 SA.
-It is seldome necessary to access the data after initial input, 
+Your company implements block blob storage in a GPv2 SA.
+It is seldom necessary to access the data after initial input, 
 but it is occasionally required.
 Storage costs should be kept to a minimum.
 
@@ -12560,7 +12553,7 @@ for access should the case be.
 - up to 15 h
 
 This detail was mentioned in one of the previous answer to a question that 
-had archiving to a SA as its theme.
+had archiving to a SA as its topic.
 
 [Blob rehydration from the archive tier](https://learn.microsoft.com/en-us/azure/storage/blobs/archive-rehydrate-overview?tabs=azure-portal)    
 
@@ -12568,13 +12561,12 @@ had archiving to a SA as its theme.
 
 ### References:
 
-
 ---
 
 ## Q64:
 
-Your company implements block blod storage in a GPv2 SA.
-It also emply the follwoing **rule** to optimize costs.
+Your company implements block blob storage in a GPv2 SA.
+It also employ the follwoing **rule** to optimize costs.
 
 ```
 {
@@ -12632,7 +12624,6 @@ For each statement choose Yes/No.
 
 ### Answer:
 
-
 - previous blob version are deleted after 90 days afer creation
 Yes
 ```
@@ -12646,11 +12637,10 @@ Yes
 
 - rehydrating a blob from archive with Copy Blob operation resets that day after modification counter to zero
 No: the Copy Blob operation creates a separate copy of the blob and does not reset the 
-mofification counter on the original blob.
+modification counter on the original blob.
 
 - you should transition blobs from cool to hot tier to optimize performance
-yes: this ALSO reset the day after modification counter to zero if any changes are made to the blob contents.
-
+yes: this ALSO resets the day after modification counter to zero if any changes are made to the blob contents.
 
 ---
 
