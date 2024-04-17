@@ -10822,15 +10822,15 @@ AZ are separated groups of datacenters within a region.
 
 Your media production company recently moved all of its infrastructure into Azure.
 
-Every 14 days you run a batch to render several thousand video clips into various media formats for your customers. 
+Every 14 days you run a batch job to render several thousand video clips into various media formats for your customers. 
 At the moment the batch job runs on a sigle H-series VM.
 
 You need to design a scalable compute solution.
 The requirements are the following:
 
-- ti must use VM instance sizes smaller than the H-series
+- it must use VM instance sizes smaller than the H-series
 - it must support automatic scale out and scale in based on CPU metrics
-- it must minimi\ze deployment time
+- it must minimize deployment time
 - it must minimize admin overhead
 
 what should you do?
