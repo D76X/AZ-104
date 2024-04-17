@@ -16843,8 +16843,9 @@ on the MEID tenant that is associated to the subscription.
 Your organization uses **Micorsoft Entra ID Governance**.
 You are the Azure Administrator in the organization.
 
-You use **Microsoft Graph Powershell** to provide and manage identity and access lifecycle
-at a scale for all users and groups within the organization.
+You use **Microsoft Graph Powershell** to provide and manage 
+identity and access lifecycle at a scale for all users and 
+groups within the organization.
 
 You have a group named Sales.
 You need to grant users in the sales group the adequate level of access 
@@ -16865,11 +16866,11 @@ What should you do firts?
 
 In this scenario, you are essentially managing access to resources in your organization.
 You use MEID-EM with **Microsoft Graph Powershell v1.0**.
-**Since the users and group already exist**, you need to initiate the process by getting 
-the catalog identifier.
+**Since the users and group already exist**, you need to initiate the process by getting the catalog identifier.
 
 An **Access Package** is a collection of resources that is **governed by policies**.
-**Access Packages** are defined in containered called **Catalogs**.
+
+**Access Packages** are defined in a container called **Catalogs**.
 
 > You will require the ID of the (General) Catalog.
 
@@ -16879,17 +16880,15 @@ Get-MgBetaEnitelmentManagementAccessPackageCatalog -Filter "DisplayName eq 'Gene
 
 - step1:  retrieve the catalog identifier
 
-The remaining options do not apply as these are the follwing steps in the same workflow:
+The remaining options do not apply as these are the following steps in the same workflow:
 
 - step2: add the sales group to the catalog
 - step3: retrieve the catalog resources 
 - step4: retrieve the resource roles assigned to the catalog
 
 The **AP** assigns users to the roles of resources.
-When the type of the resource in the **AP** is a (security) group then the roles that 
-can be assigned are **Administrator Role** or **Member Role**. In this example the role
-to be aasigned to the users that reuest the **AP** is the **Member Role** for 
-the security group Sales. 
+When the type of the resource in the **AP** is a (security) group then the roles that can be assigned are **Administrator Role** or **Member Role**. 
+In this example the role to be assigned to the users that request the **AP** is the **Member Role** for the security group Sales. 
 
 ---
 
@@ -16932,8 +16931,7 @@ People in organizations to perform their job need access to various:
 
 Managing this access is challenging, as requirements change.
 This scenario gets more complicated when you collaborate with outside organizations.
-You may not know who in the other organization needs access to your organization's 
-resources, and they won't know what applications, groups, or sites your organization is using.
+You may not know who in the other organization needs access to your organization's resources, and they won't know what applications, groups, or sites your organization is using.
 
 > Enterprise organizations challenges when managing workforce access to resources:
 
@@ -16945,8 +16943,6 @@ resources, and they won't know what applications, groups, or sites your organiza
 
 - No one person may know all of the specific individuals in other organization's directories to be able to invite them
 - Even if they were able to invite these users, no one in that organization may remember to manage all of the users' access consistently
-
-
 
 ---
 
@@ -16968,8 +16964,7 @@ A user, **through a request / approval** process can be granted access to these 
 
 [Create an access package in entitlement management](https://learn.microsoft.com/en-us/entra/id-governance/entitlement-management-access-package-create)  
 
-An access package enables you to do a **one-time setup of resources and policies** that 
-**automatically** administers access for the life of the access package. 
+An access package enables you to do a **one-time setup of resources and policies** that **automatically** administers access for the life of the access package. 
 
 > Catalogs for Access Packages:
 
@@ -16990,8 +16985,7 @@ An access package enables you to do a **one-time setup of resources and policies
 - the **APM** is restricted to using the resources available in the catalog
 - The **Owner** of catalog **can**  add resources to a catalog
 
-For example, you might have a catalog owner who manages all the marketing resources 
-that can be requested. In this case, you could have a marketing catalog.
+For example, you might have a catalog owner who manages all the marketing resources that can be requested. In this case, you could have a marketing catalog.
 
 The APM see only catalogs that you have permission to create access packages in. 
 
@@ -17010,6 +17004,7 @@ The APM see only catalogs that you have permission to create access packages in.
 > AP Policies:
 
 - All access packages must have at least one policy for users to be assigned to them. 
+
 - When you create an access package, you can create an initial policy for:
   > users in your directory
   > users not in your directory
@@ -17032,10 +17027,9 @@ The APM see only catalogs that you have permission to create access packages in.
 > Changes to an AP:
 You can:
 
--  change the hidden setting
+- change the hidden setting
 - add or remove resource roles
 - and add additional policies
-
 
 ---
 
@@ -17044,20 +17038,20 @@ You can:
 Your company has a **Microsoft Entra ID Governance** subscription.
 
 You are assigning licenses to individual users using **group-based lisencing** in MEID.
-You use **Microsoft Graph Powershell** cmdlets.
 
-Your PowerShell script fails with a **MutuallyExclusiveVilotion** error.
+You use **Microsoft Graph Powershell** cmdlets.
+Your PowerShell script fails with a **MutuallyExclusiveViolation** error.
 
 You need to troubleshoot the issue.
-Wht is the underlying cause for this issue?
+What is the underlying cause for this issue?
 
-1. There are not enough available licences for one of the products specified in the grouop.
+1. There are not enough available licences for one of the products specified in the group.
 
 2. One of the products specified in the group contains a service plan that conflicts with another service plan that is already assigned to the user via a different product.
 
 3. One of the products specified in the group is not available in all locations because of local laws and regulations.
 
-4. One of the products specified in the goup contains a service plan that must be enabled for another service plan, in another product, to function.
+4. One of the products specified in the group contains a service plan that must be enabled for another service plan, in another product, to function.
 
 ---
 
@@ -17067,10 +17061,8 @@ Wht is the underlying cause for this issue?
 > using **group-based lisencing** in MEID
 > assigning licenses to individual users using **group-based lisencing** in MEID.
 
-The underlying ccause for a **MutuallyExclusiveVilotion** error is that a product that is 
-specified in a group to be assigned to the user contains a service plan that is in conflict 
-with the sevice plan for the same product already assigned to a user via another product
-that has alredy been assigned to the user.
+The underlying cause for a **MutuallyExclusiveViolation** error is that a product that is specified in a group to be assigned to the user contains a service plan that is in conflict with the sevice plan for the same product already assigned to a user via another product that has alredy been assigned 
+to the user.
 
 ---
 
@@ -17091,12 +17083,13 @@ Sctive Directory tenant.
 Users in the London office have **hybrid user objects** and they have been assigned 
 the **Microsoft Entra ID P1 licence**.
 
-A report from the support team shows that a large number fo tickets have been raised concerning uisers who ask for their apssowrds to be changed. The organization decides to enable **self-service password reset (SSPR)** in order to reduce the number of support tickets.
+A report from the support team shows that a large number of tickets have been raised concerning users who ask for their passowrds to be changed. 
+The organization decides to enable **self-service password reset (SSPR)** in order to reduce the number of support tickets.
 
 You enable **SSPR** via the Azure Portal and assign it to the **All Users security group**. However, tickets are still being raised by users located 
 in the London office.
 
-You need to find out what causes SSPR not ot work for users located 
+You need to find out what causes SSPR not to work for users located 
 in the London office.
 
 What is the correct root cause?
@@ -17116,9 +17109,9 @@ to allow **hybrid users who use SSPR**.
 
 The identity objects of the London users are hosted on the on-premise AD
 which sync with Microsoft Entra ID. When a user of the London office
-changes their passwordit will be updated in their on-prem AD.
+changes their password it will be updated in their on-prem AD.
 **By default Microsoft Connect** syncronizes password in one direction only:
-from the on-roem AD to MEID.
+from the on-prem AD to MEID.
 
 You must enable password writeback to allow the update of the password
 in MEID from the on-prem AD, as well.
@@ -17126,10 +17119,10 @@ in MEID from the on-prem AD, as well.
 The **All Users group** contains:
 
 - cloud-only members
-- directory synchrionized members (hybrid users)
+- directory synchronized members (hybrid users)
 - guest users
 
-Thsi group is automaticall created in MEID and it is ine of the 
+This group is automaticall created in MEID and it is one of the 
 default groups to which users within the tenant are added when they are created.
 
 **SSPR supports hybrid users that are synchronized from an on-prem AD**.
